@@ -23,7 +23,20 @@ public class Util {
             "What do you call a fake noodle? An impasta.",
             "What does it make you if you see a robbery at an Apple Store? An iwitness.",
             "What is an astronaut’s favorite key on a keyboard? The space bar.",
-            "Can February March? No but April May"
+            "Can February March? No but April May",
+            "How do cows stay up to date? They read the Moo-spaper.",
+            "What's the difference between a well-dressed man on a unicycle and a poorly-dressed man on a bicycle? Attire",
+            "Where do pirates get their hooks? Second hand stores.",
+            "What’s the most musical part of the chicken? The drumstick.",
+            "Why was the math book sad? Because it had so many problems.",
+            "Why was six scared of seven? Because seven \"ate\" nine.",
+            "Did you hear the rumor about the butter? Never mind, I shouldn’t spread it!",
+            "Why can’t a bicycle stand on it’s own? It is two tired.",
+            "What brand of underwear do scientists wear? Kelvin Klein.",
+            "Which days are the strongest? Saturday and Sunday, the rest are weekdays.",
+            "What's blue and not very heavy? Light blue.",
+            "What do you call a sad cup of coffee? Depresso.",
+            "What’s green and has wheels? Grass. I lied about the wheels."
     };
 
     /**
