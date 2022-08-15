@@ -1,19 +1,21 @@
 package io.github.pitzzahh.commands;
 
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
-import com.github.pitzzahh.utilities.SecurityUtil;
 import net.dv8tion.jda.api.entities.UserSnowflake;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import org.jetbrains.annotations.NotNull;
 import java.util.concurrent.TimeUnit;
 import io.github.pitzzahh.Util;
 import java.util.HashSet;
+import java.util.Arrays;
 import java.util.Random;
 import java.util.Set;
 
 public class CommandListener extends ListenerAdapter {
+
     private final Random RANDOM = new Random();
     private Set<Integer> pickedJokes = new HashSet<>();
+
     @Override
     public void onSlashCommandInteraction(@NotNull SlashCommandInteractionEvent event) {
         var command = event.getName();
@@ -24,15 +26,15 @@ public class CommandListener extends ListenerAdapter {
                 while (pickedJokes.contains(pick)) pick = RANDOM.nextInt(Util.JOKES.size());
                 pickedJokes.add(pick);
                 var joke = Util.JOKES.get(pick);
-                System.out.println("joke = " + SecurityUtil.decrypt(joke[0]).concat("?").concat(SecurityUtil.decrypt(joke[1])));
-                var question = SecurityUtil.decrypt(joke[0].trim());
+                System.out.println("joke = " + Arrays.toString(joke));
+                var question = joke[0];
                 event.reply(question + "?").queue();
                 try {
                     Thread.sleep(Util.getDelay(question));
                 } catch (InterruptedException e) {
                     throw new RuntimeException(e);
                 }
-                event.getChannel().sendMessage(SecurityUtil.decrypt(joke[1].trim())).queue();
+                event.getChannel().sendMessage(joke[1]).queue();
                 event.getChannel().sendMessage(":rofl:").queue();
             }
             case "sum" -> {

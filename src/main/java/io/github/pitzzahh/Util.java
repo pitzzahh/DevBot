@@ -7,6 +7,7 @@ import java.nio.file.Paths;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.stream.Collectors;
+import com.github.pitzzahh.utilities.SecurityUtil;
 
 public class Util {
 
@@ -18,9 +19,10 @@ public class Util {
      */
     public static void loadJokes() throws IOException {
        JOKES = getFileContents(new File("src/main/resources/jokes.txt"), 0)
-                .stream()
-                .map(e -> e.split("[?]"))
-                .collect(Collectors.toList());
+               .stream()
+               .map(e -> e.split("[?]"))
+               .map(e -> new String[]{SecurityUtil.decrypt(e[0]), SecurityUtil.decrypt(e[1])})
+               .collect(Collectors.toList());
     }
 
     /**
