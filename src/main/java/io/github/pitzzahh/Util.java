@@ -1,0 +1,35 @@
+package io.github.pitzzahh;
+
+public class Util {
+    public static final String[] JOKES = {
+            "Why did the scarecrow win an award? Because he was outstanding in his field.",
+            "What do you call a pig that does karate? A pork chop.",
+            "Why did the melon jump into the lake? It wanted to be a water-melon.",
+            "Why did the drum take a nap? It was beat.",
+            "What do you call two monkeys that share an Amazon account? Prime mates.",
+            "Why did the tree go to the dentist? It needed a root canal.",
+            "Where do cows go for entertainment? The mooooo-vies!",
+            "What’s an astronaut’s favorite candy? A Mars bar.",
+            "Where do sheep go to get their hair cut? The baa-baa shop.",
+            "How do you know when the moon has had enough to eat? When it’s full.",
+            "What kind of music do planets like? Neptunes.",
+            "How do you tell if a vampire is sick? By how much he is coffin.",
+            "What is the difference between a teacher and a train? One says, \"Spit out your gum,\" and the other says, \"Choo choo choo\".",
+            "Why does Humpty Dumpty love autumn? Because Humpty Dumpty had a great fall.",
+            "How do trees access the internet? They log in.",
+            "Why is it sad that parallel lines have so much in common? Because they’ll never meet.",
+            "Why are obtuse angles so depressed? Because they’re never right.",
+            "Why did the bee get married? He found his honey.",
+            "What do you call a fake noodle? An impasta.",
+            "What does it make you if you see a robbery at an Apple Store? An iwitness.",
+            "What is an astronaut’s favorite key on a keyboard? The space bar.",
+            "Can February March? No but April May",
+            "",
+            "",
+            "",
+            "",
+            "",
+            "",
+            "",
+    };
+}
