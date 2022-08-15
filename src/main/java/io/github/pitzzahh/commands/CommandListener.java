@@ -4,6 +4,7 @@ import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEve
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import org.jetbrains.annotations.NotNull;
 import io.github.pitzzahh.Util;
+import java.time.Duration;
 import java.util.Random;
 
 public class CommandListener extends ListenerAdapter {
@@ -33,6 +34,21 @@ public class CommandListener extends ListenerAdapter {
                 var sum = firstNumber.getAsInt() + secondNumber.getAsInt();
 
                 event.reply("The sum is: " + sum).queue();
+            }
+            case "terminate" -> {
+                var isOwner = event.getHook().getInteraction().getMember().isOwner();
+                if (isOwner) {
+                    event.reply("THE BOT IS OFFLINE").queue();
+                    System.exit(0);
+                }
+                else {
+                    event.reply("YOU DON'T HAVE PERMISSIONS TO SHUTDOWN THE BOT\nYOU HAVE BEEN MUTED FOR 10 minutes")
+                            .queue();
+                    event.getInteraction().getMember()
+                            .mute(true)
+                            .delay(Duration.ofMinutes(10))
+                            .queue();
+                }
             }
         }
     }
