@@ -1,12 +1,12 @@
 package io.github.pitzzahh.commands;
 
-import com.github.pitzzahh.utilities.SecurityUtil;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
+import com.github.pitzzahh.utilities.SecurityUtil;
 import net.dv8tion.jda.api.entities.UserSnowflake;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import org.jetbrains.annotations.NotNull;
+import java.util.concurrent.TimeUnit;
 import io.github.pitzzahh.Util;
-
 import java.util.HashSet;
 import java.util.Random;
 import java.util.Set;
@@ -19,19 +19,20 @@ public class CommandListener extends ListenerAdapter {
         var command = event.getName();
         switch (command) {
             case "joke" -> {
-                var pick = RANDOM.nextInt(Util.JOKES.length);
-                if (pickedJokes.size() == Util.JOKES.length) pickedJokes.clear();
-                while (pickedJokes.contains(pick)) pick = RANDOM.nextInt(Util.JOKES.length);
+                var pick = RANDOM.nextInt(Util.JOKES.size());
+                if (pickedJokes.size() == Util.JOKES.size()) pickedJokes.clear();
+                while (pickedJokes.contains(pick)) pick = RANDOM.nextInt(Util.JOKES.size());
                 pickedJokes.add(pick);
-                var joke = Util.JOKES[pick].split("[?]");
-                var question = SecurityUtil.decrypt(joke[0]);
+                var joke = Util.JOKES.get(pick);
+                System.out.println("joke = " + SecurityUtil.decrypt(joke[0]).concat("?").concat(SecurityUtil.decrypt(joke[1])));
+                var question = SecurityUtil.decrypt(joke[0].trim());
                 event.reply(question + "?").queue();
                 try {
                     Thread.sleep(Util.getDelay(question));
                 } catch (InterruptedException e) {
                     throw new RuntimeException(e);
                 }
-                event.getChannel().sendMessage(SecurityUtil.decrypt(joke[1])).queue();
+                event.getChannel().sendMessage(SecurityUtil.decrypt(joke[1].trim())).queue();
                 event.getChannel().sendMessage(":rofl:").queue();
             }
             case "sum" -> {
@@ -49,6 +50,11 @@ public class CommandListener extends ListenerAdapter {
                 var isOwner = event.getHook().getInteraction().getMember().isOwner();
                 if (isOwner) {
                     event.reply("THE BOT IS NOW OFFLINE").queue();
+                    try {
+                        TimeUnit.SECONDS.sleep(1);
+                    } catch (InterruptedException e) {
+                        throw new RuntimeException(e);
+                    }
                     System.exit(0);
                 }
                 else {
@@ -74,10 +80,8 @@ public class CommandListener extends ListenerAdapter {
                 final var TIME = System.currentTimeMillis();
                 event.reply("Pong!")
                         .setEphemeral(true)
-                        .flatMap(v ->
-                                event.getHook()
-                                        .editOriginalFormat("Pong: %d ms", System.currentTimeMillis() - TIME)
-                        ).queue();
+                        .flatMap(v -> v.editOriginalFormat("Pong: %d ms", System.currentTimeMillis() - TIME))
+                        .queue();
             }
         }
     }
