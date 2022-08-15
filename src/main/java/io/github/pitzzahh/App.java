@@ -25,6 +25,7 @@ public class App extends ListenerAdapter {
 
         var commands = jda.updateCommands();
         commands.addCommands(Commands.slash("joke", "Tells a random joker"));
+        commands.addCommands(Commands.slash("terminate", "Shutdown the bot"));
         commands.addCommands(Commands.slash("sum", "Add two numbers")
                 .addOptions(
                         new OptionData(OptionType.INTEGER, "firstnumber", "the first number", true)
