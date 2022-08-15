@@ -1,5 +1,6 @@
 package io.github.pitzzahh;
 
+import java.io.IOException;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.entities.Activity;
 import javax.security.auth.login.LoginException;
@@ -13,7 +14,7 @@ import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 
 public class App extends ListenerAdapter {
 
-    public static void main(String[] args) throws LoginException, InterruptedException {
+    public static void main(String[] args) throws LoginException, InterruptedException, IOException {
         if (args.length == 0) throw new IllegalStateException("TOKEN NOT PROVIDED");
         var jda = JDABuilder
                 .createDefault(args[0])
@@ -26,6 +27,7 @@ public class App extends ListenerAdapter {
         var server = jda.getGuildById("1008657297226088458");
         if (server == null) throw new IllegalStateException("Server ID is Invalid!");
         else {
+            Util.loadJokes();
             server.upsertCommand(Commands.slash("joke", "Tells a random joker"));
             server.upsertCommand(Commands.slash("terminate", "Shutdown the bot"));
             server.upsertCommand(Commands.slash("ping", "Calculate ping of the bot"));
