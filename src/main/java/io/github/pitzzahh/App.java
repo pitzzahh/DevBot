@@ -24,7 +24,8 @@ public class App extends ListenerAdapter {
                 .addEventListeners(new MessageListener())
                 .build()
                 .awaitReady();
-        var server = jda.getGuildById("1008657297226088458");
+        if (args.length == 1) throw new IllegalStateException("GUILD ID IS NOT PROVIDED");
+        var server = jda.getGuildById(args[1]);
         if (server == null) throw new IllegalStateException("Server ID is Invalid!");
         else {
             Util.loadJokes();
