@@ -3,6 +3,8 @@ package io.github.pitzzahh.commands;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.entities.UserSnowflake;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
+import com.github.pitzzahh.computing.Calculator;
+import com.github.pitzzahh.computing.Operation;
 import org.jetbrains.annotations.NotNull;
 import java.util.concurrent.TimeUnit;
 import io.github.pitzzahh.Util;
@@ -29,43 +31,37 @@ public class CommandListener extends ListenerAdapter {
                 System.out.println("joke = " + Arrays.toString(joke));
                 var question = joke[0];
                 event.reply(question + "?").queue();
-                try {
-                    Thread.sleep(Util.getDelay(question));
-                } catch (InterruptedException e) {
-                    throw new RuntimeException(e);
-                }
+                Util.sleep(Util.getDelay(question));
                 event.getChannel().sendMessage(joke[1]).queue();
                 event.getChannel().sendMessage(":rofl:").queue();
             }
             case "sum" -> {
                 var firstNumber = event.getOption("firstnumber");
                 var secondNumber = event.getOption("secondnumber");
-
-                if(firstNumber == null || secondNumber == null) return;
-
-                var sum = firstNumber.getAsInt() + secondNumber.getAsInt();
-
-                event.reply(String.format("The sum is: %s", "true")).queue();
+                var calculator = new Calculator<>();
+                calculator.setNumbers(firstNumber.getAsInt(), secondNumber.getAsInt());
+                try {
+                    var sum = calculator.calculate(Operation.ADD)
+                            .getCalculation();
+                    event.reply(String.format("The sum is: %s", sum.toString())).queue();
+                } catch (IllegalAccessException e) {
+                    throw new RuntimeException(e);
+                }
             }
             case "terminate" -> {
 
                 var isOwner = event.getHook().getInteraction().getMember().isOwner();
                 if (isOwner) {
                     event.reply("THE BOT IS NOW OFFLINE").queue();
-                    try {
-                        TimeUnit.SECONDS.sleep(1);
-                    } catch (InterruptedException e) {
-                        throw new RuntimeException(e);
-                    }
+                    Util.sleep(1000);
                     System.exit(0);
                 }
                 else {
-                    event.reply("YOU DON'T HAVE PERMISSIONS TO SHUTDOWN THE BOT\nYOU CANNOT SEND MESSAGES FOR 1 MINUTE")
+                    event.reply("YOU DON'T HAVE PERMISSIONS TO SHUTDOWN THE BOT\nYOU CANNOT SEND MESSAGES FOR 2 MINUTES")
                             .queue();
                     var userId = event.getInteraction()
                                         .getMember()
                                         .getId();
-
                     var standard = event.getGuild().getRolesByName("standard", false).stream().findAny().get();
                     var verified = event.getGuild().getRolesByName("verified", false).stream().findAny().get();
 
@@ -74,8 +70,14 @@ public class CommandListener extends ListenerAdapter {
                             .queue();
 
                     event.getGuild()
-                            .addRoleToMember(UserSnowflake.fromId(userId), standard)
+                            .modifyMemberRoles(event.getInteraction().getMember(), standard)
                             .queue();
+
+                    var isDone = event.getGuild()
+                            .addRoleToMember(UserSnowflake.fromId(userId), verified)
+                            .queueAfter(2, TimeUnit.MINUTES).isDone();
+
+                    if (isDone) event.getGuild().removeRoleFromMember(UserSnowflake.fromId(userId), standard).queue();
                 }
             }
             case "ping" -> {
