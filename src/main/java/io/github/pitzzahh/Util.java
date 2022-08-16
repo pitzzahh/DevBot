@@ -1,10 +1,14 @@
 package io.github.pitzzahh;
 
+import java.io.File;
 import java.net.URL;
 import java.util.List;
+import java.util.Arrays;
 import java.io.IOException;
+import java.util.Collection;
 import kotlin.text.Charsets;
 import java.util.Collections;
+import com.google.common.io.Files;
 import java.util.stream.Collectors;
 import java.util.concurrent.TimeUnit;
 import com.google.common.io.Resources;
@@ -13,6 +17,7 @@ import com.github.pitzzahh.utilities.SecurityUtil;
 public class Util {
 
     public static List<String[]> JOKES = Collections.EMPTY_LIST;
+    public static List<String> BAD_WORDS = Collections.EMPTY_LIST;
 
     /**
      * Loads the jokes from the text file and adding it to the {@code List<String[]> JOKES}.
@@ -27,14 +32,40 @@ public class Util {
     }
 
     /**
+     * Loads the bad words from the text file and adding it to the {@code List<String> BAD_WORDS}.
+     * @throws IOException if the file that contains the jokes does not exist or invalid.
+     */
+    public static void loadBadWords() throws IOException {
+        BAD_WORDS = getFileContents(new URL("https://raw.githubusercontent.com/pitzzahh/pitzzahh-bot/main/src/main/resources/bad_words.txt"))
+                .stream()
+                .map(e -> e.split(","))
+                .map(Arrays::asList)
+                .flatMap(Collection::stream)
+                .collect(Collectors.toList());
+    }
+
+    /**
      * Gets the file contents of each line and stores it to a {@code List<String>}.
-     * @param url the url that contains a file taht contains the jokes.
+     * @param url the url that contains a file, the file contents to read.
      * @return a {@code List<String>} the contents of the file.
      * @throws IOException if something is wrong with file operations.
      * @see Resources
      */
     public static List<String> getFileContents(URL url) throws IOException {
         return Resources.readLines(url, Charsets.UTF_8);
+    }
+
+    /**
+     * Gets the file contents of each line and stores it to a {@code List<String>}.
+     * @param file the file to get the contents.
+     * @return a {@code List<String>} the contents of the file.
+     * @throws IOException if something is wrong with file operations.
+     * @see Resources
+     */
+    public static List<String> getFileContents(File file) throws IOException {
+        return Files.readLines(file, Charsets.UTF_8)
+                .stream()
+                .collect(Collectors.toList());
     }
 
     /**
