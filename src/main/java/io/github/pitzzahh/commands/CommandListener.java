@@ -6,12 +6,12 @@ import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import com.github.pitzzahh.computing.Calculator;
 import com.github.pitzzahh.computing.Operation;
 import org.jetbrains.annotations.NotNull;
+import net.dv8tion.jda.api.EmbedBuilder;
 import java.util.concurrent.TimeUnit;
 import io.github.pitzzahh.Util;
-import java.util.HashSet;
-import java.util.Arrays;
-import java.util.Random;
-import java.util.Set;
+import java.math.BigDecimal;
+import java.util.*;
+import java.awt.*;
 
 public class CommandListener extends ListenerAdapter {
 
@@ -35,11 +35,15 @@ public class CommandListener extends ListenerAdapter {
                 event.getChannel().sendMessage(joke[1]).queue();
                 event.getChannel().sendMessage(":rofl:").queue();
             }
-            case "sum" -> {
-                var firstNumber = event.getOption("firstnumber");
-                var secondNumber = event.getOption("secondnumber");
+            case "add" -> {
+                var firstNumber = Optional.ofNullable(event.getOption("firstnumber"));
+                var secondNumber = Optional.ofNullable(event.getOption("secondnumber"));
+                if (firstNumber.isEmpty() || secondNumber.isEmpty()) return;
                 var calculator = new Calculator<>();
-                calculator.setNumbers(firstNumber.getAsInt(), secondNumber.getAsInt());
+                calculator.setNumbers(
+                        new BigDecimal(firstNumber.get().getAsString()),
+                        new BigDecimal(secondNumber.get().getAsString())
+                );
                 try {
                     var sum = calculator.calculate(Operation.ADD)
                             .getCalculation();
@@ -86,6 +90,34 @@ public class CommandListener extends ListenerAdapter {
                         .setEphemeral(true)
                         .flatMap(v -> v.editOriginalFormat("Pong: %d ms", System.currentTimeMillis() - TIME))
                         .queue();
+            }
+            case "help" -> {
+                var message = new EmbedBuilder();
+                message.setColor(Color.BLUE)
+                        .setTitle("Available Commands")
+                        .appendDescription("slash commands and message commands")
+                        .addBlankField(true)
+                        .addField(
+                                "Slash Commands",
+                                "/help : Shows how to use the bot.".concat("\n")
+                                .concat("/joke : Tells a random joker.").concat("\n")
+                                .concat("/ping : Calculates ping of the bot.").concat("\n")
+                                .concat("/add : Add two numbers.").concat("\n")
+                                .concat("-----------------------------------").concat("\n")
+                                ,false)
+                        .addField(
+                                "Message Commands",
+                                "print : replies the message that was send".concat("\n")
+                                .concat("example -> print hello..the reply will be hello").concat("\n")
+                                .concat("hi : The bot will greet you with a hello").concat("\n")
+                                .concat("hello : The bot will greet you with a hello").concat("\n")
+                                .concat("-----------------------------------").concat("\n")
+                                ,false
+                        )
+                        .setFooter("THIS MESSAGE WILL BE DELETED AFTER 5 MINUTES");
+
+                event.replyEmbeds(message.build())
+                        .queue(e -> e.deleteOriginal().queueAfter(5, TimeUnit.MINUTES));
             }
         }
     }
