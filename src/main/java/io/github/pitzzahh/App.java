@@ -39,6 +39,7 @@ public class App extends ListenerAdapter {
         if (server == null) throw new IllegalStateException("Server ID is Invalid!");
         else {
             Util.loadJokes();
+            Util.loadBadWords();
             server.upsertCommand(Commands.slash("joke", "Tells a random joker"));
             server.upsertCommand(Commands.slash("help", "Shows how to user the bot."));
             server.upsertCommand(Commands.slash("terminate", "Shutdown the bot"));
