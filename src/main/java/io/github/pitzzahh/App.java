@@ -12,11 +12,11 @@ import javax.security.auth.login.LoginException;
 import net.dv8tion.jda.api.entities.emoji.Emoji;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import io.github.pitzzahh.events.MessageListener;
+import net.dv8tion.jda.api.interactions.commands.build.Commands;
 import net.dv8tion.jda.api.requests.GatewayIntent;
 import com.github.pitzzahh.utilities.SecurityUtil;
 import io.github.pitzzahh.commands.CommandListener;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
-import net.dv8tion.jda.api.interactions.commands.build.Commands;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 
 public class App extends ListenerAdapter {
@@ -34,20 +34,21 @@ public class App extends ListenerAdapter {
                 .addEventListeners(new UserLogger())
                 .build()
                 .awaitReady();
-
         if (args.length == 1) throw new IllegalStateException("GUILD ID IS NOT PROVIDED");
         var server = jda.getGuildById(args[1]);
         if (server == null) throw new IllegalStateException("Server ID is Invalid!");
         else {
             Util.loadJokes();
             server.upsertCommand(Commands.slash("joke", "Tells a random joker"));
+            server.upsertCommand(Commands.slash("help", "Shows how to user the bot."));
             server.upsertCommand(Commands.slash("terminate", "Shutdown the bot"));
             server.upsertCommand(Commands.slash("ping", "Calculate ping of the bot"));
-            server.upsertCommand(Commands.slash("sum", "Add two numbers")
+            server.upsertCommand(Commands.slash("add", "Add two numbers")
                     .addOptions(
-                            new OptionData(OptionType.STRING, "firstnumber", "the first number", true),
-                            new OptionData(OptionType.STRING, "secondnumber", "the second number", true)
+                            new OptionData(OptionType.STRING, "firstnumber", "the first number"),
+                            new OptionData(OptionType.STRING, "secondnumber", "the second number")
                     ));
+            server.updateCommands();
             server.retrieveCommands().queue();
         }
     }
