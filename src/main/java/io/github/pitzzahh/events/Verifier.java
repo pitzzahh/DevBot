@@ -4,6 +4,7 @@ import net.dv8tion.jda.api.events.message.react.MessageReactionRemoveEvent;
 import net.dv8tion.jda.api.events.message.react.MessageReactionAddEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import org.jetbrains.annotations.NotNull;
+import java.util.Optional;
 
 public class Verifier extends ListenerAdapter {
 
@@ -43,15 +44,17 @@ public class Verifier extends ListenerAdapter {
             if (event.getEmoji().getName().equals("✅")) {
                 var message = event.getMessageId();
                 if (message.equals("1009060774901207221")) { // TODO: encrypt message id
-                    var user = event.getUser();
+                    var user = Optional.ofNullable(event.getUser());
                     var role = event.getGuild()
                             .getRolesByName("verified", false)
                             .stream()
                             .findAny()
                             .get();
-                    event.getGuild()
-                            .removeRoleFromMember(user, role)
-                            .queue();
+                    if (user.isPresent()) {
+                        event.getGuild()
+                                .removeRoleFromMember(user.get(), role)
+                                .queue();
+                    }
                 }
             }
         }
