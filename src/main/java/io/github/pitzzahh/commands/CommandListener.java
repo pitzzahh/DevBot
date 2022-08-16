@@ -99,26 +99,25 @@ public class CommandListener extends ListenerAdapter {
                         .addBlankField(true)
                         .addField(
                                 "Slash Commands",
-                                "/help\t: Shows how to use the bot.".concat("\n")
-                                .concat("/joke\t: Tells a random joker.").concat("\n")
-                                .concat("/ping\t: Calculates ping of the bot.").concat("\n")
-                                .concat("/add\t: Add two numbers.").concat("\n")
+                                "/help : Shows how to use the bot.".concat("\n")
+                                .concat("/joke : Tells a random joker.").concat("\n")
+                                .concat("/ping : Calculates ping of the bot.").concat("\n")
+                                .concat("/add : Add two numbers.").concat("\n")
                                 .concat("-----------------------------------").concat("\n")
                                 ,false)
                         .addField(
                                 "Message Commands",
-                                "print\t: replies the message that was send".concat("\n")
+                                "print : replies the message that was send".concat("\n")
                                 .concat("example -> print hello..the reply will be hello").concat("\n")
-                                .concat("hi\t: The bot will greet you with a hello").concat("\n")
-                                .concat("hello\t: The bot will greet you with a hello").concat("\n")
+                                .concat("hi : The bot will greet you with a hello").concat("\n")
+                                .concat("hello : The bot will greet you with a hello").concat("\n")
                                 .concat("-----------------------------------").concat("\n")
                                 ,false
                         )
                         .setFooter("THIS MESSAGE WILL BE DELETED AFTER 5 MINUTES");
 
-                event.getChannel()
-                        .sendMessageEmbeds(message.build())
-                        .queue(e -> e.delete().queueAfter(5, TimeUnit.MINUTES));
+                event.replyEmbeds(message.build())
+                        .queue(e -> e.deleteOriginal().queueAfter(5, TimeUnit.MINUTES));
             }
         }
     }
