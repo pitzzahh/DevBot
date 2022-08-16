@@ -5,6 +5,8 @@ import java.io.IOException;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Guild;
+import io.github.pitzzahh.events.Verifier;
+import io.github.pitzzahh.events.UserLogger;
 import net.dv8tion.jda.api.entities.Activity;
 import javax.security.auth.login.LoginException;
 import net.dv8tion.jda.api.entities.emoji.Emoji;
@@ -24,11 +26,15 @@ public class App extends ListenerAdapter {
         var jda = JDABuilder
                 .createDefault(args[0])
                 .enableIntents(GatewayIntent.MESSAGE_CONTENT)
+                .enableIntents(GatewayIntent.GUILD_MEMBERS)
                 .setActivity(Activity.listening("your messages \uD83D\uDCE9"))
                 .addEventListeners(new CommandListener())
                 .addEventListeners(new MessageListener())
+                .addEventListeners(new Verifier())
+                .addEventListeners(new UserLogger())
                 .build()
                 .awaitReady();
+
         if (args.length == 1) throw new IllegalStateException("GUILD ID IS NOT PROVIDED");
         var server = jda.getGuildById(args[1]);
         if (server == null) throw new IllegalStateException("Server ID is Invalid!");
