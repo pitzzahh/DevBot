@@ -1,5 +1,6 @@
 package io.github.pitzzahh.events;
 
+import net.dv8tion.jda.api.events.guild.member.GuildMemberRemoveEvent;
 import net.dv8tion.jda.api.events.guild.member.GuildMemberJoinEvent;
 import com.github.pitzzahh.utilities.SecurityUtil;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
@@ -20,5 +21,19 @@ public class UserLogger extends ListenerAdapter {
 
         guild.getTextChannelById(SecurityUtil.decrypt("MTAwODk1NDEyNzYzMzYyMTA0Mg=="))
                 .sendMessageFormat("%s joined the server!\nThanks for joining us", user.getName()).queue();
+    }
+
+    /**
+     * @param event
+     */
+    @Override
+    public void onGuildMemberRemove(@NotNull GuildMemberRemoveEvent event) {
+        var api = event.getJDA();
+        var user = event.getUser();
+
+        var guild = api.getGuildById(SecurityUtil.decrypt("MTAwODY1NzI5NzIyNjA4ODQ1OA=="));
+
+        guild.getTextChannelById(SecurityUtil.decrypt("MTAwODk1NDEyNzYzMzYyMTA0Mg=="))
+                .sendMessageFormat("%s leaved the server 😞 the server!\nThanks for joining us", user.getName()).queue();
     }
 }
