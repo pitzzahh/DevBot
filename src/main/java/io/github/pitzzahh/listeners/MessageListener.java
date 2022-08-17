@@ -28,8 +28,6 @@ import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import io.github.pitzzahh.CommandManager;
 import org.jetbrains.annotations.NotNull;
 import io.github.pitzzahh.Bot;
-import java.util.Collection;
-import java.util.Arrays;
 
 public class MessageListener extends ListenerAdapter {
 
@@ -44,22 +42,23 @@ public class MessageListener extends ListenerAdapter {
 
        if (message.startsWith(prefix)) {
            final var COMMAND_USED = message.replace(";","").split("\\s");
-           final var SIZE = Arrays.stream(COMMAND_USED)
-                   .map(Arrays::asList)
-                   .mapToLong(Collection::size)
-                   .sum();
-           var exist = false;
-           if (SIZE == 2) {
-               exist = MANAGER.getCOMMANDS()
+           var result = false;
+           if (COMMAND_USED.length == 1) {
+               result = MANAGER.getCOMMANDS()
                        .stream()
-                       .anyMatch(command -> command.name().equals(COMMAND_USED[1]));
+                       .anyMatch(command -> command.name().equals(COMMAND_USED[0]));
            }
-
-           if (exist || SIZE == 1) MANAGER.handle(event);
-           else {
-               event.getChannel().sendMessageFormat("%s is not a command", COMMAND_USED[1]).queue();
-               event.getChannel().sendMessage(";help").queue();
+           else if (COMMAND_USED.length >= 2) {
+               result = MANAGER.getCOMMANDS()
+                       .stream()
+                       .anyMatch(command -> command.name().equals(COMMAND_USED[0]));
            }
+           if (result) {
+               MANAGER.handle(event);
+               return;
+           }
+           event.getChannel().sendMessageFormat("%s is not a command", COMMAND_USED[0]).queue();
+           event.getChannel().sendMessage(";help").queue(m -> m.delete().queue());
        }
     }
 }

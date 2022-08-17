@@ -23,6 +23,7 @@
  */
 package io.github.pitzzahh;
 
+import io.github.pitzzahh.listeners.ButtonListener;
 import net.dv8tion.jda.api.sharding.DefaultShardManagerBuilder;
 import io.github.pitzzahh.listeners.MessageListener;
 import net.dv8tion.jda.api.requests.GatewayIntent;
@@ -50,7 +51,7 @@ public class Bot {
                 .setActivity(Activity.listening("your messages \uD83D\uDCE9"));
 
         shardManager = builder.build();
-        shardManager.addEventListener(new MessageListener());
+        shardManager.addEventListener(new MessageListener(), new ButtonListener());
 
     }
 

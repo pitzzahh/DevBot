@@ -21,43 +21,20 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package io.github.pitzzahh.command.commands;
+package io.github.pitzzahh.listeners;
 
-import io.github.pitzzahh.command.CommandContext;
-import io.github.pitzzahh.command.Command;
+import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
+import net.dv8tion.jda.api.hooks.ListenerAdapter;
+import org.jetbrains.annotations.NotNull;
 
-public class PingCommand implements Command {
-
-    /**
-     * Handles the command.
-     *
-     * @param context a {@code CommandContext}.
-     * @see CommandContext
-     */
-    @Override
-    public void  handle(CommandContext context) {
-        var jda = context.getEvent().getJDA();
-        jda.getRestPing().queue(
-                ping ->
-                        context.getEvent()
-                                .getChannel()
-                                .sendMessageFormat("Pong: %sms", ping)
-                                .queue()
-        );
-    }
+public class ButtonListener extends ListenerAdapter {
 
     @Override
-    public String name() {
-        return "ping";
-    }
-
-    /**
-     * The description of the command.
-     *
-     * @return the description of the command.
-     */
-    @Override
-    public String description() {
-        return "Shows the current ping from the bot to the discord servers.";
+    public void onButtonInteraction(@NotNull ButtonInteractionEvent event) {
+        final var ID = event.getButton().getId();
+        System.out.println("ID = " + ID);
+        if ("ok".equals(ID)) {
+            event.getInteraction().getMessage().delete().queue();
+        }
     }
 }

@@ -42,6 +42,12 @@ public class HelpCommand implements Command {
         this.MANAGER = commandManager;
     }
 
+    /**
+     * Handles the command.
+     *
+     * @param context a {@code CommandContext}.
+     * @see CommandContext
+     */
     @Override
     public void handle(CommandContext context) {
         final var ARGS = context.getArgs();
@@ -79,17 +85,32 @@ public class HelpCommand implements Command {
         }
     }
 
+    /**
+     * The name of the command.
+     *
+     * @return the name of the command.
+     */
     @Override
     public String name() {
         return "help";
     }
 
+    /**
+     * The description of the command.
+     *
+     * @return the description of the command.
+     */
     @Override
     public String description() {
         return "Shows the list of commands in the bot\n" +
-                "Usage: ;help [command]";
+                "Usage: ".concat(Bot.getConfig().get("PREFIX")).concat("help [command]");
     }
 
+    /**
+     * The possible aliases for a command.
+     *
+     * @return a {@code List<String>} containing the aliases of a command.
+     */
     @Override
     public List<String> aliases() {
         return List.of("commands","command", "command list", "com");

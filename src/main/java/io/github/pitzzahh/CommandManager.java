@@ -24,14 +24,15 @@
 package io.github.pitzzahh;
 
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
+import io.github.pitzzahh.command.commands.PasteCommand;
 import io.github.pitzzahh.command.commands.HelpCommand;
 import io.github.pitzzahh.command.commands.PingCommand;
 import io.github.pitzzahh.command.CommandContext;
 import io.github.pitzzahh.command.Command;
 import org.jetbrains.annotations.NotNull;
-import java.util.Optional;
 import java.util.regex.Pattern;
 import java.util.ArrayList;
+import java.util.Optional;
 import java.util.Arrays;
 import java.util.List;
 
@@ -40,6 +41,7 @@ public class CommandManager {
 
     public CommandManager() {
         addCommand(new PingCommand());
+        addCommand(new PasteCommand());
         addCommand(new HelpCommand(this));
     }
 
