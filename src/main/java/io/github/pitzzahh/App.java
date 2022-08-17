@@ -62,7 +62,7 @@ public class App extends ListenerAdapter {
         var embedBuilder = new EmbedBuilder();
         embedBuilder.setColor(Color.CYAN);
         embedBuilder.setTitle("Verify yourself!");
-        embedBuilder.addField("How?","Press the agree button to verify", true);
+        embedBuilder.addField("How?","Press the ✅ emoji to verify", false);
         embedBuilder.setFooter("Created by pitzzahh-bot#3464", server.getIconUrl());
 
         server.getTextChannelById(SecurityUtil.decrypt("MTAwODY1NzI5NzIyNjA4ODQ2MA=="))
