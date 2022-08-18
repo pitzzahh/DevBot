@@ -41,16 +41,16 @@ public class ButtonListener extends ListenerAdapter {
     @Override
     public void onButtonInteraction(@NotNull ButtonInteractionEvent event) {
         final var ID = event.getButton().getId();
-        final var USER = event.getUser();
-        System.out.println("ID = " + ID);
+        final var MEMBER = event.getMember();
         if ("ok".equals(ID)) event.getInteraction().getMessage().delete().queue();
         else if ("verify-button".equals(ID)) {
             final var VERIFIED_ROLE = Objects.requireNonNull(event.getGuild()).getRolesByName("verified", false).stream().findAny();
             if (VERIFIED_ROLE.isPresent()) {
-                var isVerified = USER.getJDA().getRoles()
+                assert MEMBER != null;
+                var isVerified = MEMBER.getRoles()
                         .stream()
                         .map(Role::getName)
-                        .anyMatch(e -> e.equals(VERIFIED_ROLE.get().getName()));
+                        .anyMatch(e -> VERIFIED_ROLE.get().getName().equals(e));
                 if (isVerified) {
                     EMBED_BUILDER.clear()
                             .clearFields()
@@ -66,14 +66,15 @@ public class ButtonListener extends ListenerAdapter {
                 else {
                     EMBED_BUILDER.clear()
                             .clearFields()
-                            .setColor(Color.BLUE.brighter())
+                            .setColor(Color.BLUE)
                             .setTitle("Verified ✅")
                             .setTimestamp(LocalDateTime.now(ZoneId.of("UTC")).plusMinutes(1))
                             .setFooter("This message will be automatically deleted");
 
-                    event.getGuild().addRoleToMember(USER, VERIFIED_ROLE.get()).queue();
+                    event.getGuild().addRoleToMember(MEMBER, VERIFIED_ROLE.get()).queue();
                     event.getInteraction()
                             .replyEmbeds(EMBED_BUILDER.build())
+                            .setEphemeral(true)
                             .queue(e -> e.deleteOriginal().queueAfter(1, TimeUnit.MINUTES));
                 }
             }
