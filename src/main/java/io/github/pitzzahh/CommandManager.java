@@ -24,7 +24,7 @@
 package io.github.pitzzahh;
 
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
-import io.github.pitzzahh.command.commands.PasteCommand;
+import io.github.pitzzahh.command.commands.FormatCommand;
 import io.github.pitzzahh.command.commands.HelpCommand;
 import io.github.pitzzahh.command.commands.PingCommand;
 import io.github.pitzzahh.command.CommandContext;
@@ -41,7 +41,7 @@ public class CommandManager {
 
     public CommandManager() {
         addCommand(new PingCommand());
-        addCommand(new PasteCommand());
+        addCommand(new FormatCommand());
         addCommand(new HelpCommand(this));
     }
 
@@ -78,7 +78,10 @@ public class CommandManager {
         event.getChannel().sendTyping().queue();
         final var ARGS = Arrays.asList(SPLIT).subList(1, SPLIT.length);
         final var COMMAND_CONTEXT = new CommandContext(event, ARGS);
-        COMMAND.ifPresent(command -> command.handle(COMMAND_CONTEXT));
+        COMMAND.ifPresentOrElse(command -> command.handle(COMMAND_CONTEXT), () -> {
+            event.getChannel().sendMessageFormat("%s is not a command", INVOKED).queue();
+            event.getChannel().sendMessage(";help").queue(m -> m.delete().queue());
+        });
     }
 
     /**

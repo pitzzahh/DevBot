@@ -23,25 +23,17 @@
  */
 package io.github.pitzzahh.command.commands;
 
-import com.besaba.revonline.pastebinapi.impl.factory.PastebinFactory;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
-import com.besaba.revonline.pastebinapi.paste.PasteVisiblity;
 import net.dv8tion.jda.api.interactions.components.ActionRow;
-import com.besaba.revonline.pastebinapi.paste.PasteExpire;
-import com.besaba.revonline.pastebinapi.Pastebin;
 import io.github.pitzzahh.command.CommandContext;
-import io.github.pitzzahh.command.Command;
 import net.dv8tion.jda.api.MessageBuilder;
-import net.dv8tion.jda.api.EmbedBuilder;
+import io.github.pitzzahh.command.Command;
+import org.jetbrains.annotations.NotNull;
 import io.github.pitzzahh.Bot;
-import java.awt.*;
 
-public class PasteCommand implements Command {
+public class FormatCommand implements Command {
 
-    private final PastebinFactory FACTORY = new PastebinFactory();
-    private final Pastebin PASTEBIN = FACTORY.createPastebin(Bot.getConfig().get("DEV_KEY"));
     private final MessageBuilder MESSAGE_BUILDER = new MessageBuilder();
-    private final EmbedBuilder EMBED_BUILDER = new EmbedBuilder();
 
     /**
      * Handles the command.
@@ -50,7 +42,7 @@ public class PasteCommand implements Command {
      * @see CommandContext
      */
     @Override
-    public void handle(CommandContext context) {
+    public void handle(@NotNull CommandContext context) {
         final var ARGS = context.getArgs();
         final var CHANNEL = context.getEvent().getChannel();
 
@@ -58,9 +50,7 @@ public class PasteCommand implements Command {
             final var BUTTON = Button.primary("ok", "okay");
             MESSAGE_BUILDER.clear()
                     .append("MISSING CONTENT")
-                    .setActionRows(
-                            ActionRow.of(BUTTON)
-                    );
+                    .setActionRows(ActionRow.of(BUTTON));
             CHANNEL.sendMessage(MESSAGE_BUILDER.build()).queue();
             return;
         }
@@ -68,41 +58,14 @@ public class PasteCommand implements Command {
         final var MESSAGE = context.getEvent().getMessage().getContentRaw();
         final var INDEX = MESSAGE.indexOf(LANGUAGE) + LANGUAGE.length();
         final var CONTENT = MESSAGE.substring(INDEX).trim();
-
-        // get a paste builder to build the paste I want to publish
-        final var PASTE_BUILDER = FACTORY.createPaste();
-
-        PASTE_BUILDER
-                .setTitle("PASTE")
-                .setRaw(CONTENT) // What will be inside the paste?
-                .setMachineFriendlyLanguage(LANGUAGE) // Which syntax will use the paste?
-                .setVisiblity(PasteVisiblity.Public)  // What is the visibility of this paste?
-                .setExpire(PasteExpire.TenMinutes);  // When the paste will expire?
-
-        final var PASTE = PASTE_BUILDER.build();
-
-        final var RESULT = PASTEBIN.post(PASTE); // TODO: fix error cannot connect to pastebin endpoint.
-
-        if (RESULT.hasError()) {
-            EMBED_BUILDER.clear()
-                    .clearFields()
-                    .setColor(Color.RED.brighter())
-                    .setTitle(String.format("ERROR: %s", RESULT.getError()));
-            context.getEvent().getChannel().sendMessageEmbeds(EMBED_BUILDER.build()).queue();
-            return;
-        }
-
-        EMBED_BUILDER.clear()
-                .clearFields()
-                .setColor(Color.BLUE.brighter())
-                .setTitle("From: ", RESULT.get())
-                .setDescription("```")
-                .appendDescription(PASTE.getMachineFriendlyLanguage())
-                .appendDescription("\n")
-                .appendDescription(PASTE.getRaw().get())
-                .appendDescription("```");
-
-        CHANNEL.sendMessageEmbeds(EMBED_BUILDER.build()).queue();
+        context.getEvent().getMessage()
+                .reply("```" + LANGUAGE + "\n" + CONTENT + "```")
+                .queue(
+                        message -> context.event()
+                                .getMessage()
+                                .delete()
+                                .queue()
+                );
     }
 
     /**
@@ -112,7 +75,7 @@ public class PasteCommand implements Command {
      */
     @Override
     public String name() {
-        return "paste";
+        return "format";
     }
 
     /**
@@ -122,7 +85,7 @@ public class PasteCommand implements Command {
      */
     @Override
     public String description() {
-        return "Creates a paste on the pastebin\n" +
-                "Usage: ;paste [language] [content]";
+        return "Formats a code.\n" +
+                "Usage: ".concat(Bot.getConfig().get("PREFIX").concat(name())).concat(" [language] [content]");
     }
 }

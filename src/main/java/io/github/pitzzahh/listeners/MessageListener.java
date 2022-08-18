@@ -41,24 +41,8 @@ public class MessageListener extends ListenerAdapter {
         var message = event.getMessage().getContentRaw();
 
        if (message.startsWith(prefix)) {
-           final var COMMAND_USED = message.replace(";","").split("\\s");
-           var result = false;
-           if (COMMAND_USED.length == 1) {
-               result = MANAGER.getCOMMANDS()
-                       .stream()
-                       .anyMatch(command -> command.name().equals(COMMAND_USED[0]));
-           }
-           else if (COMMAND_USED.length >= 2) {
-               result = MANAGER.getCOMMANDS()
-                       .stream()
-                       .anyMatch(command -> command.name().equals(COMMAND_USED[0]));
-           }
-           if (result) {
-               MANAGER.handle(event);
-               return;
-           }
-           event.getChannel().sendMessageFormat("%s is not a command", COMMAND_USED[0]).queue();
-           event.getChannel().sendMessage(";help").queue(m -> m.delete().queue());
+           // final var COMMAND_USED = message.replace(";","").split("\\s");
+           MANAGER.handle(event);
        }
     }
 }
