@@ -69,6 +69,10 @@ public class CommandManager {
                 .findAny();
     }
 
+    /**
+     * Handles commands.
+     * @param event the event that happened.
+     */
     public void handle(MessageReceivedEvent event) {
         final var SPLIT = event.getMessage().getContentRaw()
                 .replaceFirst("(?i)".concat(Pattern.quote(Bot.getConfig().get("PREFIX"))), "")
@@ -78,10 +82,10 @@ public class CommandManager {
         event.getChannel().sendTyping().queue();
         final var ARGS = Arrays.asList(SPLIT).subList(1, SPLIT.length);
         final var COMMAND_CONTEXT = new CommandContext(event, ARGS);
-        COMMAND.ifPresentOrElse(command -> command.handle(COMMAND_CONTEXT), () -> {
-            event.getChannel().sendMessageFormat("%s is not a command", INVOKED).queue();
-            event.getChannel().sendMessage(";help").queue(m -> m.delete().queue());
-        });
+        COMMAND.ifPresentOrElse(command -> command.handle(COMMAND_CONTEXT),
+                () -> event.getMessage().reply(String.format("%s is not a command", INVOKED)).queue(
+                e -> e.getChannel().sendMessage(";help").queue(m -> m.delete().queue())
+        ));
     }
 
     /**
