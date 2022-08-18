@@ -26,15 +26,58 @@ package io.github.pitzzahh.listeners;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import org.jetbrains.annotations.NotNull;
+import net.dv8tion.jda.api.entities.Role;
+import net.dv8tion.jda.api.EmbedBuilder;
+import java.util.concurrent.TimeUnit;
+import java.time.LocalDateTime;
+import java.util.Objects;
+import java.time.ZoneId;
+import java.awt.*;
 
 public class ButtonListener extends ListenerAdapter {
+
+    private final EmbedBuilder EMBED_BUILDER = new EmbedBuilder();
 
     @Override
     public void onButtonInteraction(@NotNull ButtonInteractionEvent event) {
         final var ID = event.getButton().getId();
-        System.out.println("ID = " + ID);
-        if ("ok".equals(ID)) {
-            event.getInteraction().getMessage().delete().queue();
+        final var MEMBER = event.getMember();
+        if ("ok".equals(ID)) event.getInteraction().getMessage().delete().queue();
+        else if ("verify-button".equals(ID)) {
+            final var VERIFIED_ROLE = Objects.requireNonNull(event.getGuild()).getRolesByName("verified", false).stream().findAny();
+            if (VERIFIED_ROLE.isPresent()) {
+                assert MEMBER != null;
+                var isVerified = MEMBER.getRoles()
+                        .stream()
+                        .map(Role::getName)
+                        .anyMatch(e -> VERIFIED_ROLE.get().getName().equals(e));
+                if (isVerified) {
+                    EMBED_BUILDER.clear()
+                            .clearFields()
+                            .setColor(Color.RED)
+                            .setTitle("Already Verified")
+                            .setTimestamp(LocalDateTime.now(ZoneId.of("UTC")).plusMinutes(1))
+                            .setFooter("This message will be automatically deleted");
+                    event.getInteraction()
+                            .replyEmbeds(EMBED_BUILDER.build())
+                            .setEphemeral(true)
+                            .queue(e -> e.deleteOriginal().queueAfter(1, TimeUnit.MINUTES));
+                }
+                else {
+                    EMBED_BUILDER.clear()
+                            .clearFields()
+                            .setColor(Color.BLUE)
+                            .setTitle("Verified ✅")
+                            .setTimestamp(LocalDateTime.now(ZoneId.of("UTC")).plusMinutes(1))
+                            .setFooter("This message will be automatically deleted");
+
+                    event.getGuild().addRoleToMember(MEMBER, VERIFIED_ROLE.get()).queue();
+                    event.getInteraction()
+                            .replyEmbeds(EMBED_BUILDER.build())
+                            .setEphemeral(true)
+                            .queue(e -> e.deleteOriginal().queueAfter(1, TimeUnit.MINUTES));
+                }
+            }
         }
     }
 }

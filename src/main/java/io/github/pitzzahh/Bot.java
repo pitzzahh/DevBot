@@ -23,9 +23,9 @@
  */
 package io.github.pitzzahh;
 
-import io.github.pitzzahh.listeners.ButtonListener;
 import net.dv8tion.jda.api.sharding.DefaultShardManagerBuilder;
 import io.github.pitzzahh.listeners.MessageListener;
+import io.github.pitzzahh.listeners.ButtonListener;
 import net.dv8tion.jda.api.requests.GatewayIntent;
 import net.dv8tion.jda.api.sharding.ShardManager;
 import javax.security.auth.login.LoginException;
