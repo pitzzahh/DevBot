@@ -46,7 +46,7 @@ public class App {
         var applicationId = Bot.getConfig().get("APP_ID_BOT");
         var steamId = Bot.getConfig().get("STEAM_ID");
         var handlers = new DiscordEventHandlers();
-        handlers.ready = (user) -> Print.printf("%s is ready", user.username);
+        handlers.ready = (user) -> Print.println(String.format("%s is ready", user.username));
         lib.Discord_Initialize(applicationId, handlers, true, steamId);
         DiscordRichPresence presence = new DiscordRichPresence();
         presence.state = "Coding solo";
@@ -80,13 +80,15 @@ public class App {
         var applicationId = Bot.getConfig().get("APP_ID_IDEA");
         var steamId = Bot.getConfig().get("STEAM_ID");
         var handlers = new DiscordEventHandlers();
-        handlers.ready = (user) -> Print.printf("%s is ready", user.username);
+        handlers.ready = (user) -> Print.println(String.format("%s is ready", user.username));
         lib.Discord_Initialize(applicationId, handlers, true, steamId);
         DiscordRichPresence presence = new DiscordRichPresence();
         presence.state = "Coding [;] pitzzahh-bot";
-        presence.startTimestamp = System.currentTimeMillis() / 1000; // epoch second
+        presence.startTimestamp = System.currentTimeMillis() / 1000;
         presence.largeImageKey = "idea";
         presence.largeImageText = "IntelliJ IDEA Community Edition";
+        presence.smallImageKey = "pizza";
+        presence.smallImageText = "[;] pitzzahh-bot";
         lib.Discord_UpdatePresence(presence);
 
         new Thread(() -> {
