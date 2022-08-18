@@ -40,9 +40,6 @@ public class MessageListener extends ListenerAdapter {
         var prefix = Bot.getConfig().get("PREFIX");
         var message = event.getMessage().getContentRaw();
 
-       if (message.startsWith(prefix)) {
-           // final var COMMAND_USED = message.replace(";","").split("\\s");
-           MANAGER.handle(event);
-       }
+       if (message.startsWith(prefix)) MANAGER.handle(event);
     }
 }
