@@ -34,17 +34,24 @@
         </dependency>
 
         <dependency>
-            <groupId>com.github.marcoacierno</groupId>
-            <artifactId>pastebin-java-api</artifactId>
-            <version>0.2.1</version>
+            <groupId>club.minnced</groupId>
+            <artifactId>java-discord-rpc</artifactId>
+            <version>2.0.2</version>
+        </dependency>
+
+        <dependency>
+            <groupId>io.github.pitzzahh</groupId>
+            <artifactId>util-classes</artifactId>
+            <version>1.0.6</version>
         </dependency>
 
     </dependencies>
 
     <repositories>
         <repository>
-            <id>jitpack.io</id>
-            <url>https://jitpack.io</url>
+            <id>jcenter</id>
+            <url>https://jcenter.bintray.com</url>
+            <name>jcenter-bintray</name>
         </repository>
     </repositories>
 
