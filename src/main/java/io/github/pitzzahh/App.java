@@ -22,7 +22,7 @@
  * SOFTWARE.
  */
 
-import io.github.pitzzahh.Bot;
+package io.github.pitzzahh;import io.github.pitzzahh.Bot;
 
 import javax.security.auth.login.LoginException;
 

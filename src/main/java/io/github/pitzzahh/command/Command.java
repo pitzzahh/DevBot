@@ -30,6 +30,11 @@ import java.util.List;
  */
 public interface Command {
 
+    /**
+     * Handles the command.
+     * @param context a {@code CommandContext}.
+     * @see CommandContext
+     */
     void handle(CommandContext context);
 
     /**
@@ -44,6 +49,10 @@ public interface Command {
      */
     String description();
 
+    /**
+     * The possible aliases for a command.
+     * @return a {@code List<String>} containing the aliases of a command.
+     */
     default List<String> aliases() {
         return List.of();
     }

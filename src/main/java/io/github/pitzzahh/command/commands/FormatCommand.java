@@ -23,10 +23,17 @@
  */
 package io.github.pitzzahh.command.commands;
 
+import net.dv8tion.jda.api.interactions.components.buttons.Button;
+import net.dv8tion.jda.api.interactions.components.ActionRow;
 import io.github.pitzzahh.command.CommandContext;
+import net.dv8tion.jda.api.MessageBuilder;
 import io.github.pitzzahh.command.Command;
+import org.jetbrains.annotations.NotNull;
+import io.github.pitzzahh.Bot;
 
-public class PingCommand implements Command {
+public class FormatCommand implements Command {
+
+    private final MessageBuilder MESSAGE_BUILDER = new MessageBuilder();
 
     /**
      * Handles the command.
@@ -35,20 +42,40 @@ public class PingCommand implements Command {
      * @see CommandContext
      */
     @Override
-    public void  handle(CommandContext context) {
-        var jda = context.getEvent().getJDA();
-        jda.getRestPing().queue(
-                ping ->
-                        context.getEvent()
-                                .getChannel()
-                                .sendMessageFormat("Pong: %sms", ping)
+    public void handle(@NotNull CommandContext context) {
+        final var ARGS = context.getArgs();
+        final var CHANNEL = context.getEvent().getChannel();
+
+        if (ARGS.size() < 2) {
+            final var BUTTON = Button.primary("ok", "okay");
+            MESSAGE_BUILDER.clear()
+                    .append("MISSING CONTENT")
+                    .setActionRows(ActionRow.of(BUTTON));
+            CHANNEL.sendMessage(MESSAGE_BUILDER.build()).queue();
+            return;
+        }
+        final var LANGUAGE = ARGS.get(0);
+        final var MESSAGE = context.getEvent().getMessage().getContentRaw();
+        final var INDEX = MESSAGE.indexOf(LANGUAGE) + LANGUAGE.length();
+        final var CONTENT = MESSAGE.substring(INDEX).trim();
+        context.getEvent().getMessage()
+                .reply("```" + LANGUAGE + "\n" + CONTENT + "```")
+                .queue(
+                        message -> context.event()
+                                .getMessage()
+                                .delete()
                                 .queue()
-        );
+                );
     }
 
+    /**
+     * The name of the command.
+     *
+     * @return the name of the command.
+     */
     @Override
     public String name() {
-        return "ping";
+        return "format";
     }
 
     /**
@@ -58,6 +85,7 @@ public class PingCommand implements Command {
      */
     @Override
     public String description() {
-        return "Shows the current ping from the bot to the discord servers.";
+        return "Formats a code.\n" +
+                "Usage: ".concat(Bot.getConfig().get("PREFIX").concat(name())).concat(" [language] [content]");
     }
 }

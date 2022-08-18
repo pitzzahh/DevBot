@@ -28,8 +28,6 @@ import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import io.github.pitzzahh.CommandManager;
 import org.jetbrains.annotations.NotNull;
 import io.github.pitzzahh.Bot;
-import java.util.Collection;
-import java.util.Arrays;
 
 public class MessageListener extends ListenerAdapter {
 
@@ -43,23 +41,8 @@ public class MessageListener extends ListenerAdapter {
         var message = event.getMessage().getContentRaw();
 
        if (message.startsWith(prefix)) {
-           final var COMMAND_USED = message.replace(";","").split("\\s");
-           final var SIZE = Arrays.stream(COMMAND_USED)
-                   .map(Arrays::asList)
-                   .mapToLong(Collection::size)
-                   .sum();
-           var exist = false;
-           if (SIZE == 2) {
-               exist = MANAGER.getCOMMANDS()
-                       .stream()
-                       .anyMatch(command -> command.name().equals(COMMAND_USED[1]));
-           }
-
-           if (exist || SIZE == 1) MANAGER.handle(event);
-           else {
-               event.getChannel().sendMessageFormat("%s is not a command", COMMAND_USED[1]).queue();
-               event.getChannel().sendMessage(";help").queue();
-           }
+           // final var COMMAND_USED = message.replace(";","").split("\\s");
+           MANAGER.handle(event);
        }
     }
 }
