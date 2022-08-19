@@ -21,13 +21,13 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package io.github.pitzzahh.command.chat_commands;
+package io.github.pitzzahh.chat_command.chat_commands;
 
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import net.dv8tion.jda.api.interactions.components.ActionRow;
-import io.github.pitzzahh.command.CommandContext;
+import io.github.pitzzahh.chat_command.CommandContext;
 import net.dv8tion.jda.api.MessageBuilder;
-import io.github.pitzzahh.command.Command;
+import io.github.pitzzahh.chat_command.Command;
 import org.jetbrains.annotations.NotNull;
 import io.github.pitzzahh.Bot;
 
@@ -36,7 +36,7 @@ public class FormatCommand implements Command {
     private final MessageBuilder MESSAGE_BUILDER = new MessageBuilder();
 
     /**
-     * Handles the command.
+     * Handles the chat_command.
      *
      * @param context a {@code CommandContext}.
      * @see CommandContext
@@ -69,9 +69,9 @@ public class FormatCommand implements Command {
     }
 
     /**
-     * The name of the command.
+     * The name of the chat_command.
      *
-     * @return the name of the command.
+     * @return the name of the chat_command.
      */
     @Override
     public String name() {
@@ -79,9 +79,9 @@ public class FormatCommand implements Command {
     }
 
     /**
-     * The description of the command.
+     * The description of the chat_command.
      *
-     * @return the description of the command.
+     * @return the description of the chat_command.
      */
     @Override
     public String description() {

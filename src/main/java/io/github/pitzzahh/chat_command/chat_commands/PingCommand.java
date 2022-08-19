@@ -21,15 +21,15 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package io.github.pitzzahh.command.chat_commands;
+package io.github.pitzzahh.chat_command.chat_commands;
 
-import io.github.pitzzahh.command.CommandContext;
-import io.github.pitzzahh.command.Command;
+import io.github.pitzzahh.chat_command.CommandContext;
+import io.github.pitzzahh.chat_command.Command;
 
 public class PingCommand implements Command {
 
     /**
-     * Handles the command.
+     * Handles the chat_command.
      *
      * @param context a {@code CommandContext}.
      * @see CommandContext
@@ -52,9 +52,9 @@ public class PingCommand implements Command {
     }
 
     /**
-     * The description of the command.
+     * The description of the chat_command.
      *
-     * @return the description of the command.
+     * @return the description of the chat_command.
      */
     @Override
     public String description() {

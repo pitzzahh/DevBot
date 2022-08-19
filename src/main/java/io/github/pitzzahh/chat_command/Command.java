@@ -21,16 +21,41 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package io.github.pitzzahh.command;
-
-import net.dv8tion.jda.api.entities.Guild;
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
+package io.github.pitzzahh.chat_command;
 
 import java.util.List;
 
-public interface ICommandContext {
-    Guild getGuild();
-    MessageReceivedEvent getEvent();
+/**
+ * Interface used to handle chat_commands.
+ */
+public interface Command {
 
-    List<String> getArgs();
+    /**
+     * Handles the chat_command.
+     * @param context a {@code CommandContext}.
+     * @see CommandContext
+     */
+    void handle(CommandContext context);
+
+    /**
+     * The name of the chat_command.
+     * @return the name of the chat_command.
+     */
+    String name();
+
+    /**
+     * The description of the chat_command.
+     * @return the description of the chat_command.
+     */
+    String description();
+
+    /**
+     * The possible aliases for a chat_command.
+     * @return a {@code List<String>} containing the aliases of a chat_command.
+     */
+    default List<String> aliases() {
+        return List.of();
+    }
+
+
 }

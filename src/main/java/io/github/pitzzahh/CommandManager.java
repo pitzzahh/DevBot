@@ -24,11 +24,11 @@
 package io.github.pitzzahh;
 
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
-import io.github.pitzzahh.command.chat_commands.FormatCommand;
-import io.github.pitzzahh.command.chat_commands.HelpCommand;
-import io.github.pitzzahh.command.chat_commands.PingCommand;
-import io.github.pitzzahh.command.CommandContext;
-import io.github.pitzzahh.command.Command;
+import io.github.pitzzahh.chat_command.chat_commands.FormatCommand;
+import io.github.pitzzahh.chat_command.chat_commands.HelpCommand;
+import io.github.pitzzahh.chat_command.chat_commands.PingCommand;
+import io.github.pitzzahh.chat_command.CommandContext;
+import io.github.pitzzahh.chat_command.Command;
 import org.jetbrains.annotations.NotNull;
 import java.util.regex.Pattern;
 import java.util.ArrayList;
@@ -46,8 +46,8 @@ public class CommandManager {
     }
 
     /**
-     * Adds a command.
-     * @param command the command to add.
+     * Adds a chat_command.
+     * @param command the chat_command to add.
      */
     private void addCommand(Command command) {
         var found = this.COMMANDS.stream()
@@ -57,8 +57,8 @@ public class CommandManager {
     }
 
     /**
-     * Gets a command from the list.
-     * @param s the name of the command
+     * Gets a chat_command from the list.
+     * @param s the name of the chat_command
      * @return a {@code Command}.
      */
     public Optional<Command> getCommand(@NotNull final String s) {
@@ -83,7 +83,7 @@ public class CommandManager {
         final var ARGS = Arrays.asList(SPLIT).subList(1, SPLIT.length);
         final var COMMAND_CONTEXT = new CommandContext(event, ARGS);
         COMMAND.ifPresentOrElse(command -> command.handle(COMMAND_CONTEXT),
-                () -> event.getMessage().reply(String.format("%s is not a command", INVOKED)).queue(
+                () -> event.getMessage().reply(String.format("%s is not a chat_command", INVOKED)).queue(
                 e -> e.getChannel().sendMessage(";help").queue(m -> m.delete().queue())
         ));
     }
