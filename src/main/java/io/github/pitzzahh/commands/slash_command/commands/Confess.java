@@ -47,10 +47,10 @@ public class Confess implements SlashCommand {
 
     @Override
     public void execute(@NotNull CommandContext context) {
-        if (context.getEvent().getChannel().getName().equals("confess-here💌")) {
+        if (context.getEvent().getChannel().getName().equals(Bot.getConfig().get("CONFESSION_CHANNEL"))) {
 
             final var CONFESSIONS = Bot.getShardManager()
-                    .getTextChannelsByName("confessions💞", false)
+                    .getTextChannelsByName(Bot.getConfig().get("CONFESSIONS_CHANNEL"), false)
                     .stream()
                     .findAny();
 

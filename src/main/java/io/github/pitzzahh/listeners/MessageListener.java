@@ -78,27 +78,28 @@ public class MessageListener extends ListenerAdapter {
                 }
             }
             else if (MESSAGE.equals(Bot.getConfig().get("CREATE_CONFESSION_CATEGORY")) && Objects.requireNonNull(event.getMember()).isOwner()){
-                event.getGuild().createCategory("confessions").queue(
+                final var CATEGORY_NAME = Bot.getConfig().get("CREATE_CONFESSION_CATEGORY");
+                event.getGuild().createCategory(CATEGORY_NAME.replace(CATEGORY_NAME.charAt(0), ' ')).queue(
                         category -> {
                             EMBED_BUILDER.clear()
                                     .clearFields()
                                     .setColor(Color.CYAN)
                                     .setTitle("Write your confession here")
                                     .setDescription("your confessions will be anonymous")
-                                    .appendDescription("user /confess to confess")
+                                    .appendDescription(", use `/confess` to confess")
                                     .setFooter(
                                             String.format("Created by %s", event.getAuthor().getAsTag()),
                                             event.getGuild().getIconUrl()
                                     );
-                            category.createTextChannel("confess-here💌")
+                            category.createTextChannel(Bot.getConfig().get("CONFESSION_CHANNEL"))
                                     .setSlowmode(20)
                                     .queue(c -> c.sendMessageEmbeds(EMBED_BUILDER.build()).queue());
-                            category.createTextChannel("confessions💞")
+                            category.createTextChannel(Bot.getConfig().get("CONFESSIONS_CHANNEL"))
                                     .queue();
                         }
                 );
             } else {
-                if (event.getChannel().getName().equals("confess-here💌") && !event.getAuthor().isBot()) {
+                if (event.getChannel().getName().equals(Bot.getConfig().get("CONFESSION_CHANNEL")) && !event.getAuthor().isBot()) {
                     EMBED_BUILDER.clear()
                             .clearFields()
                             .setColor(Color.RED)
