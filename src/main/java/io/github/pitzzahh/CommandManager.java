@@ -24,9 +24,9 @@
 package io.github.pitzzahh;
 
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
-import io.github.pitzzahh.command.commands.FormatCommand;
-import io.github.pitzzahh.command.commands.HelpCommand;
-import io.github.pitzzahh.command.commands.PingCommand;
+import io.github.pitzzahh.command.chat_commands.FormatCommand;
+import io.github.pitzzahh.command.chat_commands.HelpCommand;
+import io.github.pitzzahh.command.chat_commands.PingCommand;
 import io.github.pitzzahh.command.CommandContext;
 import io.github.pitzzahh.command.Command;
 import org.jetbrains.annotations.NotNull;
@@ -70,7 +70,7 @@ public class CommandManager {
     }
 
     /**
-     * Handles commands.
+     * Handles chat_commands.
      * @param event the event that happened.
      */
     public void handle(MessageReceivedEvent event) {
@@ -89,7 +89,7 @@ public class CommandManager {
     }
 
     /**
-     * Gets all the commands.
+     * Gets all the chat_commands.
      * @return a {@code List<Command>}.
      */
     public List<Command> getCOMMANDS() {

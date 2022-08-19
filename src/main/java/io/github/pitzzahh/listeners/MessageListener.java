@@ -35,7 +35,6 @@ import java.time.LocalDateTime;
 import io.github.pitzzahh.Bot;
 import java.time.ZoneId;
 import java.awt.*;
-
 public class MessageListener extends ListenerAdapter {
 
     private final CommandManager MANAGER = new CommandManager();

@@ -26,7 +26,7 @@ package io.github.pitzzahh.command;
 import java.util.List;
 
 /**
- * Interface used to handle commands.
+ * Interface used to handle chat_commands.
  */
 public interface Command {
 

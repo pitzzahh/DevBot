@@ -21,7 +21,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package io.github.pitzzahh.command.commands;
+package io.github.pitzzahh.command.chat_commands;
 
 import io.github.pitzzahh.command.CommandContext;
 import io.github.pitzzahh.command.Command;
