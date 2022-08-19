@@ -21,7 +21,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package io.github.pitzzahh.commands.chat_command.chat_commands;
+package io.github.pitzzahh.commands.chat_command.commands;
 
 import io.github.pitzzahh.commands.chat_command.CommandContext;
 import org.jetbrains.annotations.Contract;
@@ -102,7 +102,7 @@ public class HelpCommand implements Command {
      */
     @Override
     public String description() {
-        return "Shows the list of chat_commands in the bot\n" +
+        return "Shows the list of commands in the bot\n" +
                 "Usage: ".concat(Bot.getConfig().get("PREFIX")).concat("help [chat_command]");
     }
 
@@ -113,6 +113,6 @@ public class HelpCommand implements Command {
      */
     @Override
     public List<String> aliases() {
-        return List.of("chat_commands","chat_command", "chat_command list", "com");
+        return List.of("commands","chat_command", "chat_command list", "com");
     }
 }
