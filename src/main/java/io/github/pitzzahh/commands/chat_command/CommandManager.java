@@ -21,8 +21,9 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package io.github.pitzzahh;
+package io.github.pitzzahh.commands.chat_command;
 
+import io.github.pitzzahh.Bot;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import io.github.pitzzahh.commands.chat_command.commands.FormatCommand;
 import io.github.pitzzahh.commands.chat_command.commands.HelpCommand;
@@ -40,9 +41,11 @@ public class CommandManager {
     private final List<Command> COMMANDS = new ArrayList<>();
 
     public CommandManager() {
-        addCommand(new PingCommand());
-        addCommand(new FormatCommand());
-        addCommand(new HelpCommand(this));
+        addCommands(
+                new PingCommand(),
+                new FormatCommand(),
+                new HelpCommand(this)
+        );
     }
 
     /**
@@ -54,6 +57,10 @@ public class CommandManager {
                 .anyMatch(c -> c.name().equalsIgnoreCase(command.name()));
         if (found) throw new IllegalStateException("A Command With this name is already present!");
         this.COMMANDS.add(command);
+    }
+
+    private void addCommands(@NotNull Command... command) {
+        Arrays.stream(command).forEach(this::addCommand);
     }
 
     /**
@@ -73,7 +80,7 @@ public class CommandManager {
      * Handles commands.
      * @param event the event that happened.
      */
-    public void handle(MessageReceivedEvent event) {
+    public void handle(@NotNull MessageReceivedEvent event) {
         final var SPLIT = event.getMessage().getContentRaw()
                 .replaceFirst("(?i)".concat(Pattern.quote(Bot.getConfig().get("PREFIX"))), "")
                 .split("\\s+");

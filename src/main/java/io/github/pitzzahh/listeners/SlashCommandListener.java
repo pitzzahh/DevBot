@@ -21,34 +21,33 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package io.github.pitzzahh.commands.chat_command;
 
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
-import net.dv8tion.jda.api.entities.Guild;
-import org.jetbrains.annotations.Contract;
+package io.github.pitzzahh.listeners;
+
+import io.github.pitzzahh.commands.slash_command.SlashCommandManager;
+import io.github.pitzzahh.commands.slash_command.SlashCommand;
+import net.dv8tion.jda.api.events.guild.GuildReadyEvent;
+import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
+import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import org.jetbrains.annotations.NotNull;
-import java.util.List;
 
-public record CommandContext(MessageReceivedEvent event, List<String> args) implements ChatCommandContext {
+
+public class SlashCommandListener extends ListenerAdapter {
+
+    private final SlashCommandManager SLASH_COMMAND_MANAGER = new SlashCommandManager();
 
     @Override
-    @NotNull
-    @Contract(pure = true)
-    public Guild getGuild() {
-        return this.event().getGuild();
+    public void onSlashCommandInteraction(@NotNull SlashCommandInteractionEvent event) {
+        SLASH_COMMAND_MANAGER.handle(event);
     }
 
     @Override
-    @NotNull
-    @Contract(pure = true)
-    public MessageReceivedEvent getEvent() {
-        return this.event();
-    }
+    public void onGuildReady(@NotNull GuildReadyEvent event) {
+        var COMMANDS = SLASH_COMMAND_MANAGER.getCommands();
+        var guild = event.getGuild();
+        guild.getJDA().updateCommands()
+                .addCommands(COMMANDS.values().stream().map(SlashCommand::getInfo).toList())
+                .queue();
 
-    @Override
-    @Contract(pure = true)
-    public List<String> getArgs() {
-        return this.args();
     }
-
 }

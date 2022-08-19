@@ -21,16 +21,19 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package io.github.pitzzahh.commands.chat_command;
 
+package io.github.pitzzahh.commands.slash_command;
+
+import net.dv8tion.jda.api.entities.Member;
+import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.entities.Guild;
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
-import java.util.List;
+public interface SlashCommandContext {
 
-public interface ICommandContext {
     Guild getGuild();
-    MessageReceivedEvent getEvent();
 
-    List<String> getArgs();
+    Member getMember();
+
+    SlashCommandInteractionEvent getEvent();
+
 }

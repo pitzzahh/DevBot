@@ -26,7 +26,7 @@ package io.github.pitzzahh.commands.chat_command.commands;
 import io.github.pitzzahh.commands.chat_command.CommandContext;
 import org.jetbrains.annotations.Contract;
 import io.github.pitzzahh.commands.chat_command.Command;
-import io.github.pitzzahh.CommandManager;
+import io.github.pitzzahh.commands.chat_command.CommandManager;
 import net.dv8tion.jda.api.EmbedBuilder;
 import io.github.pitzzahh.Bot;
 import java.util.List;

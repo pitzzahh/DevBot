@@ -28,13 +28,16 @@ import net.dv8tion.jda.api.interactions.components.ActionRow;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.MessageBuilder;
-import io.github.pitzzahh.CommandManager;
+import io.github.pitzzahh.commands.chat_command.CommandManager;
 import org.jetbrains.annotations.NotNull;
 import net.dv8tion.jda.api.EmbedBuilder;
 import java.time.LocalDateTime;
 import io.github.pitzzahh.Bot;
 import java.time.ZoneId;
 import java.awt.*;
+import java.util.Objects;
+import java.util.concurrent.TimeUnit;
+
 public class MessageListener extends ListenerAdapter {
 
     private final CommandManager MANAGER = new CommandManager();
@@ -69,7 +72,44 @@ public class MessageListener extends ListenerAdapter {
                             .setEmbeds(EMBED_BUILDER.build());
                     event.getChannel()
                             .sendMessage(MESSAGE_BUILDER.build())
-                            .queue(e -> event.getMessage().delete().queue());
+                            .queue(e -> {
+                                if (!event.getMessage().isEdited()) event.getMessage().delete().queue();
+                            });
+                }
+            }
+            else if (MESSAGE.equals(Bot.getConfig().get("CREATE_CONFESSION_CATEGORY")) && Objects.requireNonNull(event.getMember()).isOwner()){
+                event.getGuild().createCategory("confessions").queue(
+                        category -> {
+                            EMBED_BUILDER.clear()
+                                    .clearFields()
+                                    .setColor(Color.CYAN)
+                                    .setTitle("Write your confession here")
+                                    .setDescription("your confessions will be anonymous")
+                                    .appendDescription("user /confess to confess")
+                                    .setFooter(
+                                            String.format("Created by %s", event.getAuthor().getAsTag()),
+                                            event.getGuild().getIconUrl()
+                                    );
+                            category.createTextChannel("confess-here💌")
+                                    .setSlowmode(20)
+                                    .queue(c -> c.sendMessageEmbeds(EMBED_BUILDER.build()).queue());
+                            category.createTextChannel("confessions💞")
+                                    .queue();
+                        }
+                );
+            } else {
+                if (event.getChannel().getName().equals("confess-here💌") && !event.getAuthor().isBot()) {
+                    EMBED_BUILDER.clear()
+                            .clearFields()
+                            .setColor(Color.RED)
+                            .setTimestamp(LocalDateTime.now(ZoneId.of("UTC")).plusSeconds(10))
+                            .setFooter("This message will be automatically deleted");
+                    event.getMessage()
+                            .replyEmbeds(EMBED_BUILDER.build())
+                            .queue(e -> {
+                                        event.getMessage().delete().queue();
+                                        if (!e.isEdited()) e.delete().queueAfter(10, TimeUnit.SECONDS);
+                            });
                 }
             }
         }

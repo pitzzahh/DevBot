@@ -23,32 +23,14 @@
  */
 package io.github.pitzzahh.commands.chat_command;
 
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.entities.Guild;
-import org.jetbrains.annotations.Contract;
-import org.jetbrains.annotations.NotNull;
+import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
+
 import java.util.List;
 
-public record CommandContext(MessageReceivedEvent event, List<String> args) implements ChatCommandContext {
+public interface ChatCommandContext {
+    Guild getGuild();
+    MessageReceivedEvent getEvent();
 
-    @Override
-    @NotNull
-    @Contract(pure = true)
-    public Guild getGuild() {
-        return this.event().getGuild();
-    }
-
-    @Override
-    @NotNull
-    @Contract(pure = true)
-    public MessageReceivedEvent getEvent() {
-        return this.event();
-    }
-
-    @Override
-    @Contract(pure = true)
-    public List<String> getArgs() {
-        return this.args();
-    }
-
+    List<String> getArgs();
 }
