@@ -21,11 +21,11 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package io.github.pitzzahh.chat_command.chat_commands;
+package io.github.pitzzahh.commands.chat_command.chat_commands;
 
-import io.github.pitzzahh.chat_command.CommandContext;
+import io.github.pitzzahh.commands.chat_command.CommandContext;
 import org.jetbrains.annotations.Contract;
-import io.github.pitzzahh.chat_command.Command;
+import io.github.pitzzahh.commands.chat_command.Command;
 import io.github.pitzzahh.CommandManager;
 import net.dv8tion.jda.api.EmbedBuilder;
 import io.github.pitzzahh.Bot;

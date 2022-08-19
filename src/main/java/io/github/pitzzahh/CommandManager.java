@@ -24,11 +24,11 @@
 package io.github.pitzzahh;
 
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
-import io.github.pitzzahh.chat_command.chat_commands.FormatCommand;
-import io.github.pitzzahh.chat_command.chat_commands.HelpCommand;
-import io.github.pitzzahh.chat_command.chat_commands.PingCommand;
-import io.github.pitzzahh.chat_command.CommandContext;
-import io.github.pitzzahh.chat_command.Command;
+import io.github.pitzzahh.commands.chat_command.chat_commands.FormatCommand;
+import io.github.pitzzahh.commands.chat_command.chat_commands.HelpCommand;
+import io.github.pitzzahh.commands.chat_command.chat_commands.PingCommand;
+import io.github.pitzzahh.commands.chat_command.CommandContext;
+import io.github.pitzzahh.commands.chat_command.Command;
 import org.jetbrains.annotations.NotNull;
 import java.util.regex.Pattern;
 import java.util.ArrayList;

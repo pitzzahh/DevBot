@@ -21,41 +21,43 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package io.github.pitzzahh.chat_command;
+package io.github.pitzzahh.commands.chat_command.chat_commands;
 
-import java.util.List;
+import io.github.pitzzahh.commands.chat_command.CommandContext;
+import io.github.pitzzahh.commands.chat_command.Command;
 
-/**
- * Interface used to handle chat_commands.
- */
-public interface Command {
+public class PingCommand implements Command {
 
     /**
      * Handles the chat_command.
+     *
      * @param context a {@code CommandContext}.
      * @see CommandContext
      */
-    void handle(CommandContext context);
+    @Override
+    public void  handle(CommandContext context) {
+        var jda = context.getEvent().getJDA();
+        jda.getRestPing().queue(
+                ping ->
+                        context.getEvent()
+                                .getChannel()
+                                .sendMessageFormat("Pong: %sms", ping)
+                                .queue()
+        );
+    }
 
-    /**
-     * The name of the chat_command.
-     * @return the name of the chat_command.
-     */
-    String name();
+    @Override
+    public String name() {
+        return "ping";
+    }
 
     /**
      * The description of the chat_command.
+     *
      * @return the description of the chat_command.
      */
-    String description();
-
-    /**
-     * The possible aliases for a chat_command.
-     * @return a {@code List<String>} containing the aliases of a chat_command.
-     */
-    default List<String> aliases() {
-        return List.of();
+    @Override
+    public String description() {
+        return "Shows the current ping from the bot to the discord servers.";
     }
-
-
 }
