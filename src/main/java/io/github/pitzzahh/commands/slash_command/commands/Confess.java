@@ -60,7 +60,7 @@ public class Confess implements SlashCommand {
                     .clearFields()
                     .setColor(Color.RED)
                     .setDescription(message)
-                    .setFooter("anonymous ‍🌫️")
+                    .setFooter("anonymous 👀")
                     .setTimestamp(LocalDateTime.now(ZoneId.of("UTC")));
             CONFESSIONS.ifPresent(
                     c -> c.sendMessageEmbeds(EMBED_BUILDER.build())
