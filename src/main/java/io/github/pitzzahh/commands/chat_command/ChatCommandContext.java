@@ -21,23 +21,16 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package io.github.pitzzahh.moderation;
+package io.github.pitzzahh.commands.chat_command;
 
-import com.github.pitzzahh.utilities.Print;
-import io.github.pitzzahh.utilities.Util;
-import org.jetbrains.annotations.Contract;
-import java.io.IOException;
-import java.net.URISyntaxException;
+import net.dv8tion.jda.api.entities.Guild;
+import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
-public class MessageChecker {
+import java.util.List;
 
-    @Contract(pure = true)
-    public static boolean search(final String message) {
-        System.out.println("message = " + message);
-        return Util.getBadWords
-                .get()
-                .stream()
-                .anyMatch(message::contains);
-    }
+public interface ChatCommandContext {
+    Guild getGuild();
+    MessageReceivedEvent getEvent();
 
+    List<String> getArgs();
 }

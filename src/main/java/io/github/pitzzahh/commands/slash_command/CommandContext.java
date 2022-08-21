@@ -21,23 +21,31 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package io.github.pitzzahh.moderation;
 
-import com.github.pitzzahh.utilities.Print;
-import io.github.pitzzahh.utilities.Util;
+package io.github.pitzzahh.commands.slash_command;
+
+import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
+import net.dv8tion.jda.api.entities.Member;
 import org.jetbrains.annotations.Contract;
-import java.io.IOException;
-import java.net.URISyntaxException;
+import net.dv8tion.jda.api.entities.Guild;
 
-public class MessageChecker {
+public record CommandContext(SlashCommandInteractionEvent event) implements SlashCommandContext {
 
+    @Override
     @Contract(pure = true)
-    public static boolean search(final String message) {
-        System.out.println("message = " + message);
-        return Util.getBadWords
-                .get()
-                .stream()
-                .anyMatch(message::contains);
+    public Guild getGuild() {
+        return this.event().getGuild();
     }
 
+    @Override
+    @Contract(pure = true)
+    public Member getMember() {
+        return this.event().getMember();
+    }
+
+    @Override
+    @Contract(pure = true)
+    public SlashCommandInteractionEvent getEvent() {
+        return event();
+    }
 }

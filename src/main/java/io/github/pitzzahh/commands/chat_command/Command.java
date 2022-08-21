@@ -21,7 +21,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package io.github.pitzzahh.command;
+package io.github.pitzzahh.commands.chat_command;
 
 import java.util.List;
 
@@ -31,27 +31,27 @@ import java.util.List;
 public interface Command {
 
     /**
-     * Handles the command.
+     * Handles the chat_command.
      * @param context a {@code CommandContext}.
      * @see CommandContext
      */
     void handle(CommandContext context);
 
     /**
-     * The name of the command.
-     * @return the name of the command.
+     * The name of the chat_command.
+     * @return the name of the chat_command.
      */
     String name();
 
     /**
-     * The description of the command.
-     * @return the description of the command.
+     * The description of the chat_command.
+     * @return the description of the chat_command.
      */
     String description();
 
     /**
-     * The possible aliases for a command.
-     * @return a {@code List<String>} containing the aliases of a command.
+     * The possible aliases for a chat_command.
+     * @return a {@code List<String>} containing the aliases of a chat_command.
      */
     default List<String> aliases() {
         return List.of();

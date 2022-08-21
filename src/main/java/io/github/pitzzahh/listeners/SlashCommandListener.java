@@ -21,43 +21,40 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package io.github.pitzzahh.command.commands;
 
-import io.github.pitzzahh.command.CommandContext;
-import io.github.pitzzahh.command.Command;
+package io.github.pitzzahh.listeners;
 
-public class PingCommand implements Command {
+import io.github.pitzzahh.commands.slash_command.SlashCommandManager;
+import io.github.pitzzahh.commands.slash_command.SlashCommand;
+import net.dv8tion.jda.api.events.guild.GuildReadyEvent;
+import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
+import net.dv8tion.jda.api.hooks.ListenerAdapter;
+import org.jetbrains.annotations.NotNull;
 
-    /**
-     * Handles the command.
-     *
-     * @param context a {@code CommandContext}.
-     * @see CommandContext
-     */
+import java.util.function.Supplier;
+
+
+public class SlashCommandListener extends ListenerAdapter {
+
+    private final SlashCommandManager SLASH_COMMAND_MANAGER = new SlashCommandManager();
+
     @Override
-    public void  handle(CommandContext context) {
-        var jda = context.getEvent().getJDA();
-        jda.getRestPing().queue(
-                ping ->
-                        context.getEvent()
-                                .getChannel()
-                                .sendMessageFormat("Pong: %sms", ping)
-                                .queue()
-        );
+    public void onSlashCommandInteraction(@NotNull SlashCommandInteractionEvent event) {
+        SLASH_COMMAND_MANAGER.handle(event);
     }
 
     @Override
-    public String name() {
-        return "ping";
-    }
+    public void onGuildReady(@NotNull GuildReadyEvent event) {
+        var COMMANDS = SLASH_COMMAND_MANAGER.getCommands();
+        var guild = event.getGuild();
+        var COM = COMMANDS.values()
+                .stream()
+                .map(SlashCommand::getInfo)
+                .map(Supplier::get)
+                .toList();
 
-    /**
-     * The description of the command.
-     *
-     * @return the description of the command.
-     */
-    @Override
-    public String description() {
-        return "Shows the current ping from the bot to the discord servers.";
+        guild.getJDA().updateCommands()
+                .addCommands(COM)
+                .queue();
     }
 }

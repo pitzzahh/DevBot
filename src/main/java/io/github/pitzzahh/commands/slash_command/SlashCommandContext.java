@@ -21,40 +21,19 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package io.github.pitzzahh.command;
 
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
+package io.github.pitzzahh.commands.slash_command;
+
+import net.dv8tion.jda.api.entities.Member;
+import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.entities.Guild;
-import org.jetbrains.annotations.Contract;
-import org.jetbrains.annotations.NotNull;
-import java.util.List;
 
-public record CommandContext(MessageReceivedEvent event, List<String> args) implements ICommandContext {
+public interface SlashCommandContext {
 
-    @Contract(pure = true)
-    public CommandContext(@NotNull MessageReceivedEvent event, List<String> args) {
-        this.event = event;
-        this.args = args;
-    }
+    Guild getGuild();
 
-    @Override
-    @NotNull
-    public Guild getGuild() {
-        return this.getEvent().getGuild();
-    }
+    Member getMember();
 
-
-    @Override
-    @Contract(pure = true)
-    public MessageReceivedEvent getEvent() {
-        return this.event;
-    }
-
-
-    @Override
-    @Contract(pure = true)
-    public List<String> getArgs() {
-        return this.args;
-    }
+    SlashCommandInteractionEvent getEvent();
 
 }

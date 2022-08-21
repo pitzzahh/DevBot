@@ -23,18 +23,22 @@
  */
 package io.github.pitzzahh.listeners;
 
+import io.github.pitzzahh.moderation.MessageChecker;
+import io.github.pitzzahh.utilities.Util;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
-import net.dv8tion.jda.api.interactions.components.ActionRow;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
+import net.dv8tion.jda.api.interactions.components.ActionRow;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.MessageBuilder;
-import io.github.pitzzahh.CommandManager;
+import io.github.pitzzahh.commands.chat_command.CommandManager;
 import org.jetbrains.annotations.NotNull;
 import net.dv8tion.jda.api.EmbedBuilder;
 import java.time.LocalDateTime;
 import io.github.pitzzahh.Bot;
 import java.time.ZoneId;
 import java.awt.*;
+import java.util.Objects;
+import java.util.concurrent.TimeUnit;
 
 public class MessageListener extends ListenerAdapter {
 
@@ -45,14 +49,14 @@ public class MessageListener extends ListenerAdapter {
     @Override
     public void onMessageReceived(@NotNull MessageReceivedEvent event) {
         final var AUTHOR = event.getAuthor();
-        final var PREFIX = Bot.getConfig().get("PREFIX");
+        final var PREFIX = Bot.getConfig.get().get("PREFIX");
         final var MESSAGE = event.getMessage().getContentRaw();
         if (MESSAGE.startsWith(PREFIX)) MANAGER.handle(event);
         else {
-            if (MESSAGE.equals(Bot.getConfig().get("VERIFY_MESSAGE"))) {
+            if (MESSAGE.equals(Bot.getConfig.get().get("VERIFY_MESSAGE"))) {
                 final var IS_IN_VERIFY_CHANNEL = event.getChannel()
                         .getName()
-                        .equals(Bot.getConfig().get("VERIFY_CHANNEL"));
+                        .equals(Bot.getConfig.get().get("VERIFY_CHANNEL"));
                 if (IS_IN_VERIFY_CHANNEL) {
                     final var BUTTON = Button.primary("verify-button", "Verify");
                     EMBED_BUILDER.clear()
@@ -70,7 +74,87 @@ public class MessageListener extends ListenerAdapter {
                             .setEmbeds(EMBED_BUILDER.build());
                     event.getChannel()
                             .sendMessage(MESSAGE_BUILDER.build())
-                            .queue(e -> event.getMessage().delete().queue());
+                            .queue(e -> {
+                                if (!event.getMessage().isEdited()) event.getMessage().delete().queue();
+                            });
+                }
+            }
+            else if (MESSAGE.equals(Bot.getConfig.get().get("CREATE_SECRET_CATEGORY")) && Objects.requireNonNull(event.getMember()).isOwner()){
+                final var CATEGORY_NAME = Bot.getConfig.get().get("CREATE_SECRET_CATEGORY");
+                event.getGuild().createCategory(CATEGORY_NAME.replace(CATEGORY_NAME.charAt(0), ' ')).queue(
+                        category -> {
+                            EMBED_BUILDER.clear()
+                                    .clearFields()
+                                    .setColor(Color.CYAN)
+                                    .setTitle("Write your secret here")
+                                    .setDescription("your secret will be anonymous")
+                                    .appendDescription(", use `/secret` to tell a secret")
+                                    .setFooter(
+                                            String.format("Created by %s", event.getAuthor().getName()),
+                                            event.getGuild().getIconUrl()
+                                    );
+                            category.createTextChannel(Bot.getConfig.get().get("SECRET_CHANNEL"))
+                                    .queue(c -> c.sendMessageEmbeds(EMBED_BUILDER.build()).queue());
+                            category.createTextChannel(Bot.getConfig.get().get("SECRETS_CHANNEL"))
+                                    .queue();
+                        }
+                );
+            } else {
+                if (event.getChannel().getName().equals(Bot.getConfig.get().get("SECRET_CHANNEL")) && !event.getAuthor().isBot()) {
+                    EMBED_BUILDER.clear()
+                            .clearFields()
+                            .setColor(Color.RED)
+                            .appendDescription("Please use `/secret` to tell a secret")
+                            .setTimestamp(LocalDateTime.now(ZoneId.of("UTC")).plusSeconds(10))
+                            .setFooter("This message will be automatically deleted");
+                    event.getMessage()
+                            .replyEmbeds(EMBED_BUILDER.build())
+                            .queue(e -> {
+                                        event.getMessage().delete().queue();
+                                        e.delete().queueAfter(10, TimeUnit.SECONDS);
+                            });
+                }
+                else {
+                    var contains = MessageChecker.search(event.getMessage().getContentRaw());
+                    System.out.println("is bad word = " + contains);
+                    if (contains && !AUTHOR.isBot()) {
+                        if (Util.violatedThreeTimes(AUTHOR.getName())) {
+                            EMBED_BUILDER.clear()
+                                    .clearFields()
+                                    .setColor(Color.RED)
+                                    .setTitle("Violated Three Times")
+                                    .appendDescription(AUTHOR.getAsMention().concat("Cannot send messages for 5 minutes"))
+                                    .setTimestamp(LocalDateTime.now(ZoneId.of("UTC")).plusSeconds(10))
+                                    .setFooter(
+                                            String.format("Scanned by %s", event.getAuthor().getName()),
+                                            event.getGuild().getIconUrl()
+                                    );
+                            event.getChannel()
+                                    .sendMessageEmbeds(EMBED_BUILDER.build())
+                                    .queue();
+                            AUTHOR.retrieveProfile()
+                                    .timeout(5, TimeUnit.MINUTES)
+                                    .queue();
+                        }
+                        else {
+                            EMBED_BUILDER.clear()
+                                    .clearFields()
+                                    .setColor(Color.RED)
+                                    .setTitle("Bad Word Detected")
+                                    .appendDescription("Your message will be deleted 10 seconds from now")
+                                    .setTimestamp(LocalDateTime.now(ZoneId.of("UTC")).plusSeconds(10))
+                                    .setFooter(
+                                            String.format("Scanned by %s", event.getAuthor().getName()),
+                                            event.getGuild().getIconUrl()
+                                    );
+                            event.getMessage()
+                                    .replyEmbeds(EMBED_BUILDER.build())
+                                    .mentionRepliedUser(true)
+                                    .queue();
+                            Util.addViolation(AUTHOR.getName());
+                            event.getMessage().delete().queueAfter(10, TimeUnit.SECONDS);
+                        }
+                    }
                 }
             }
         }

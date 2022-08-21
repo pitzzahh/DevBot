@@ -21,12 +21,12 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package io.github.pitzzahh.command.commands;
+package io.github.pitzzahh.commands.chat_command.commands;
 
-import io.github.pitzzahh.command.CommandContext;
+import io.github.pitzzahh.commands.chat_command.CommandContext;
 import org.jetbrains.annotations.Contract;
-import io.github.pitzzahh.command.Command;
-import io.github.pitzzahh.CommandManager;
+import io.github.pitzzahh.commands.chat_command.Command;
+import io.github.pitzzahh.commands.chat_command.CommandManager;
 import net.dv8tion.jda.api.EmbedBuilder;
 import io.github.pitzzahh.Bot;
 import java.util.List;
@@ -43,7 +43,7 @@ public class HelpCommand implements Command {
     }
 
     /**
-     * Handles the command.
+     * Handles the chat_command.
      *
      * @param context a {@code CommandContext}.
      * @see CommandContext
@@ -63,7 +63,7 @@ public class HelpCommand implements Command {
                     .forEach(
                             c -> BUILDER
                                     .addField(
-                                            Bot.getConfig().get("PREFIX").concat(c.name()),
+                                            Bot.getConfig.get().get("PREFIX").concat(c.name()),
                                             c.description(),
                                             true
                                             )
@@ -73,7 +73,7 @@ public class HelpCommand implements Command {
         }
         final var SEARCH = ARGS.get(0);
         final var COMMAND = MANAGER.getCommand(SEARCH);
-        if (COMMAND.isEmpty()) CHANNEL.sendMessageFormat("Nothing found on command: %s", SEARCH).queue();
+        if (COMMAND.isEmpty()) CHANNEL.sendMessageFormat("Nothing found on chat_command: %s", SEARCH).queue();
         else {
             BUILDER.clear()
                     .clearFields()
@@ -86,9 +86,9 @@ public class HelpCommand implements Command {
     }
 
     /**
-     * The name of the command.
+     * The name of the chat_command.
      *
-     * @return the name of the command.
+     * @return the name of the chat_command.
      */
     @Override
     public String name() {
@@ -96,23 +96,23 @@ public class HelpCommand implements Command {
     }
 
     /**
-     * The description of the command.
+     * The description of the chat_command.
      *
-     * @return the description of the command.
+     * @return the description of the chat_command.
      */
     @Override
     public String description() {
         return "Shows the list of commands in the bot\n" +
-                "Usage: ".concat(Bot.getConfig().get("PREFIX")).concat("help [command]");
+                "Usage: ".concat(Bot.getConfig.get().get("PREFIX")).concat("help [chat_command]");
     }
 
     /**
-     * The possible aliases for a command.
+     * The possible aliases for a chat_command.
      *
-     * @return a {@code List<String>} containing the aliases of a command.
+     * @return a {@code List<String>} containing the aliases of a chat_command.
      */
     @Override
     public List<String> aliases() {
-        return List.of("commands","command", "command list", "com");
+        return List.of("commands","chat_command", "chat_command list", "com");
     }
 }

@@ -21,14 +21,13 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package io.github.pitzzahh;
+package io.github.pitzzahh.commands.chat_command;
 
+import io.github.pitzzahh.Bot;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
-import io.github.pitzzahh.command.commands.FormatCommand;
-import io.github.pitzzahh.command.commands.HelpCommand;
-import io.github.pitzzahh.command.commands.PingCommand;
-import io.github.pitzzahh.command.CommandContext;
-import io.github.pitzzahh.command.Command;
+import io.github.pitzzahh.commands.chat_command.commands.FormatCommand;
+import io.github.pitzzahh.commands.chat_command.commands.HelpCommand;
+import io.github.pitzzahh.commands.chat_command.commands.PingCommand;
 import org.jetbrains.annotations.NotNull;
 import java.util.regex.Pattern;
 import java.util.ArrayList;
@@ -40,14 +39,16 @@ public class CommandManager {
     private final List<Command> COMMANDS = new ArrayList<>();
 
     public CommandManager() {
-        addCommand(new PingCommand());
-        addCommand(new FormatCommand());
-        addCommand(new HelpCommand(this));
+        addCommands(
+                new PingCommand(),
+                new FormatCommand(),
+                new HelpCommand(this)
+        );
     }
 
     /**
-     * Adds a command.
-     * @param command the command to add.
+     * Adds a chat_command.
+     * @param command the chat_command to add.
      */
     private void addCommand(Command command) {
         var found = this.COMMANDS.stream()
@@ -56,9 +57,13 @@ public class CommandManager {
         this.COMMANDS.add(command);
     }
 
+    private void addCommands(@NotNull Command... command) {
+        Arrays.stream(command).forEach(this::addCommand);
+    }
+
     /**
-     * Gets a command from the list.
-     * @param s the name of the command
+     * Gets a chat_command from the list.
+     * @param s the name of the chat_command
      * @return a {@code Command}.
      */
     public Optional<Command> getCommand(@NotNull final String s) {
@@ -73,9 +78,9 @@ public class CommandManager {
      * Handles commands.
      * @param event the event that happened.
      */
-    public void handle(MessageReceivedEvent event) {
+    public void handle(@NotNull MessageReceivedEvent event) {
         final var SPLIT = event.getMessage().getContentRaw()
-                .replaceFirst("(?i)".concat(Pattern.quote(Bot.getConfig().get("PREFIX"))), "")
+                .replaceFirst("(?i)".concat(Pattern.quote(Bot.getConfig.get().get("PREFIX"))), "")
                 .split("\\s+");
         final var INVOKED = SPLIT[0].toLowerCase();
         final var COMMAND = this.getCommand(INVOKED);
@@ -83,7 +88,7 @@ public class CommandManager {
         final var ARGS = Arrays.asList(SPLIT).subList(1, SPLIT.length);
         final var COMMAND_CONTEXT = new CommandContext(event, ARGS);
         COMMAND.ifPresentOrElse(command -> command.handle(COMMAND_CONTEXT),
-                () -> event.getMessage().reply(String.format("%s is not a command", INVOKED)).queue(
+                () -> event.getMessage().reply(String.format("%s is not a chat_command", INVOKED)).queue(
                 e -> e.getChannel().sendMessage(";help").queue(m -> m.delete().queue())
         ));
     }

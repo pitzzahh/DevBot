@@ -21,23 +21,43 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package io.github.pitzzahh.moderation;
+package io.github.pitzzahh.commands.chat_command.commands;
 
-import com.github.pitzzahh.utilities.Print;
-import io.github.pitzzahh.utilities.Util;
-import org.jetbrains.annotations.Contract;
-import java.io.IOException;
-import java.net.URISyntaxException;
+import io.github.pitzzahh.commands.chat_command.CommandContext;
+import io.github.pitzzahh.commands.chat_command.Command;
 
-public class MessageChecker {
+public class PingCommand implements Command {
 
-    @Contract(pure = true)
-    public static boolean search(final String message) {
-        System.out.println("message = " + message);
-        return Util.getBadWords
-                .get()
-                .stream()
-                .anyMatch(message::contains);
+    /**
+     * Handles the chat_command.
+     *
+     * @param context a {@code CommandContext}.
+     * @see CommandContext
+     */
+    @Override
+    public void  handle(CommandContext context) {
+        var jda = context.getEvent().getJDA();
+        jda.getRestPing().queue(
+                ping ->
+                        context.getEvent()
+                                .getChannel()
+                                .sendMessageFormat("Pong: %sms", ping)
+                                .queue()
+        );
     }
 
+    @Override
+    public String name() {
+        return "ping";
+    }
+
+    /**
+     * The description of the chat_command.
+     *
+     * @return the description of the chat_command.
+     */
+    @Override
+    public String description() {
+        return "Shows the current ping from the bot to the discord servers.";
+    }
 }

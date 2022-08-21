@@ -23,6 +23,8 @@
  */
 package io.github.pitzzahh;
 
+import io.github.pitzzahh.listeners.SlashCommandListener;
+import io.github.pitzzahh.utilities.Util;
 import net.dv8tion.jda.api.sharding.DefaultShardManagerBuilder;
 import io.github.pitzzahh.listeners.MessageListener;
 import io.github.pitzzahh.listeners.ButtonListener;
@@ -30,16 +32,19 @@ import net.dv8tion.jda.api.requests.GatewayIntent;
 import net.dv8tion.jda.api.sharding.ShardManager;
 import javax.security.auth.login.LoginException;
 import net.dv8tion.jda.api.entities.Activity;
-import org.jetbrains.annotations.Contract;
 import io.github.cdimascio.dotenv.Dotenv;
 import net.dv8tion.jda.api.OnlineStatus;
+
+import java.io.IOException;
+import java.net.URISyntaxException;
+import java.util.function.Supplier;
 
 public class Bot {
 
     private static Dotenv config;
-    private final ShardManager shardManager;
+    private static ShardManager shardManager;
 
-    public Bot() throws LoginException {
+    public static void start() throws LoginException, IOException {
         config = Dotenv.configure().load();
 
         final var TOKEN = config.get("TOKEN");
@@ -48,27 +53,25 @@ public class Bot {
         builder.setStatus(OnlineStatus.ONLINE)
                 .enableIntents(GatewayIntent.MESSAGE_CONTENT)
                 .enableIntents(GatewayIntent.GUILD_MEMBERS)
-                .setActivity(Activity.listening("your messages \uD83D\uDCE9"));
-
+                .setActivity(Activity.listening("your messages 📩"));
+        Util.loadSwearWords();
         shardManager = builder.build();
-        shardManager.addEventListener(new MessageListener(), new ButtonListener());
-
+        shardManager.addEventListener(
+                new MessageListener(),
+                new ButtonListener(),
+                new SlashCommandListener()
+        );
     }
 
     /**
      * Get the {@code Dotenv} object.
-     * @return the {@code Dotenv} object.
+     * returns the {@code Dotenv} object.
      */
-    @Contract(pure = true)
-    public static Dotenv getConfig() {
-        return config;
-    }
+    public static Supplier<Dotenv> getConfig = () -> config;
 
     /**
      * Get the {@code ShardManager} object.
-     * @return the {@code ShardManager} object.
+     * returns the {@code ShardManager} object.
      */
-    public ShardManager getShardManager() {
-        return shardManager;
-    }
+    public static Supplier<ShardManager> getShardManager = () -> shardManager;
 }
