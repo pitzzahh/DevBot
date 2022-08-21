@@ -23,5 +23,21 @@
  */
 package io.github.pitzzahh.moderation;
 
+import com.github.pitzzahh.utilities.Print;
+import io.github.pitzzahh.utilities.Util;
+import org.jetbrains.annotations.Contract;
+import java.io.IOException;
+import java.net.URISyntaxException;
+
 public class MessageChecker {
+
+    @Contract(pure = true)
+    public static boolean search(final String message) {
+        System.out.println("message = " + message);
+        return Util.getBadWords
+                .get()
+                .stream()
+                .anyMatch(message::contains);
+    }
+
 }

@@ -23,6 +23,55 @@
  */
 package io.github.pitzzahh.utilities;
 
+import com.google.common.io.Resources;
+import org.jetbrains.annotations.Contract;
+
+import java.io.IOException;
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.nio.charset.StandardCharsets;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.function.Supplier;
+
 public class Util {
-    
+
+    private static List<String> badWords = Collections.emptyList();
+
+    private static final Map<String, Integer> VIOLATION_COUNT = new HashMap<>();
+
+    @Contract(pure = true)
+    public static void loadSwearWords() throws IOException {
+        URL url = new URL("https://raw.githubusercontent.com/pitzzahh/list-of-profanity-words/main/list.txt");
+        badWords = Resources.readLines(url, StandardCharsets.UTF_8);
+    }
+
+    public static Supplier<List<String>> getBadWords = () -> badWords;
+
+    @Contract(pure = true)
+    public static void addViolation(final String username) {
+        var violationCount = Util.VIOLATION_COUNT.entrySet()
+                .stream()
+                .filter(e -> e.getKey().equals(username))
+                .map(Map.Entry::getValue)
+                .findAny()
+                .orElse(0);
+        Util.VIOLATION_COUNT.put(username, violationCount + 1);
+    }
+
+    public static boolean violatedThreeTimes(String username) {
+        var violationCount = Util.VIOLATION_COUNT.entrySet()
+                .stream()
+                .filter(e -> e.getKey().equals(username))
+                .map(Map.Entry::getValue)
+                .findAny()
+                .orElse(0);
+        if (violationCount >= 3) {
+            Util.VIOLATION_COUNT.remove(username);
+            return true;
+        }
+        return false;
+    }
 }

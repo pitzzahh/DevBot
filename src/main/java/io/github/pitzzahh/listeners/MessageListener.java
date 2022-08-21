@@ -23,6 +23,8 @@
  */
 package io.github.pitzzahh.listeners;
 
+import io.github.pitzzahh.moderation.MessageChecker;
+import io.github.pitzzahh.utilities.Util;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import net.dv8tion.jda.api.interactions.components.ActionRow;
@@ -88,7 +90,7 @@ public class MessageListener extends ListenerAdapter {
                                     .setDescription("your secret will be anonymous")
                                     .appendDescription(", use `/secret` to tell a secret")
                                     .setFooter(
-                                            String.format("Created by %s", event.getAuthor().getAsTag()),
+                                            String.format("Created by %s", event.getAuthor().getName()),
                                             event.getGuild().getIconUrl()
                                     );
                             category.createTextChannel(Bot.getConfig.get().get("SECRET_CHANNEL"))
@@ -111,6 +113,48 @@ public class MessageListener extends ListenerAdapter {
                                         event.getMessage().delete().queue();
                                         e.delete().queueAfter(10, TimeUnit.SECONDS);
                             });
+                }
+                else {
+                    var contains = MessageChecker.search(event.getMessage().getContentRaw());
+                    System.out.println("is bad word = " + contains);
+                    if (contains && !AUTHOR.isBot()) {
+                        if (Util.violatedThreeTimes(AUTHOR.getName())) {
+                            EMBED_BUILDER.clear()
+                                    .clearFields()
+                                    .setColor(Color.RED)
+                                    .setTitle("Violated Three Times")
+                                    .appendDescription(AUTHOR.getAsMention().concat("Cannot send messages for 5 minutes"))
+                                    .setTimestamp(LocalDateTime.now(ZoneId.of("UTC")).plusSeconds(10))
+                                    .setFooter(
+                                            String.format("Scanned by %s", event.getAuthor().getName()),
+                                            event.getGuild().getIconUrl()
+                                    );
+                            event.getChannel()
+                                    .sendMessageEmbeds(EMBED_BUILDER.build())
+                                    .queue();
+                            AUTHOR.retrieveProfile()
+                                    .timeout(5, TimeUnit.MINUTES)
+                                    .queue();
+                        }
+                        else {
+                            EMBED_BUILDER.clear()
+                                    .clearFields()
+                                    .setColor(Color.RED)
+                                    .setTitle("Bad Word Detected")
+                                    .appendDescription("Your message will be deleted 10 seconds from now")
+                                    .setTimestamp(LocalDateTime.now(ZoneId.of("UTC")).plusSeconds(10))
+                                    .setFooter(
+                                            String.format("Scanned by %s", event.getAuthor().getName()),
+                                            event.getGuild().getIconUrl()
+                                    );
+                            event.getMessage()
+                                    .replyEmbeds(EMBED_BUILDER.build())
+                                    .mentionRepliedUser(true)
+                                    .queue();
+                            Util.addViolation(AUTHOR.getName());
+                            event.getMessage().delete().queueAfter(10, TimeUnit.SECONDS);
+                        }
+                    }
                 }
             }
         }

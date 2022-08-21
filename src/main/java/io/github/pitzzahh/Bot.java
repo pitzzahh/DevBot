@@ -24,6 +24,7 @@
 package io.github.pitzzahh;
 
 import io.github.pitzzahh.listeners.SlashCommandListener;
+import io.github.pitzzahh.utilities.Util;
 import net.dv8tion.jda.api.sharding.DefaultShardManagerBuilder;
 import io.github.pitzzahh.listeners.MessageListener;
 import io.github.pitzzahh.listeners.ButtonListener;
@@ -33,6 +34,9 @@ import javax.security.auth.login.LoginException;
 import net.dv8tion.jda.api.entities.Activity;
 import io.github.cdimascio.dotenv.Dotenv;
 import net.dv8tion.jda.api.OnlineStatus;
+
+import java.io.IOException;
+import java.net.URISyntaxException;
 import java.util.function.Supplier;
 
 public class Bot {
@@ -40,7 +44,7 @@ public class Bot {
     private static Dotenv config;
     private static ShardManager shardManager;
 
-    public static void start() throws LoginException {
+    public static void start() throws LoginException, IOException {
         config = Dotenv.configure().load();
 
         final var TOKEN = config.get("TOKEN");
@@ -50,7 +54,7 @@ public class Bot {
                 .enableIntents(GatewayIntent.MESSAGE_CONTENT)
                 .enableIntents(GatewayIntent.GUILD_MEMBERS)
                 .setActivity(Activity.listening("your messages 📩"));
-
+        Util.loadSwearWords();
         shardManager = builder.build();
         shardManager.addEventListener(
                 new MessageListener(),
