@@ -24,8 +24,8 @@
 package io.github.pitzzahh.listeners;
 
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
-import net.dv8tion.jda.api.interactions.components.ActionRow;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
+import net.dv8tion.jda.api.interactions.components.ActionRow;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.MessageBuilder;
 import io.github.pitzzahh.commands.chat_command.CommandManager;
@@ -92,7 +92,7 @@ public class MessageListener extends ListenerAdapter {
                                             event.getGuild().getIconUrl()
                                     );
                             category.createTextChannel(Bot.getConfig().get("CONFESSION_CHANNEL"))
-                                    .setSlowmode(20)
+                                    .setUserlimit(1)
                                     .queue(c -> c.sendMessageEmbeds(EMBED_BUILDER.build()).queue());
                             category.createTextChannel(Bot.getConfig().get("CONFESSIONS_CHANNEL"))
                                     .queue();
@@ -103,13 +103,14 @@ public class MessageListener extends ListenerAdapter {
                     EMBED_BUILDER.clear()
                             .clearFields()
                             .setColor(Color.RED)
+                            .appendDescription("Please use `/confess` to confess")
                             .setTimestamp(LocalDateTime.now(ZoneId.of("UTC")).plusSeconds(10))
                             .setFooter("This message will be automatically deleted");
                     event.getMessage()
                             .replyEmbeds(EMBED_BUILDER.build())
                             .queue(e -> {
                                         event.getMessage().delete().queue();
-                                        if (!e.isEdited()) e.delete().queueAfter(10, TimeUnit.SECONDS);
+                                        e.delete().queueAfter(10, TimeUnit.SECONDS);
                             });
                 }
             }
