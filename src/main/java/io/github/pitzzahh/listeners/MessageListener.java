@@ -47,14 +47,14 @@ public class MessageListener extends ListenerAdapter {
     @Override
     public void onMessageReceived(@NotNull MessageReceivedEvent event) {
         final var AUTHOR = event.getAuthor();
-        final var PREFIX = Bot.getConfig().get("PREFIX");
+        final var PREFIX = Bot.getConfig.get().get("PREFIX");
         final var MESSAGE = event.getMessage().getContentRaw();
         if (MESSAGE.startsWith(PREFIX)) MANAGER.handle(event);
         else {
-            if (MESSAGE.equals(Bot.getConfig().get("VERIFY_MESSAGE"))) {
+            if (MESSAGE.equals(Bot.getConfig.get().get("VERIFY_MESSAGE"))) {
                 final var IS_IN_VERIFY_CHANNEL = event.getChannel()
                         .getName()
-                        .equals(Bot.getConfig().get("VERIFY_CHANNEL"));
+                        .equals(Bot.getConfig.get().get("VERIFY_CHANNEL"));
                 if (IS_IN_VERIFY_CHANNEL) {
                     final var BUTTON = Button.primary("verify-button", "Verify");
                     EMBED_BUILDER.clear()
@@ -77,33 +77,32 @@ public class MessageListener extends ListenerAdapter {
                             });
                 }
             }
-            else if (MESSAGE.equals(Bot.getConfig().get("CREATE_CONFESSION_CATEGORY")) && Objects.requireNonNull(event.getMember()).isOwner()){
-                final var CATEGORY_NAME = Bot.getConfig().get("CREATE_CONFESSION_CATEGORY");
+            else if (MESSAGE.equals(Bot.getConfig.get().get("CREATE_SECRET_CATEGORY")) && Objects.requireNonNull(event.getMember()).isOwner()){
+                final var CATEGORY_NAME = Bot.getConfig.get().get("CREATE_SECRET_CATEGORY");
                 event.getGuild().createCategory(CATEGORY_NAME.replace(CATEGORY_NAME.charAt(0), ' ')).queue(
                         category -> {
                             EMBED_BUILDER.clear()
                                     .clearFields()
                                     .setColor(Color.CYAN)
-                                    .setTitle("Write your confession here")
-                                    .setDescription("your confessions will be anonymous")
-                                    .appendDescription(", use `/confess` to confess")
+                                    .setTitle("Write your secret here")
+                                    .setDescription("your secret will be anonymous")
+                                    .appendDescription(", use `/secret` to tell a secret")
                                     .setFooter(
                                             String.format("Created by %s", event.getAuthor().getAsTag()),
                                             event.getGuild().getIconUrl()
                                     );
-                            category.createTextChannel(Bot.getConfig().get("CONFESSION_CHANNEL"))
-                                    .setUserlimit(1)
+                            category.createTextChannel(Bot.getConfig.get().get("SECRET_CHANNEL"))
                                     .queue(c -> c.sendMessageEmbeds(EMBED_BUILDER.build()).queue());
-                            category.createTextChannel(Bot.getConfig().get("CONFESSIONS_CHANNEL"))
+                            category.createTextChannel(Bot.getConfig.get().get("SECRETS_CHANNEL"))
                                     .queue();
                         }
                 );
             } else {
-                if (event.getChannel().getName().equals(Bot.getConfig().get("CONFESSION_CHANNEL")) && !event.getAuthor().isBot()) {
+                if (event.getChannel().getName().equals(Bot.getConfig.get().get("SECRET_CHANNEL")) && !event.getAuthor().isBot()) {
                     EMBED_BUILDER.clear()
                             .clearFields()
                             .setColor(Color.RED)
-                            .appendDescription("Please use `/confess` to confess")
+                            .appendDescription("Please use `/secret` to tell a secret")
                             .setTimestamp(LocalDateTime.now(ZoneId.of("UTC")).plusSeconds(10))
                             .setFooter("This message will be automatically deleted");
                     event.getMessage()

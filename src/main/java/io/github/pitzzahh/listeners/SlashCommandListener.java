@@ -31,6 +31,8 @@ import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEve
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.function.Supplier;
+
 
 public class SlashCommandListener extends ListenerAdapter {
 
@@ -45,9 +47,14 @@ public class SlashCommandListener extends ListenerAdapter {
     public void onGuildReady(@NotNull GuildReadyEvent event) {
         var COMMANDS = SLASH_COMMAND_MANAGER.getCommands();
         var guild = event.getGuild();
-        guild.getJDA().updateCommands()
-                .addCommands(COMMANDS.values().stream().map(SlashCommand::getInfo).toList())
-                .queue();
+        var COM = COMMANDS.values()
+                .stream()
+                .map(SlashCommand::getInfo)
+                .map(Supplier::get)
+                .toList();
 
+        guild.getJDA().updateCommands()
+                .addCommands(COM)
+                .queue();
     }
 }

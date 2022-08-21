@@ -28,8 +28,6 @@ import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import io.github.pitzzahh.commands.chat_command.commands.FormatCommand;
 import io.github.pitzzahh.commands.chat_command.commands.HelpCommand;
 import io.github.pitzzahh.commands.chat_command.commands.PingCommand;
-import io.github.pitzzahh.commands.chat_command.CommandContext;
-import io.github.pitzzahh.commands.chat_command.Command;
 import org.jetbrains.annotations.NotNull;
 import java.util.regex.Pattern;
 import java.util.ArrayList;
@@ -82,7 +80,7 @@ public class CommandManager {
      */
     public void handle(@NotNull MessageReceivedEvent event) {
         final var SPLIT = event.getMessage().getContentRaw()
-                .replaceFirst("(?i)".concat(Pattern.quote(Bot.getConfig().get("PREFIX"))), "")
+                .replaceFirst("(?i)".concat(Pattern.quote(Bot.getConfig.get().get("PREFIX"))), "")
                 .split("\\s+");
         final var INVOKED = SPLIT[0].toLowerCase();
         final var COMMAND = this.getCommand(INVOKED);

@@ -25,36 +25,42 @@
 package io.github.pitzzahh.commands.slash_command;
 
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
-import io.github.pitzzahh.commands.slash_command.commands.Confess;
+import io.github.pitzzahh.commands.slash_command.commands.Secret;
 import org.jetbrains.annotations.NotNull;
 import java.util.*;
+import java.util.function.Consumer;
+import java.util.function.Supplier;
 
 public class SlashCommandManager {
 
     private final Map<String, SlashCommand> COMMANDS = new HashMap<>();
 
     public SlashCommandManager() {
-        addCommand( new Confess());
+        addCommand.accept(new Secret());
     }
 
-    private void addCommand(@NotNull SlashCommand command) {
+    Consumer<SlashCommand> addCommand = command -> {
         var found = this.COMMANDS.values()
                 .stream()
-                .anyMatch(c -> c.name().equalsIgnoreCase(command.name()));
+                .anyMatch(c -> c.name().get().equalsIgnoreCase(command.name().get()));
         if (found) throw new IllegalStateException("A Command With this name is already present!");
-        this.COMMANDS.put(command.name(), command);
-    }
+        this.COMMANDS.put(command.name().get(), command);
+    };
 
-    public void addCommands(@NotNull SlashCommand... commands) {
-        Arrays.stream(commands).forEach(this::addCommand);
+    private void addCommands(@NotNull SlashCommand... commands) {
+        Arrays.stream(commands).forEachOrdered(e -> this.addCommand.accept(e));
     }
 
     public void handle(@NotNull SlashCommandInteractionEvent event) {
         var commandName = event.getName();
         var commands = getCommands();
         var COMMAND_CONTEXT = new CommandContext(event);
-        if (commands.containsKey(commandName)) commands.get(commandName).execute(COMMAND_CONTEXT);
-        var COM = COMMANDS.values().stream().map(SlashCommand::getInfo).toList();
+        if (commands.containsKey(commandName)) commands.get(commandName).execute().accept(COMMAND_CONTEXT);
+        var COM = COMMANDS.values()
+                .stream()
+                .map(SlashCommand::getInfo)
+                .map(Supplier::get)
+                .toList();
         if (!COM.isEmpty()) Objects.requireNonNull(event.getGuild()).updateCommands().addCommands(COM).queue();
     }
 

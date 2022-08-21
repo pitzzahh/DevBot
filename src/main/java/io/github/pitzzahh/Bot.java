@@ -31,16 +31,16 @@ import net.dv8tion.jda.api.requests.GatewayIntent;
 import net.dv8tion.jda.api.sharding.ShardManager;
 import javax.security.auth.login.LoginException;
 import net.dv8tion.jda.api.entities.Activity;
-import org.jetbrains.annotations.Contract;
 import io.github.cdimascio.dotenv.Dotenv;
 import net.dv8tion.jda.api.OnlineStatus;
+import java.util.function.Supplier;
 
 public class Bot {
 
     private static Dotenv config;
     private static ShardManager shardManager;
 
-    public Bot() throws LoginException {
+    public static void start() throws LoginException {
         config = Dotenv.configure().load();
 
         final var TOKEN = config.get("TOKEN");
@@ -49,7 +49,7 @@ public class Bot {
         builder.setStatus(OnlineStatus.ONLINE)
                 .enableIntents(GatewayIntent.MESSAGE_CONTENT)
                 .enableIntents(GatewayIntent.GUILD_MEMBERS)
-                .setActivity(Activity.listening("your messages \uD83D\uDCE9"));
+                .setActivity(Activity.listening("your messages 📩"));
 
         shardManager = builder.build();
         shardManager.addEventListener(
@@ -61,18 +61,13 @@ public class Bot {
 
     /**
      * Get the {@code Dotenv} object.
-     * @return the {@code Dotenv} object.
+     * returns the {@code Dotenv} object.
      */
-    @Contract(pure = true)
-    public static Dotenv getConfig() {
-        return config;
-    }
+    public static Supplier<Dotenv> getConfig = () -> config;
 
     /**
      * Get the {@code ShardManager} object.
-     * @return the {@code ShardManager} object.
+     * returns the {@code ShardManager} object.
      */
-    public static ShardManager getShardManager() {
-        return shardManager;
-    }
+    public static Supplier<ShardManager> getShardManager = () -> shardManager;
 }

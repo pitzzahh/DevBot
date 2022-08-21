@@ -86,6 +86,6 @@ public class FormatCommand implements Command {
     @Override
     public String description() {
         return "Formats a code.\n" +
-                "Usage: ".concat(Bot.getConfig().get("PREFIX").concat(name())).concat(" [language] [content]");
+                "Usage: ".concat(Bot.getConfig.get().get("PREFIX").concat(name())).concat(" [language] [content]");
     }
 }

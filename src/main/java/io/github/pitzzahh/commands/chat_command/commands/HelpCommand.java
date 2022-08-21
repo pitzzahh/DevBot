@@ -63,7 +63,7 @@ public class HelpCommand implements Command {
                     .forEach(
                             c -> BUILDER
                                     .addField(
-                                            Bot.getConfig().get("PREFIX").concat(c.name()),
+                                            Bot.getConfig.get().get("PREFIX").concat(c.name()),
                                             c.description(),
                                             true
                                             )
@@ -103,7 +103,7 @@ public class HelpCommand implements Command {
     @Override
     public String description() {
         return "Shows the list of commands in the bot\n" +
-                "Usage: ".concat(Bot.getConfig().get("PREFIX")).concat("help [chat_command]");
+                "Usage: ".concat(Bot.getConfig.get().get("PREFIX")).concat("help [chat_command]");
     }
 
     /**
