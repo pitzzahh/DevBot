@@ -45,7 +45,7 @@
         <dependency>
             <groupId>io.github.pitzzahh</groupId>
             <artifactId>util-classes</artifactId>
-            <version>1.0.6</version>
+            <version>1.0.7</version>
         </dependency>
 
         <dependency>

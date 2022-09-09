@@ -49,7 +49,7 @@ public class SlashCommandListener extends ListenerAdapter {
         var guild = event.getGuild();
         var COM = COMMANDS.values()
                 .stream()
-                .map(SlashCommand::getInfo)
+                .map(SlashCommand::getCommandData)
                 .map(Supplier::get)
                 .toList();
 

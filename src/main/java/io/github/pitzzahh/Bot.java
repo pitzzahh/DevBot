@@ -23,6 +23,7 @@
  */
 package io.github.pitzzahh;
 
+import io.github.pitzzahh.listeners.MemberLogger;
 import net.dv8tion.jda.api.sharding.DefaultShardManagerBuilder;
 import io.github.pitzzahh.listeners.SlashCommandListener;
 import io.github.pitzzahh.listeners.MessageListener;
@@ -57,7 +58,8 @@ public class Bot {
         shardManager.addEventListener(
                 new MessageListener(),
                 new ButtonListener(),
-                new SlashCommandListener()
+                new SlashCommandListener(),
+                new MemberLogger()
         );
     }
 

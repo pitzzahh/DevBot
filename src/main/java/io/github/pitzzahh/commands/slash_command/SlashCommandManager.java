@@ -26,17 +26,21 @@ package io.github.pitzzahh.commands.slash_command;
 
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import io.github.pitzzahh.commands.slash_command.commands.Secret;
+import io.github.pitzzahh.commands.slash_command.commands.Game;
 import org.jetbrains.annotations.NotNull;
-import java.util.*;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
+import java.util.*;
 
 public class SlashCommandManager {
 
     private final Map<String, SlashCommand> COMMANDS = new HashMap<>();
 
     public SlashCommandManager() {
-        addCommand.accept(new Secret());
+        addCommands(
+                new Secret(),
+                new Game()
+        );
     }
 
     Consumer<SlashCommand> addCommand = command -> {
@@ -58,7 +62,7 @@ public class SlashCommandManager {
         if (commands.containsKey(commandName)) commands.get(commandName).execute().accept(COMMAND_CONTEXT);
         var COM = COMMANDS.values()
                 .stream()
-                .map(SlashCommand::getInfo)
+                .map(SlashCommand::getCommandData)
                 .map(Supplier::get)
                 .toList();
         if (!COM.isEmpty()) Objects.requireNonNull(event.getGuild()).updateCommands().addCommands(COM).queue();

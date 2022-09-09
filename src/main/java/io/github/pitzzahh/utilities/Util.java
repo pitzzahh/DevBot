@@ -23,18 +23,17 @@
  */
 package io.github.pitzzahh.utilities;
 
-import com.google.common.io.Resources;
+import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.MessageBuilder;
 import org.jetbrains.annotations.Contract;
-
-import java.io.IOException;
-import java.net.URISyntaxException;
-import java.net.URL;
 import java.nio.charset.StandardCharsets;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import com.google.common.io.Resources;
+import java.util.function.BiConsumer;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
+import java.io.IOException;
+import java.net.URL;
+import java.util.*;
 
 public class Util {
 
@@ -42,9 +41,15 @@ public class Util {
 
     private static final Map<String, Integer> VIOLATION_COUNT = new HashMap<>();
 
+    private static final Map<String, String> QUESTIONS = new HashMap<>(); // CONTAINS USERNAME AND ANSWER
+
+    public static final MessageBuilder MESSAGE_BUILDER = new MessageBuilder();
+
+    public static final EmbedBuilder EMBED_BUILDER = new EmbedBuilder();
+
     @Contract(pure = true)
     public static void loadSwearWords() throws IOException {
-        URL url = new URL("https://raw.githubusercontent.com/pitzzahh/list-of-profanity-words/main/list.txt");
+        URL url = new URL("https://raw.githubusercontent.com/pitzzahh/list-of-bad-words/main/list.txt");
         badWords = Resources.readLines(url, StandardCharsets.UTF_8);
     }
 
@@ -56,7 +61,7 @@ public class Util {
                 .stream()
                 .filter(e -> e.getKey().equals(username))
                 .map(Map.Entry::getValue)
-                .findAny()
+                .findFirst()
                 .orElse(0);
         Util.VIOLATION_COUNT.put(username, violationCount + 1);
     }
@@ -73,5 +78,22 @@ public class Util {
             return true;
         }
         return false;
+    }
+
+    public static BiConsumer<String, String> addQuestion = QUESTIONS::put;
+
+    public static boolean isTheOneWhoPlays(String username) {
+        return QUESTIONS.entrySet()
+                .stream()
+                .anyMatch(e -> e.getKey().equals(username));
+    }
+
+    public static boolean answer(String player, String a) {
+       var answer =  QUESTIONS.entrySet()
+                .stream()
+                .filter(e -> e.getKey().equals(player))
+                .map(Map.Entry::getValue)
+                .collect(Collectors.joining());
+       return answer.equals(a) && QUESTIONS.entrySet().removeIf(e -> e.getKey().equals(player));
     }
 }

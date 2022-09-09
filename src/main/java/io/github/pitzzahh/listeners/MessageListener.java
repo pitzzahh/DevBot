@@ -23,28 +23,30 @@
  */
 package io.github.pitzzahh.listeners;
 
-import io.github.pitzzahh.moderation.MessageChecker;
-import io.github.pitzzahh.utilities.Util;
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
-import net.dv8tion.jda.api.interactions.components.ActionRow;
-import net.dv8tion.jda.api.hooks.ListenerAdapter;
-import net.dv8tion.jda.api.MessageBuilder;
+import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import io.github.pitzzahh.commands.chat_command.CommandManager;
+import net.dv8tion.jda.api.interactions.components.ActionRow;
+import io.github.pitzzahh.moderation.MessageChecker;
+import static io.github.pitzzahh.utilities.Util.*;
+import net.dv8tion.jda.api.hooks.ListenerAdapter;
+import io.github.pitzzahh.utilities.Util;
 import org.jetbrains.annotations.NotNull;
-import net.dv8tion.jda.api.EmbedBuilder;
+
+import java.time.Clock;
+import java.time.format.DateTimeFormatter;
+import java.time.format.FormatStyle;
+import java.util.concurrent.TimeUnit;
 import java.time.LocalDateTime;
 import io.github.pitzzahh.Bot;
+import java.util.Objects;
 import java.time.ZoneId;
 import java.awt.*;
-import java.util.Objects;
-import java.util.concurrent.TimeUnit;
 
 public class MessageListener extends ListenerAdapter {
 
     private final CommandManager MANAGER = new CommandManager();
-    private final MessageBuilder MESSAGE_BUILDER = new MessageBuilder();
-    private final EmbedBuilder EMBED_BUILDER = new EmbedBuilder();
+
 
     @Override
     public void onMessageReceived(@NotNull MessageReceivedEvent event) {
@@ -53,10 +55,10 @@ public class MessageListener extends ListenerAdapter {
         final var MESSAGE = event.getMessage().getContentRaw();
         if (MESSAGE.startsWith(PREFIX)) MANAGER.handle(event);
         else {
-            if (MESSAGE.equals(Bot.getConfig.get().get("VERIFY_MESSAGE"))) {
+            if (MESSAGE.equals(Bot.getConfig.get().get("VERIFY_MESSAGE_COMMAND"))) {
                 final var IS_IN_VERIFY_CHANNEL = event.getChannel()
                         .getName()
-                        .equals(Bot.getConfig.get().get("VERIFY_CHANNEL"));
+                        .equals(Bot.getConfig.get().get("VERIFY_CHANNEL_NAME"));
                 if (IS_IN_VERIFY_CHANNEL) {
                     final var BUTTON = Button.primary("verify-button", "Verify");
                     EMBED_BUILDER.clear()
@@ -66,8 +68,8 @@ public class MessageListener extends ListenerAdapter {
                             .appendDescription("Click the verify button to verify")
                             .setTimestamp(LocalDateTime.now(ZoneId.of("UTC")))
                             .setFooter(
-                                    String.format("Created by %s", event.getAuthor().getAsTag()),
-                                    event.getGuild().getIconUrl()
+                                    String.format("Created by %s", event.getJDA().getSelfUser().getAsTag()),
+                                    event.getJDA().getSelfUser().getAvatarUrl()
                             );
                     MESSAGE_BUILDER.clear()
                             .setActionRows(ActionRow.of(BUTTON))
@@ -90,8 +92,8 @@ public class MessageListener extends ListenerAdapter {
                                     .setDescription("your secret will be anonymous")
                                     .appendDescription(", use `/secret` to tell a secret")
                                     .setFooter(
-                                            String.format("Created by %s", event.getAuthor().getName()),
-                                            event.getGuild().getIconUrl()
+                                            String.format("Created by %s", event.getJDA().getSelfUser().getAsTag()),
+                                            category.getJDA().getSelfUser().getAvatarUrl()
                                     );
                             category.createTextChannel(Bot.getConfig.get().get("SECRET_CHANNEL"))
                                     .queue(c -> c.sendMessageEmbeds(EMBED_BUILDER.build()).queue());
@@ -109,25 +111,33 @@ public class MessageListener extends ListenerAdapter {
                             .setFooter("This message will be automatically deleted");
                     event.getMessage()
                             .replyEmbeds(EMBED_BUILDER.build())
-                            .queue(e -> {
-                                        event.getMessage().delete().queue();
-                                        e.delete().queueAfter(10, TimeUnit.SECONDS);
-                            });
+                            .queue(e -> e.delete().queueAfter(5, TimeUnit.SECONDS));
+                    event.getMessage().delete().queue();
                 }
                 else {
-                    var contains = MessageChecker.search(event.getMessage().getContentRaw());
+                    var contains = MessageChecker.search.apply(event.getMessage().getContentRaw());
                     System.out.println("is bad word = " + contains);
                     if (contains && !AUTHOR.isBot()) {
-                        if (Util.violatedThreeTimes(AUTHOR.getName())) {
+                        Util.addViolation(AUTHOR.getName());
+                        var isTimedOut = Util.violatedThreeTimes(AUTHOR.getName());
+                        if (isTimedOut) {
                             EMBED_BUILDER.clear()
                                     .clearFields()
                                     .setColor(Color.RED)
                                     .setTitle("Violated Three Times")
-                                    .appendDescription(AUTHOR.getAsMention().concat("Cannot send messages for 5 minutes"))
-                                    .setTimestamp(LocalDateTime.now(ZoneId.of("UTC")).plusSeconds(10))
+                                    .appendDescription(
+                                            String.format(
+                                                    AUTHOR.getAsMention().concat(" Cannot send messages until %s"),
+                                                    LocalDateTime.now(Clock.systemDefaultZone())
+                                                            .plusMinutes(1)
+                                                            .format(
+                                                                    DateTimeFormatter.ofLocalizedTime(FormatStyle.SHORT)
+                                                            )
+                                            )
+                                    )
                                     .setFooter(
-                                            String.format("Scanned by %s", event.getAuthor().getName()),
-                                            event.getGuild().getIconUrl()
+                                            String.format("Scanned by %s", event.getJDA().getSelfUser().getAsTag()),
+                                            event.getJDA().getSelfUser().getAvatarUrl()
                                     );
                             event.getChannel()
                                     .sendMessageEmbeds(EMBED_BUILDER.build())
@@ -135,24 +145,56 @@ public class MessageListener extends ListenerAdapter {
                             AUTHOR.retrieveProfile()
                                     .timeout(5, TimeUnit.MINUTES)
                                     .queue();
+                            event.getMessage().delete().queueAfter(2, TimeUnit.SECONDS);
                         }
                         else {
                             EMBED_BUILDER.clear()
                                     .clearFields()
                                     .setColor(Color.RED)
                                     .setTitle("Bad Word Detected")
-                                    .appendDescription("Your message will be deleted 10 seconds from now")
-                                    .setTimestamp(LocalDateTime.now(ZoneId.of("UTC")).plusSeconds(10))
+                                    .appendDescription(
+                                            String.format(
+                                                    "This message will be deleted on %s",
+                                                    LocalDateTime.now(Clock.systemDefaultZone())
+                                                            .plusMinutes(1)
+                                                            .format(
+                                                                    DateTimeFormatter.ofLocalizedTime(FormatStyle.SHORT)
+                                                            )
+                                            )
+                                    )
                                     .setFooter(
-                                            String.format("Scanned by %s", event.getAuthor().getName()),
-                                            event.getGuild().getIconUrl()
+                                            String.format("Scanned by %s", event.getJDA().getSelfUser().getAsTag()),
+                                            event.getJDA().getSelfUser().getAvatarUrl()
                                     );
                             event.getMessage()
                                     .replyEmbeds(EMBED_BUILDER.build())
                                     .mentionRepliedUser(true)
                                     .queue();
-                            Util.addViolation(AUTHOR.getName());
-                            event.getMessage().delete().queueAfter(10, TimeUnit.SECONDS);
+                            event.getMessage().delete().queueAfter(5, TimeUnit.SECONDS);
+                        }
+                    }
+
+                    if (isTheOneWhoPlays(AUTHOR.getName())) {
+                        var isCorrect = answer(AUTHOR.getName(), MESSAGE);
+                        if (isCorrect) {
+                            EMBED_BUILDER.clear()
+                                    .clearFields()
+                                    .setColor(Color.BLUE)
+                                    .setTitle("Correct!");
+                            event.getMessage()
+                                    .replyEmbeds(EMBED_BUILDER.build())
+                                    .queue();
+                        }
+                        else {
+                            if (isTheOneWhoPlays(AUTHOR.getName())) {
+                                EMBED_BUILDER.clear()
+                                        .clearFields()
+                                        .setColor(Color.RED)
+                                        .setTitle("WRONG ANSWER");
+                                event.getMessage()
+                                        .replyEmbeds(EMBED_BUILDER.build())
+                                        .queue();
+                            }
                         }
                     }
                 }

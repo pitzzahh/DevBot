@@ -8,15 +8,34 @@ import java.util.function.Supplier;
 
 public interface SlashCommand {
 
+    /**
+     * Executes a {@code SlashCommand}
+     * @return nothing.
+     * @see Consumer
+     */
     Consumer<CommandContext> execute();
 
-
+    /**
+     * Supplies the name of the slash command.
+     * @return a {@code Supplier<String>}.
+     * @see Supplier
+     */
     Supplier<String> name();
 
-    default Supplier<CommandData> getInfo() {
+    /**
+     * Supplies the command data of a slash command.
+     * @return a {@code Supplier<CommandData>}.
+     * @see Supplier
+     * @see CommandData
+     */
+    default Supplier<CommandData> getCommandData() {
         return () -> new CommandDataImpl(name().get(), description().get());
     }
 
-
+    /**
+     * Supplies the description of a slash command.
+     * @return a {code Supplier<String>} containing the description of the command.
+     * @see Supplier
+     */
     Supplier<String> description();
 }
