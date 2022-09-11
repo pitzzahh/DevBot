@@ -119,8 +119,8 @@ public class MessageListener extends ListenerAdapter {
                     System.out.println("is bad word = " + contains);
                     if (contains && !AUTHOR.isBot()) {
                         Util.addViolation(AUTHOR.getName());
-                        var isTimedOut = Util.violatedThreeTimes(AUTHOR.getName());
-                        if (isTimedOut) {
+                        var isVeryBad = Util.violatedThreeTimes(AUTHOR.getName());
+                        if (isVeryBad) {
                             EMBED_BUILDER.clear()
                                     .clearFields()
                                     .setColor(Color.RED)
@@ -130,9 +130,7 @@ public class MessageListener extends ListenerAdapter {
                                                     AUTHOR.getAsMention().concat(" Cannot send messages until %s"),
                                                     LocalDateTime.now(Clock.systemDefaultZone())
                                                             .plusMinutes(1)
-                                                            .format(
-                                                                    DateTimeFormatter.ofLocalizedTime(FormatStyle.SHORT)
-                                                            )
+                                                            .format(DateTimeFormatter.ofLocalizedTime(FormatStyle.SHORT))
                                             )
                                     )
                                     .setFooter(
