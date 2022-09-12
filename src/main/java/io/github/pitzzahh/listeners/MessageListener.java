@@ -30,23 +30,21 @@ import net.dv8tion.jda.api.interactions.components.ActionRow;
 import io.github.pitzzahh.moderation.MessageChecker;
 import static io.github.pitzzahh.utilities.Util.*;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
+import java.time.format.DateTimeFormatter;
 import io.github.pitzzahh.utilities.Util;
 import org.jetbrains.annotations.NotNull;
-
-import java.time.Clock;
-import java.time.format.DateTimeFormatter;
-import java.time.format.FormatStyle;
 import java.util.concurrent.TimeUnit;
+import java.time.format.FormatStyle;
 import java.time.LocalDateTime;
 import io.github.pitzzahh.Bot;
 import java.util.Objects;
 import java.time.ZoneId;
+import java.time.Clock;
 import java.awt.*;
 
 public class MessageListener extends ListenerAdapter {
 
     private final CommandManager MANAGER = new CommandManager();
-
 
     @Override
     public void onMessageReceived(@NotNull MessageReceivedEvent event) {
