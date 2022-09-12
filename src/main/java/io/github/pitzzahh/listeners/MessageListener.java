@@ -114,7 +114,7 @@ public class MessageListener extends ListenerAdapter {
                             .queue(e -> e.delete().queueAfter(5, TimeUnit.SECONDS));
                     event.getMessage().delete().queue();
                 }
-                else {
+                else if (!AUTHOR.isBot()){
                     var contains = MessageChecker.search.apply(event.getMessage().getContentRaw());
                     System.out.println("is bad word = " + contains);
                     if (contains && !AUTHOR.isBot()) {
