@@ -52,7 +52,7 @@ public class CommandManager {
      */
     private void addCommand(Command command) {
         var found = this.COMMANDS.stream()
-                .anyMatch(c -> c.name().equalsIgnoreCase(command.name()));
+                .anyMatch(c -> c.name().get().equalsIgnoreCase(command.name().get()));
         if (found) throw new IllegalStateException("A Command With this name is already present!");
         this.COMMANDS.add(command);
     }
@@ -70,7 +70,7 @@ public class CommandManager {
         final var COMMAND = s.toLowerCase();
         return this.COMMANDS
                 .stream()
-                .filter(c -> c.name().equalsIgnoreCase(COMMAND) || c.aliases().contains(COMMAND))
+                .filter(c -> c.name().get().equalsIgnoreCase(COMMAND) || c.aliases().get().contains(COMMAND))
                 .findAny();
     }
 
@@ -87,7 +87,7 @@ public class CommandManager {
         event.getChannel().sendTyping().queue();
         final var ARGS = Arrays.asList(SPLIT).subList(1, SPLIT.length);
         final var COMMAND_CONTEXT = new CommandContext(event, ARGS);
-        COMMAND.ifPresentOrElse(command -> command.handle(COMMAND_CONTEXT),
+        COMMAND.ifPresentOrElse(command -> command.handle().accept(COMMAND_CONTEXT),
                 () -> event.getMessage().reply(String.format("%s is not a chat_command", INVOKED)).queue(
                 e -> e.getChannel().sendMessage(";help").queue(m -> m.delete().queue())
         ));
