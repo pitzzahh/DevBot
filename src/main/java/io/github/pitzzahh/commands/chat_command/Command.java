@@ -23,6 +23,8 @@
  */
 package io.github.pitzzahh.commands.chat_command;
 
+import java.util.function.Consumer;
+import java.util.function.Supplier;
 import java.util.List;
 
 /**
@@ -32,30 +34,28 @@ public interface Command {
 
     /**
      * Handles the chat_command.
-     * @param context a {@code CommandContext}.
+     * Accepts a {@code CommandContext}.
      * @see CommandContext
      */
-    void handle(CommandContext context);
+    Consumer<CommandContext> handle();
 
     /**
      * The name of the chat_command.
-     * @return the name of the chat_command.
+     * Supplies the name of the chat_command.
      */
-    String name();
+    Supplier<String> name();
 
     /**
      * The description of the chat_command.
-     * @return the description of the chat_command.
+     * Supplies the description of the chat_command.
      */
-    String description();
-
+    Supplier<String> description();
     /**
      * The possible aliases for a chat_command.
      * @return a {@code List<String>} containing the aliases of a chat_command.
      */
-    default List<String> aliases() {
-        return List.of();
+    default Supplier<List<String>> aliases() {
+        return List::of;
     }
-
 
 }
