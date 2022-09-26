@@ -28,14 +28,12 @@ import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import org.jetbrains.annotations.NotNull;
 import net.dv8tion.jda.api.entities.Role;
 import net.dv8tion.jda.api.EmbedBuilder;
-
-import java.time.Clock;
 import java.time.format.DateTimeFormatter;
 import java.time.format.FormatStyle;
 import java.util.concurrent.TimeUnit;
 import java.time.LocalDateTime;
 import java.util.Objects;
-import java.time.ZoneId;
+import java.time.Clock;
 import java.awt.*;
 
 public class ButtonListener extends ListenerAdapter {
