@@ -34,7 +34,7 @@ import net.dv8tion.jda.api.interactions.commands.OptionType;
 import static io.github.pitzzahh.utilities.Print.println;
 import static io.github.pitzzahh.utilities.Util.*;
 import static java.lang.String.format;
-import io.github.pitzzahh.games.RND;
+import io.github.pitzzahh.games.RMP;
 import java.util.function.Supplier;
 import java.util.function.Consumer;
 import java.util.Objects;
@@ -65,8 +65,8 @@ public class Game implements SlashCommand {
             case MEDIUM -> Color.YELLOW;
             case HARD -> Color.RED;
         };
-        RND.setDifficulty(DIFFICULTY);
-        RND.play();
+        RMP.setDifficulty(DIFFICULTY);
+        RMP.play();
         EMBED_BUILDER.clear()
                 .clearFields()
                 .setColor(COLOR)
@@ -74,9 +74,9 @@ public class Game implements SlashCommand {
                 .setDescription(
                         format(
                                 "Problem: %s %s %s = ?",
-                                RND.getFirstNumber(),
-                                RND.getOperation(),
-                                RND.getSecondNumber()
+                                RMP.getFirstNumber(),
+                                RMP.getOperation(),
+                                RMP.getSecondNumber()
                         )
                 );
 
@@ -84,7 +84,7 @@ public class Game implements SlashCommand {
                 .getInteraction()
                 .replyEmbeds(EMBED_BUILDER.build())
                 .queue();
-        addQuestion.accept(PLAYER, RND.getAnswer());
+        addQuestion.accept(PLAYER, RMP.getAnswer());
     }
 
     /**
