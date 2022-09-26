@@ -22,44 +22,66 @@
  * SOFTWARE.
  */
 
-package io.github.pitzzahh.commands.slash_command;
+package io.github.pitzzahh.commands.slash_command.commands;
 
-import net.dv8tion.jda.api.interactions.commands.build.CommandData;
-import net.dv8tion.jda.internal.interactions.CommandDataImpl;
+import io.github.pitzzahh.commands.slash_command.CommandContext;
+import io.github.pitzzahh.commands.slash_command.SlashCommand;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
+import java.net.http.HttpResponse;
+import java.net.http.HttpRequest;
+import java.net.http.HttpClient;
 import java.io.IOException;
+import java.net.URI;
 
-public interface SlashCommand {
+public class Joke implements SlashCommand {
 
     /**
      * Executes a {@code SlashCommand}
+     *
      * @return nothing.
      * @see Consumer
      */
-    Consumer<CommandContext> execute() throws InterruptedException, IOException;
+    @Override
+    public Consumer<CommandContext> execute() throws InterruptedException, IOException {
+        final var CLIENT = HttpClient.newHttpClient();
+        final var REQUEST = HttpRequest.newBuilder()
+                .uri(URI.create("https://icanhazdadjoke.com/slack"))
+                .GET()
+                .build();
+        final var RESPONSE = CLIENT.send(REQUEST, HttpResponse.BodyHandlers.ofString());
+        var joke = "Default Joke";
+        if (RESPONSE.statusCode() == 200) {
+            final var OBJECT_MAPPER = new ObjectMapper();
+            var NODE = OBJECT_MAPPER.readTree(RESPONSE.body());
+            System.out.println("CALLED");
+            System.out.println(NODE.withArray("text").asText());
+            joke = NODE.withArray("text").asText();
+        }
+        var finalJoke = joke;
+        return context -> context.getEvent().reply(finalJoke).queue();
+    }
 
     /**
      * Supplies the name of the slash command.
+     *
      * @return a {@code Supplier<String>}.
      * @see Supplier
      */
-    Supplier<String> name();
-
-    /**
-     * Supplies the command data of a slash command.
-     * @return a {@code Supplier<CommandData>}.
-     * @see Supplier
-     * @see CommandData
-     */
-    default Supplier<CommandData> getCommandData() {
-        return () -> new CommandDataImpl(name().get(), description().get());
+    @Override
+    public Supplier<String> name() {
+        return () -> "joke";
     }
 
     /**
      * Supplies the description of a slash command.
+     *
      * @return a {code Supplier<String>} containing the description of the command.
      * @see Supplier
      */
-    Supplier<String> description();
+    @Override
+    public Supplier<String> description() {
+        return () -> "Returns a random Dad Joke";
+    }
 }

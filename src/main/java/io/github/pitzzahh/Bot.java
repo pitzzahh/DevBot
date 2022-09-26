@@ -23,21 +23,20 @@
  */
 package io.github.pitzzahh;
 
-import io.github.pitzzahh.listeners.SlashCommandListener;
-import io.github.pitzzahh.utilities.Util;
+import io.github.pitzzahh.listeners.MemberLogger;
 import net.dv8tion.jda.api.sharding.DefaultShardManagerBuilder;
+import io.github.pitzzahh.listeners.SlashCommandListener;
 import io.github.pitzzahh.listeners.MessageListener;
 import io.github.pitzzahh.listeners.ButtonListener;
 import net.dv8tion.jda.api.requests.GatewayIntent;
 import net.dv8tion.jda.api.sharding.ShardManager;
 import javax.security.auth.login.LoginException;
 import net.dv8tion.jda.api.entities.Activity;
+import io.github.pitzzahh.utilities.Util;
 import io.github.cdimascio.dotenv.Dotenv;
 import net.dv8tion.jda.api.OnlineStatus;
-
-import java.io.IOException;
-import java.net.URISyntaxException;
 import java.util.function.Supplier;
+import java.io.IOException;
 
 public class Bot {
 
@@ -59,7 +58,8 @@ public class Bot {
         shardManager.addEventListener(
                 new MessageListener(),
                 new ButtonListener(),
-                new SlashCommandListener()
+                new SlashCommandListener(),
+                new MemberLogger()
         );
     }
 

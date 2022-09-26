@@ -24,21 +24,25 @@
 
 package io.github.pitzzahh.commands.slash_command.commands;
 
-import io.github.pitzzahh.Bot;
-import io.github.pitzzahh.commands.slash_command.CommandContext;
-import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.MessageBuilder;
-import io.github.pitzzahh.commands.slash_command.SlashCommand;
-import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.CommandData;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
+import io.github.pitzzahh.commands.slash_command.CommandContext;
+import io.github.pitzzahh.commands.slash_command.SlashCommand;
 import net.dv8tion.jda.internal.interactions.CommandDataImpl;
-import java.awt.*;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.util.Objects;
+import net.dv8tion.jda.api.interactions.commands.OptionType;
+import net.dv8tion.jda.api.MessageBuilder;
+import net.dv8tion.jda.api.EmbedBuilder;
+
+import java.time.format.DateTimeFormatter;
+import java.time.format.FormatStyle;
+import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
+import java.time.LocalDateTime;
+import io.github.pitzzahh.Bot;
+import java.util.Objects;
+import java.time.ZoneId;
+import java.awt.*;
 
 public class Secret implements SlashCommand {
 
@@ -68,7 +72,19 @@ public class Secret implements SlashCommand {
                                 .queue(e -> {
                                     EMBED_BUILDER.clear()
                                             .setColor(Color.GREEN)
-                                            .setDescription("Secret message sent");
+                                            .setTitle("Secret message sent")
+                                            .setDescription("This message will be deleted")
+                                            .setFooter(
+                                                    String.format(
+                                                            "This message will be deleted on %s",
+                                                            LocalDateTime.now(ZoneId.of("UTC"))
+                                                                    .plusMinutes(1)
+                                                                    .format(
+                                                                            DateTimeFormatter.ofLocalizedTime(FormatStyle.SHORT)
+                                                                    )
+                                                    )
+                                            );
+
                                     MESSAGE_BUILDER.clear()
                                             .setEmbeds(EMBED_BUILDER.build());
                                     context.getEvent()
@@ -76,6 +92,7 @@ public class Secret implements SlashCommand {
                                             .reply(MESSAGE_BUILDER.build())
                                             .setEphemeral(true)
                                             .queue();
+                                    e.delete().queueAfter(1, TimeUnit.MINUTES);
                                 })
                 );
             }
@@ -88,7 +105,7 @@ public class Secret implements SlashCommand {
     }
 
     @Override
-    public Supplier<CommandData> getInfo() {
+    public Supplier<CommandData> getCommandData() {
         return () -> new CommandDataImpl(
                 name().get(),
                 description().get()

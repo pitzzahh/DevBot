@@ -24,11 +24,13 @@
 package io.github.pitzzahh.commands.chat_command.commands;
 
 import io.github.pitzzahh.commands.chat_command.CommandContext;
-import org.jetbrains.annotations.Contract;
-import io.github.pitzzahh.commands.chat_command.Command;
 import io.github.pitzzahh.commands.chat_command.CommandManager;
+import io.github.pitzzahh.commands.chat_command.Command;
+import static io.github.pitzzahh.Bot.getConfig;
+import org.jetbrains.annotations.Contract;
 import net.dv8tion.jda.api.EmbedBuilder;
-import io.github.pitzzahh.Bot;
+import java.util.function.Consumer;
+import java.util.function.Supplier;
 import java.util.List;
 import java.awt.*;
 
@@ -43,13 +45,12 @@ public class HelpCommand implements Command {
     }
 
     /**
-     * Handles the chat_command.
+     * Contains the process to be handled.
      *
      * @param context a {@code CommandContext}.
      * @see CommandContext
      */
-    @Override
-    public void handle(CommandContext context) {
+    public void process(CommandContext context) {
         final var ARGS = context.getArgs();
         final var CHANNEL = context.getEvent().getChannel();
 
@@ -63,8 +64,8 @@ public class HelpCommand implements Command {
                     .forEach(
                             c -> BUILDER
                                     .addField(
-                                            Bot.getConfig.get().get("PREFIX").concat(c.name()),
-                                            c.description(),
+                                            getConfig.get().get("PREFIX").concat(c.name().get()),
+                                            c.description().get(),
                                             true
                                             )
                     );
@@ -78,11 +79,22 @@ public class HelpCommand implements Command {
             BUILDER.clear()
                     .clearFields()
                     .setColor(Color.CYAN.brighter())
-                    .setTitle(COMMAND.get().name())
-                    .setDescription(COMMAND.get().description())
+                    .setTitle(COMMAND.get().name().get())
+                    .setDescription(COMMAND.get().description().get())
                     .setFooter("Created by pitzzahh-bot#3464", context.getGuild().getIconUrl());
             CHANNEL.sendMessageEmbeds(BUILDER.build()).queue();
         }
+    }
+
+    /**
+     * Handles the chat_command.
+     * Accepts a {@code CommandContext}.
+     *
+     * @see CommandContext
+     */
+    @Override
+    public Consumer<CommandContext> handle() {
+        return this::process;
     }
 
     /**
@@ -91,19 +103,18 @@ public class HelpCommand implements Command {
      * @return the name of the chat_command.
      */
     @Override
-    public String name() {
-        return "help";
+    public Supplier<String> name() {
+        return () -> "help";
     }
 
     /**
      * The description of the chat_command.
-     *
      * @return the description of the chat_command.
      */
     @Override
-    public String description() {
-        return "Shows the list of commands in the bot\n" +
-                "Usage: ".concat(Bot.getConfig.get().get("PREFIX")).concat("help [chat_command]");
+    public Supplier<String> description() {
+        return () -> "Shows the list of commands in the bot\n" +
+                "Usage: ".concat(getConfig.get().get("PREFIX")).concat("help [chat_command]");
     }
 
     /**
@@ -112,7 +123,7 @@ public class HelpCommand implements Command {
      * @return a {@code List<String>} containing the aliases of a chat_command.
      */
     @Override
-    public List<String> aliases() {
-        return List.of("commands","chat_command", "chat_command list", "com");
+    public Supplier<List<String>> aliases() {
+        return () -> List.of("commands","chat_command", "chat_command list", "com");
     }
 }

@@ -24,14 +24,14 @@
 
 package io.github.pitzzahh.listeners;
 
+import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import io.github.pitzzahh.commands.slash_command.SlashCommandManager;
 import io.github.pitzzahh.commands.slash_command.SlashCommand;
 import net.dv8tion.jda.api.events.guild.GuildReadyEvent;
-import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import org.jetbrains.annotations.NotNull;
-
 import java.util.function.Supplier;
+import java.io.IOException;
 
 
 public class SlashCommandListener extends ListenerAdapter {
@@ -40,7 +40,11 @@ public class SlashCommandListener extends ListenerAdapter {
 
     @Override
     public void onSlashCommandInteraction(@NotNull SlashCommandInteractionEvent event) {
-        SLASH_COMMAND_MANAGER.handle(event);
+        try {
+            SLASH_COMMAND_MANAGER.handle(event);
+        } catch (IOException | InterruptedException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Override
@@ -49,7 +53,7 @@ public class SlashCommandListener extends ListenerAdapter {
         var guild = event.getGuild();
         var COM = COMMANDS.values()
                 .stream()
-                .map(SlashCommand::getInfo)
+                .map(SlashCommand::getCommandData)
                 .map(Supplier::get)
                 .toList();
 

@@ -25,17 +25,18 @@ package io.github.pitzzahh.commands.chat_command.commands;
 
 import io.github.pitzzahh.commands.chat_command.CommandContext;
 import io.github.pitzzahh.commands.chat_command.Command;
+import java.util.function.Consumer;
+import java.util.function.Supplier;
 
 public class PingCommand implements Command {
 
     /**
-     * Handles the chat_command.
+     * Contains the process to be handled.
      *
      * @param context a {@code CommandContext}.
      * @see CommandContext
      */
-    @Override
-    public void  handle(CommandContext context) {
+    public void  process(CommandContext context) {
         var jda = context.getEvent().getJDA();
         jda.getRestPing().queue(
                 ping ->
@@ -46,9 +47,20 @@ public class PingCommand implements Command {
         );
     }
 
+    /**
+     * Handles the chat_command.
+     * Accepts a {@code CommandContext}.
+     *
+     * @see CommandContext
+     */
     @Override
-    public String name() {
-        return "ping";
+    public Consumer<CommandContext> handle() {
+        return this::process;
+    }
+
+    @Override
+    public Supplier<String> name() {
+        return () -> "ping";
     }
 
     /**
@@ -57,7 +69,7 @@ public class PingCommand implements Command {
      * @return the description of the chat_command.
      */
     @Override
-    public String description() {
-        return "Shows the current ping from the bot to the discord servers.";
+    public Supplier<String> description() {
+        return () -> "Shows the current ping from the bot to the discord servers.";
     }
 }
