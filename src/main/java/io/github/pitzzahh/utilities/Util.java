@@ -23,10 +23,10 @@
  */
 package io.github.pitzzahh.utilities;
 
-import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.MessageBuilder;
 import org.jetbrains.annotations.Contract;
 import java.nio.charset.StandardCharsets;
+import net.dv8tion.jda.api.EmbedBuilder;
 import com.google.common.io.Resources;
 import java.util.function.BiConsumer;
 import java.util.function.Supplier;
@@ -47,6 +47,11 @@ public class Util {
 
     public static final EmbedBuilder EMBED_BUILDER = new EmbedBuilder();
 
+    /**
+     * Loads the swear words from a list from a GitHub repository and adds the csv file to a
+     * {@code List<String>}.
+     * @throws IOException if the list is not present.
+     */
     @Contract(pure = true)
     public static void loadSwearWords() throws IOException {
         URL url = new URL("https://raw.githubusercontent.com/pitzzahh/list-of-bad-words/main/list.txt");
@@ -57,24 +62,24 @@ public class Util {
 
     @Contract(pure = true)
     public static void addViolation(final String username) {
-        var violationCount = Util.VIOLATION_COUNT.entrySet()
+        var violationCount = VIOLATION_COUNT.entrySet()
                 .stream()
                 .filter(e -> e.getKey().equals(username))
                 .map(Map.Entry::getValue)
                 .findFirst()
                 .orElse(0);
-        Util.VIOLATION_COUNT.put(username, violationCount + 1);
+        VIOLATION_COUNT.put(username, violationCount + 1);
     }
 
     public static boolean violatedThreeTimes(String username) {
-        var violationCount = Util.VIOLATION_COUNT.entrySet()
+        var violationCount = VIOLATION_COUNT.entrySet()
                 .stream()
                 .filter(e -> e.getKey().equals(username))
                 .map(Map.Entry::getValue)
                 .findAny()
                 .orElse(0);
         if (violationCount >= 3) {
-            Util.VIOLATION_COUNT.remove(username);
+            VIOLATION_COUNT.remove(username);
             return true;
         }
         return false;
@@ -88,12 +93,18 @@ public class Util {
                 .anyMatch(e -> e.getKey().equals(username));
     }
 
-    public static boolean answer(String player, String a) {
-       var answer =  QUESTIONS.entrySet()
+    /**
+     * Checks if the user answer is correct.
+     * @param player the user that is playing.
+     * @param guess the user guess on a question.
+     * @return {@code true} if the user guessed the answer.
+     */
+    public static boolean answer(String player, String guess) {
+       final var ANSWER =  QUESTIONS.entrySet()
                 .stream()
                 .filter(e -> e.getKey().equals(player))
                 .map(Map.Entry::getValue)
                 .collect(Collectors.joining());
-       return answer.equals(a) && QUESTIONS.entrySet().removeIf(e -> e.getKey().equals(player));
+       return ANSWER.equals(guess) && QUESTIONS.entrySet().removeIf(e -> e.getKey().equals(player));
     }
 }
