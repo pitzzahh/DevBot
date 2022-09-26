@@ -23,12 +23,14 @@
  */
 package io.github.pitzzahh.commands.chat_command.commands;
 
-import net.dv8tion.jda.api.interactions.components.buttons.Button;
-import net.dv8tion.jda.api.interactions.components.ActionRow;
+import static net.dv8tion.jda.api.interactions.components.buttons.Button.primary;
+import static net.dv8tion.jda.api.interactions.components.ActionRow.of;
 import io.github.pitzzahh.commands.chat_command.CommandContext;
-import net.dv8tion.jda.api.MessageBuilder;
 import io.github.pitzzahh.commands.chat_command.Command;
+import net.dv8tion.jda.api.MessageBuilder;
 import org.jetbrains.annotations.NotNull;
+import java.util.function.Consumer;
+import java.util.function.Supplier;
 import io.github.pitzzahh.Bot;
 
 public class FormatCommand implements Command {
@@ -36,21 +38,19 @@ public class FormatCommand implements Command {
     private final MessageBuilder MESSAGE_BUILDER = new MessageBuilder();
 
     /**
-     * Handles the chat_command.
-     *
+     * Contains the process to be handled.
      * @param context a {@code CommandContext}.
      * @see CommandContext
      */
-    @Override
-    public void handle(@NotNull CommandContext context) {
+    public void process(@NotNull CommandContext context) {
         final var ARGS = context.getArgs();
         final var CHANNEL = context.getEvent().getChannel();
 
         if (ARGS.size() < 2) {
-            final var BUTTON = Button.primary("ok", "okay");
+            final var BUTTON = primary("ok", "okay");
             MESSAGE_BUILDER.clear()
                     .append("MISSING CONTENT")
-                    .setActionRows(ActionRow.of(BUTTON));
+                    .setActionRows(of(BUTTON));
             CHANNEL.sendMessage(MESSAGE_BUILDER.build()).queue();
             return;
         }
@@ -69,13 +69,24 @@ public class FormatCommand implements Command {
     }
 
     /**
+     * Handles the chat_command.
+     * Accepts a {@code CommandContext}.
+     *
+     * @see CommandContext
+     */
+    @Override
+    public Consumer<CommandContext> handle() {
+        return this::process;
+    }
+
+    /**
      * The name of the chat_command.
      *
      * @return the name of the chat_command.
      */
     @Override
-    public String name() {
-        return "format";
+    public Supplier<String> name() {
+        return () -> "format";
     }
 
     /**
@@ -84,8 +95,8 @@ public class FormatCommand implements Command {
      * @return the description of the chat_command.
      */
     @Override
-    public String description() {
-        return "Formats a code.\n" +
-                "Usage: ".concat(Bot.getConfig.get().get("PREFIX").concat(name())).concat(" [language] [content]");
+    public Supplier<String> description() {
+        return () -> "Formats a code.\n" +
+                "Usage: ".concat(Bot.getConfig.get().get("PREFIX").concat(name().get())).concat(" [language] [content]");
     }
 }
