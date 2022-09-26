@@ -24,17 +24,19 @@
 
 package io.github.pitzzahh.commands.slash_command.commands;
 
-import io.github.pitzzahh.games.enums.Difficulty;
-import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.CommandData;
+import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 import io.github.pitzzahh.commands.slash_command.CommandContext;
 import io.github.pitzzahh.commands.slash_command.SlashCommand;
-import net.dv8tion.jda.api.interactions.commands.build.OptionData;
+import io.github.pitzzahh.utilities.classes.enums.Difficulty;
 import net.dv8tion.jda.internal.interactions.CommandDataImpl;
-import io.github.pitzzahh.games.RandomMathProblem;
+import net.dv8tion.jda.api.interactions.commands.OptionType;
+import static io.github.pitzzahh.utilities.Print.println;
 import static io.github.pitzzahh.utilities.Util.*;
-import java.util.function.Consumer;
+import static java.lang.String.format;
+import io.github.pitzzahh.games.RND;
 import java.util.function.Supplier;
+import java.util.function.Consumer;
 import java.util.Objects;
 import java.awt.*;
 
@@ -46,41 +48,43 @@ public class Game implements SlashCommand {
      */
     @Override
     public Consumer<CommandContext> execute() {
-        return context -> {
-            try {
-                final var PLAYER = Objects.requireNonNull(context.event().getMember()).getEffectiveName();
-                final var SELECTED_DIFFICULTY = Objects.requireNonNull(context.getEvent().getOption("difficulty")).getAsString();
-                final var DIFFICULTY = Difficulty.valueOf(SELECTED_DIFFICULTY);
-                System.out.println("DIFFICULTY = " + DIFFICULTY);
-                final var COLOR = switch (DIFFICULTY) {
-                    case EASY -> Color.GREEN;
-                    case MEDIUM -> Color.YELLOW;
-                    case HARD -> Color.RED;
-                };
-                RandomMathProblem.setDifficulty(DIFFICULTY);
-                RandomMathProblem.play();
-                EMBED_BUILDER.clear()
-                        .clearFields()
-                        .setColor(COLOR)
-                        .setTitle(String.format("Difficulty: %s", DIFFICULTY.name()))
-                        .setDescription(
-                                String.format(
-                                        "Problem: %d %s %d = ?",
-                                        RandomMathProblem.getFirstNumber(),
-                                        RandomMathProblem.getOperation(),
-                                        RandomMathProblem.getSecondNumber()
-                                )
-                        );
+        return this::process;
+    }
 
-                context.getEvent()
-                        .getInteraction()
-                        .replyEmbeds(EMBED_BUILDER.build())
-                        .queue();
-                addQuestion.accept(PLAYER, RandomMathProblem.getAnswer().toString());
-            } catch (IllegalAccessException e) {
-                throw new RuntimeException(e);
-            }
+    /**
+     * Contains the process to be executed.
+     * @param context the command context containing the information about the command.
+     */
+    private void process(CommandContext context) {
+        final var PLAYER = Objects.requireNonNull(context.event().getMember()).getEffectiveName();
+        final var SELECTED_DIFFICULTY = Objects.requireNonNull(context.getEvent().getOption("difficulty")).getAsString();
+        final var DIFFICULTY = Difficulty.valueOf(SELECTED_DIFFICULTY);
+        println("DIFFICULTY = " + DIFFICULTY);
+        final var COLOR = switch (DIFFICULTY) {
+            case EASY -> Color.GREEN;
+            case MEDIUM -> Color.YELLOW;
+            case HARD -> Color.RED;
         };
+        RND.setDifficulty(DIFFICULTY);
+        RND.play();
+        EMBED_BUILDER.clear()
+                .clearFields()
+                .setColor(COLOR)
+                .setTitle(format("Difficulty: %s", DIFFICULTY.name()))
+                .setDescription(
+                        format(
+                                "Problem: %s %s %s = ?",
+                                RND.getFirstNumber(),
+                                RND.getOperation(),
+                                RND.getSecondNumber()
+                        )
+                );
+
+        context.getEvent()
+                .getInteraction()
+                .replyEmbeds(EMBED_BUILDER.build())
+                .queue();
+        addQuestion.accept(PLAYER, RND.getAnswer());
     }
 
     /**
