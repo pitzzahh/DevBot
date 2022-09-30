@@ -23,12 +23,14 @@
  */
 package io.github.pitzzahh.utilities;
 
+import static io.github.pitzzahh.utilities.Print.println;
 import net.dv8tion.jda.api.MessageBuilder;
-import org.jetbrains.annotations.Contract;
 import java.nio.charset.StandardCharsets;
+import org.jetbrains.annotations.NotNull;
 import net.dv8tion.jda.api.EmbedBuilder;
 import com.google.common.io.Resources;
 import java.util.function.BiConsumer;
+import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.io.IOException;
@@ -37,7 +39,7 @@ import java.util.*;
 
 public class Util {
 
-    private static List<String> badWords = Collections.emptyList();
+    private static List<String> notAllowed = Collections.emptyList();
 
     private static final Map<String, Integer> VIOLATION_COUNT = new HashMap<>();
 
@@ -52,45 +54,45 @@ public class Util {
      * {@code List<String>}.
      * @throws IOException if the list is not present.
      */
-    @Contract(pure = true)
     public static void loadSwearWords() throws IOException {
-        URL url = new URL("https://raw.githubusercontent.com/pitzzahh/list-of-bad-words/main/list.txt");
-        badWords = Resources.readLines(url, StandardCharsets.UTF_8);
+        final var URL = new URL("https://raw.githubusercontent.com/pitzzahh/list-of-bad-words/main/list.txt");
+        notAllowed = Resources.readLines(URL, StandardCharsets.UTF_8);
     }
 
-    public static Supplier<List<String>> getBadWords = () -> badWords;
+    public static Supplier<List<String>> badWords = () -> notAllowed;
 
-    @Contract(pure = true)
+    /**
+     * Adds violation to anyone who says a bad words.
+     * @param username the username of the user who violated.
+     */
     public static void addViolation(final String username) {
-        var violationCount = VIOLATION_COUNT.entrySet()
+        VIOLATION_COUNT.put(username, getViolationCount(username) + 1);
+    }
+
+    @NotNull
+    private static Integer getViolationCount(String username) {
+        return VIOLATION_COUNT.entrySet()
                 .stream()
                 .filter(e -> e.getKey().equals(username))
                 .map(Map.Entry::getValue)
                 .findFirst()
                 .orElse(0);
-        VIOLATION_COUNT.put(username, violationCount + 1);
     }
 
     public static boolean violatedThreeTimes(String username) {
-        var violationCount = VIOLATION_COUNT.entrySet()
-                .stream()
-                .filter(e -> e.getKey().equals(username))
-                .map(Map.Entry::getValue)
-                .findAny()
-                .orElse(0);
-        if (violationCount >= 3) {
-            VIOLATION_COUNT.remove(username);
-            return true;
-        }
-        return false;
+        var violated = getViolationCount(username) >= 3;
+        if (violated) VIOLATION_COUNT.remove(username);
+        return violated;
     }
 
     public static BiConsumer<String, String> addQuestion = QUESTIONS::put;
 
     public static boolean isTheOneWhoPlays(String username) {
-        return QUESTIONS.entrySet()
+        println(QUESTIONS);
+        if (isDone.apply(username)) return false;
+        return QUESTIONS.keySet()
                 .stream()
-                .anyMatch(e -> e.getKey().equals(username));
+                .anyMatch(username::equals);
     }
 
     /**
@@ -100,11 +102,18 @@ public class Util {
      * @return {@code true} if the user guessed the answer.
      */
     public static boolean answer(String player, String guess) {
-       final var ANSWER =  QUESTIONS.entrySet()
+        final var ANSWER =  QUESTIONS.entrySet()
                 .stream()
                 .filter(e -> e.getKey().equals(player))
                 .map(Map.Entry::getValue)
                 .collect(Collectors.joining());
-       return ANSWER.equals(guess) && QUESTIONS.entrySet().removeIf(e -> e.getKey().equals(player));
+        QUESTIONS.replace(player, null);
+        return guess.equals(ANSWER);
     }
+
+    public static Function<String, Boolean> isDone = player -> QUESTIONS.entrySet()
+            .stream()
+            .filter(e -> e.getKey().equals(player))
+            .map(Map.Entry::getValue)
+            .anyMatch(Objects::isNull);
 }
