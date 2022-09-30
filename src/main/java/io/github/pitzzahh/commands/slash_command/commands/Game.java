@@ -33,12 +33,13 @@ import net.dv8tion.jda.internal.interactions.CommandDataImpl;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import static io.github.pitzzahh.utilities.Print.println;
 import static io.github.pitzzahh.utilities.Util.*;
+import static io.github.pitzzahh.games.RMP.*;
 import static java.lang.String.format;
 import io.github.pitzzahh.games.RMP;
 import java.util.function.Supplier;
 import java.util.function.Consumer;
+import static java.awt.Color.*;
 import java.util.Objects;
-import java.awt.*;
 
 public class Game implements SlashCommand {
 
@@ -61,12 +62,12 @@ public class Game implements SlashCommand {
         final var DIFFICULTY = Difficulty.valueOf(SELECTED_DIFFICULTY);
         println("DIFFICULTY = " + DIFFICULTY);
         final var COLOR = switch (DIFFICULTY) {
-            case EASY -> Color.GREEN;
-            case MEDIUM -> Color.YELLOW;
-            case HARD -> Color.RED;
+            case EASY -> GREEN;
+            case MEDIUM -> YELLOW;
+            case HARD -> RED;
         };
-        RMP.setDifficulty(DIFFICULTY);
-        RMP.play();
+        setDifficulty(DIFFICULTY);
+        play();
         EMBED_BUILDER.clear()
                 .clearFields()
                 .setColor(COLOR)
@@ -82,9 +83,10 @@ public class Game implements SlashCommand {
 
         context.getEvent()
                 .getInteraction()
-                .replyEmbeds(EMBED_BUILDER.build())
+                .deferReply()
+                .addEmbeds((EMBED_BUILDER.build()))
                 .queue();
-        addQuestion.accept(PLAYER, RMP.getAnswer());
+        addQuestion.accept(PLAYER, getAnswer());
     }
 
     /**
