@@ -39,8 +39,7 @@ public class PingCommand implements Command {
     public void  process(CommandContext context) {
         var jda = context.getEvent().getJDA();
         jda.getRestPing().queue(
-                ping ->
-                        context.getEvent()
+                ping -> context.getEvent()
                                 .getChannel()
                                 .sendMessageFormat("Pong: %sms", ping)
                                 .queue()
