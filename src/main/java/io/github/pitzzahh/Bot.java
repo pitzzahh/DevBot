@@ -23,16 +23,16 @@
  */
 package io.github.pitzzahh;
 
+import io.github.pitzzahh.listeners.MemberLogger;
 import net.dv8tion.jda.api.sharding.DefaultShardManagerBuilder;
-import static io.github.pitzzahh.utilities.Util.loadSwearWords;
 import io.github.pitzzahh.listeners.SlashCommandListener;
 import io.github.pitzzahh.listeners.MessageListener;
 import io.github.pitzzahh.listeners.ButtonListener;
 import net.dv8tion.jda.api.requests.GatewayIntent;
-import io.github.pitzzahh.listeners.MemberLogger;
 import net.dv8tion.jda.api.sharding.ShardManager;
 import javax.security.auth.login.LoginException;
 import net.dv8tion.jda.api.entities.Activity;
+import io.github.pitzzahh.utilities.Util;
 import io.github.cdimascio.dotenv.Dotenv;
 import net.dv8tion.jda.api.OnlineStatus;
 import java.util.function.Supplier;
@@ -53,7 +53,7 @@ public class Bot {
                 .enableIntents(GatewayIntent.MESSAGE_CONTENT)
                 .enableIntents(GatewayIntent.GUILD_MEMBERS)
                 .setActivity(Activity.listening("your messages 📩"));
-        loadSwearWords();
+        Util.loadSwearWords();
         shardManager = builder.build();
         shardManager.addEventListener(
                 new MessageListener(),
