@@ -179,17 +179,17 @@ public class MessageListener extends ListenerAdapter {
 
                     if (isTheOneWhoPlays(AUTHOR.getName())) {
                         final var IS_CORRECT = answer(AUTHOR.getName(), MESSAGE);
-                        if (IS_CORRECT) {
-                            EMBED_BUILDER.clear()
-                                    .clearFields()
-                                    .setColor(BLUE)
-                                    .setTitle("Correct!");
-                            event.getMessage()
-                                    .replyEmbeds(EMBED_BUILDER.build())
-                                    .queue();
-                        }
-                        else {
-                            if (isTheOneWhoPlays(AUTHOR.getName()) && isWholeNumber().or(isDecimalNumber()).test(MESSAGE)) {
+                        if (isWholeNumber().or(isDecimalNumber()).test(MESSAGE)) {
+                            if (IS_CORRECT) {
+                                EMBED_BUILDER.clear()
+                                        .clearFields()
+                                        .setColor(BLUE)
+                                        .setTitle("Correct!");
+                                event.getMessage()
+                                        .replyEmbeds(EMBED_BUILDER.build())
+                                        .queue();
+                            }
+                            else {
                                 EMBED_BUILDER.clear()
                                         .clearFields()
                                         .setColor(RED)
