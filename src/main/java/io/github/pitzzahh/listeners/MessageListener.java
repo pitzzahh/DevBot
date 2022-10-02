@@ -45,6 +45,7 @@ import static java.lang.String.format;
 import static java.time.ZoneId.of;
 import static java.awt.Color.*;
 import java.util.Objects;
+import java.time.Clock;
 
 /**
  * Class that listens to messages on text channels.
@@ -60,35 +61,35 @@ public class MessageListener extends ListenerAdapter {
         final var MESSAGE = event.getMessage().getContentRaw();
         if (MESSAGE.startsWith(PREFIX)) MANAGER.handle(event);
         else {
-            if (MESSAGE.equals(getConfig.get().get("VERIFY_MESSAGE_COMMAND"))) {
-                final var IS_IN_VERIFY_CHANNEL = event.getChannel()
-                        .getName()
-                        .equals(getConfig.get().get("VERIFY_CHANNEL_NAME"));
-                if (IS_IN_VERIFY_CHANNEL) {
-                    final var BUTTON = primary("verify-button", "Verify");
-                    EMBED_BUILDER.clear()
-                            .clearFields()
-                            .setColor(BLUE)
-                            .setTitle("Verify yourself")
-                            .appendDescription("Click the verify button to verify")
-                            .setTimestamp(now(of("UTC")))
-                            .setFooter(
-                                    format("Created by %s", event.getJDA().getSelfUser().getAsTag()),
-                                    event.getJDA().getSelfUser().getAvatarUrl()
-                            );
-                    MESSAGE_BUILDER.clear()
-                            .setActionRows(of(BUTTON))
-                            .setEmbeds(EMBED_BUILDER.build());
-                    event.getChannel()
-                            .sendMessage(MESSAGE_BUILDER.build())
-                            .queue(e -> {
-                                if (!event.getMessage().isEdited()) event.getMessage().delete().queue();
-                            });
-                }
+            if (MESSAGE.equals(getConfig.get().get("VERIFY_COMMAND"))) {
+
+                final var VERIFY_CHANNEL_NAME = getConfig.get().get("VERIFY_CHANNEL_NAME");
+
+                final var BUTTON = primary("verify-button", "Verify");
+
+                EMBED_BUILDER.clear()
+                        .clearFields()
+                        .setColor(BLUE)
+                        .setTitle("Verify yourself")
+                        .appendDescription("Click the verify button to verify")
+                        .setTimestamp(now(of("UTC")))
+                        .setFooter(
+                                format("Created by %s", event.getJDA().getSelfUser().getAsTag()),
+                                event.getJDA().getSelfUser().getAvatarUrl()
+                        );
+
+                MESSAGE_BUILDER.clear()
+                        .setActionRows(of(BUTTON))
+                        .setEmbeds(EMBED_BUILDER.build());
+                event.getGuild()
+                        .createTextChannel(VERIFY_CHANNEL_NAME)
+                        .queue(c -> c.sendMessage(MESSAGE_BUILDER.build()).queue());
             }
-            else if (MESSAGE.equals(getConfig.get().get("CREATE_SECRET_CATEGORY")) && Objects.requireNonNull(event.getMember()).isOwner()){
-                final var CATEGORY_NAME = getConfig.get().get("CREATE_SECRET_CATEGORY");
-                event.getGuild().createCategory(CATEGORY_NAME.replace(CATEGORY_NAME.charAt(0), ' ')).queue(
+            else if (MESSAGE.equals(getConfig.get().get("SECRETS_COMMAND")) && Objects.requireNonNull(event.getMember()).isOwner()){
+                final var CATEGORY_NAME = getConfig.get().get("CREATE_SECRETS_CATEGORY");
+                event.getGuild().createCategory(CATEGORY_NAME)
+                        .syncPermissionOverrides()
+                        .queue(
                         category -> {
                             EMBED_BUILDER.clear()
                                     .clearFields()
@@ -184,7 +185,8 @@ public class MessageListener extends ListenerAdapter {
                                 EMBED_BUILDER.clear()
                                         .clearFields()
                                         .setColor(BLUE)
-                                        .setTitle("Correct!");
+                                        .setTitle("Correct!")
+                                        .setTimestamp(now(Clock.systemDefaultZone()));
                                 event.getMessage()
                                         .replyEmbeds(EMBED_BUILDER.build())
                                         .queue();
