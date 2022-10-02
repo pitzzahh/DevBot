@@ -46,6 +46,6 @@ public record CommandContext(SlashCommandInteractionEvent event) implements Slas
     @Override
     @Contract(pure = true)
     public SlashCommandInteractionEvent getEvent() {
-        return event();
+        return this.event();
     }
 }

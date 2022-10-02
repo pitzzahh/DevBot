@@ -25,6 +25,7 @@
 package io.github.pitzzahh.commands.slash_command;
 
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
+import io.github.pitzzahh.exceptions.CommandAlreadyExistException;
 import io.github.pitzzahh.commands.slash_command.commands.Secret;
 import io.github.pitzzahh.commands.slash_command.commands.Joke;
 import io.github.pitzzahh.commands.slash_command.commands.Game;
@@ -50,7 +51,7 @@ public class SlashCommandManager {
         var found = this.COMMANDS.values()
                 .stream()
                 .anyMatch(c -> c.name().get().equalsIgnoreCase(command.name().get()));
-        if (found) throw new IllegalStateException("A Command With this name is already present!");
+        if (found) throw new CommandAlreadyExistException("A Command With this name is already present!");
         this.COMMANDS.put(command.name().get(), command);
     };
 
@@ -60,9 +61,8 @@ public class SlashCommandManager {
 
     public void handle(@NotNull SlashCommandInteractionEvent event) throws IOException, InterruptedException {
         var commandName = event.getName();
-        var commands = getCommands();
         var COMMAND_CONTEXT = new CommandContext(event);
-        if (commands.containsKey(commandName)) commands.get(commandName).execute().accept(COMMAND_CONTEXT);
+        if (getCommands().containsKey(commandName)) getCommands().get(commandName).execute().accept(COMMAND_CONTEXT);
         var COM = COMMANDS.values()
                 .stream()
                 .map(SlashCommand::getCommandData)

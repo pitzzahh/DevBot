@@ -26,10 +26,14 @@ package io.github.pitzzahh.commands.slash_command.commands;
 
 import io.github.pitzzahh.commands.slash_command.CommandContext;
 import io.github.pitzzahh.commands.slash_command.SlashCommand;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import static io.github.pitzzahh.utilities.Util.EMBED_BUILDER;
+import static java.time.LocalDateTime.now;
+import static java.lang.String.format;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 import java.net.http.HttpResponse;
+import static java.awt.Color.CYAN;
+import static java.time.ZoneId.of;
 import java.net.http.HttpRequest;
 import java.net.http.HttpClient;
 import java.io.IOException;
@@ -44,23 +48,47 @@ public class Joke implements SlashCommand {
      * @see Consumer
      */
     @Override
-    public Consumer<CommandContext> execute() throws InterruptedException, IOException {
+    public Consumer<CommandContext> execute() {
+        return this::process;
+    }
+
+    /**
+     * Contains the process to be executed.
+     * @param context the command context containing the information about the command.
+     */
+    private void process(CommandContext context) {
         final var CLIENT = HttpClient.newHttpClient();
+
         final var REQUEST = HttpRequest.newBuilder()
-                .uri(URI.create("https://icanhazdadjoke.com/slack"))
+                .uri(URI.create("https://v2.jokeapi.dev/joke/Any?blacklistFlags=nsfw,religious,political,racist,sexist,explicit&format=txt"))
                 .GET()
                 .build();
-        final var RESPONSE = CLIENT.send(REQUEST, HttpResponse.BodyHandlers.ofString());
-        var joke = "Default Joke";
-        if (RESPONSE.statusCode() == 200) {
-            final var OBJECT_MAPPER = new ObjectMapper();
-            var NODE = OBJECT_MAPPER.readTree(RESPONSE.body());
-            System.out.println("CALLED");
-            System.out.println(NODE.withArray("text").asText());
-            joke = NODE.withArray("text").asText();
+        final HttpResponse<String> RESPONSE;
+
+        try {
+            RESPONSE = CLIENT.send(REQUEST, HttpResponse.BodyHandlers.ofString());
+        } catch (IOException | InterruptedException e) {
+            throw new RuntimeException(e);
         }
-        var finalJoke = joke;
-        return context -> context.getEvent().reply(finalJoke).queue();
+
+        var joke = RESPONSE.body();
+        EMBED_BUILDER.clear()
+                .clearFields()
+                .setColor(CYAN)
+                .setTitle("Joke of the day")
+                .setDescription(joke)
+                .setTimestamp(now(of("UTC")))
+                .setFooter(
+                        format("Created by %s", context.getGuild().getJDA().getSelfUser().getAsTag()),
+                        context.getGuild().getJDA().getSelfUser().getAvatarUrl()
+                );
+        if (RESPONSE.statusCode() == 200) {
+            context.getEvent()
+                    .getInteraction()
+                    .replyEmbeds(EMBED_BUILDER.build())
+                    .queue();
+        }
+
     }
 
     /**

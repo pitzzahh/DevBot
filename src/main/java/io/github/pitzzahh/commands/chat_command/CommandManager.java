@@ -23,11 +23,12 @@
  */
 package io.github.pitzzahh.commands.chat_command;
 
-import io.github.pitzzahh.Bot;
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import io.github.pitzzahh.commands.chat_command.commands.FormatCommand;
 import io.github.pitzzahh.commands.chat_command.commands.HelpCommand;
 import io.github.pitzzahh.commands.chat_command.commands.PingCommand;
+import io.github.pitzzahh.exceptions.CommandAlreadyExistException;
+import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
+import static io.github.pitzzahh.Bot.getConfig;
 import org.jetbrains.annotations.NotNull;
 import java.util.regex.Pattern;
 import java.util.ArrayList;
@@ -53,7 +54,7 @@ public class CommandManager {
     private void addCommand(Command command) {
         var found = this.COMMANDS.stream()
                 .anyMatch(c -> c.name().get().equalsIgnoreCase(command.name().get()));
-        if (found) throw new IllegalStateException("A Command With this name is already present!");
+        if (found) throw new CommandAlreadyExistException("A Command With this name is already present!");
         this.COMMANDS.add(command);
     }
 
@@ -80,7 +81,7 @@ public class CommandManager {
      */
     public void handle(@NotNull MessageReceivedEvent event) {
         final var SPLIT = event.getMessage().getContentRaw()
-                .replaceFirst("(?i)".concat(Pattern.quote(Bot.getConfig.get().get("PREFIX"))), "")
+                .replaceFirst("(?i)".concat(Pattern.quote(getConfig.get().get("PREFIX"))), "")
                 .split("\\s+");
         final var INVOKED = SPLIT[0].toLowerCase();
         final var COMMAND = this.getCommand(INVOKED);
