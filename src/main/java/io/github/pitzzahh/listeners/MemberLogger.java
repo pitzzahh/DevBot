@@ -24,12 +24,11 @@
 
 package io.github.pitzzahh.listeners;
 
-import static io.github.pitzzahh.Bot.getConfig;
 import static io.github.pitzzahh.utilities.Util.EMBED_BUILDER;
-
 import net.dv8tion.jda.api.events.guild.GuildLeaveEvent;
 import net.dv8tion.jda.api.events.guild.GuildJoinEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
+import static io.github.pitzzahh.Bot.getConfig;
 import static java.time.LocalDateTime.now;
 import org.jetbrains.annotations.NotNull;
 import static java.lang.String.format;
