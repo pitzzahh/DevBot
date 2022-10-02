@@ -23,11 +23,13 @@
  */
 package io.github.pitzzahh.moderation;
 
-import io.github.pitzzahh.utilities.Util;
+import static io.github.pitzzahh.utilities.Util.badWords;
 import java.util.function.Function;
 
 public class MessageChecker {
 
-    public static Function<String, Boolean> search = message -> Util.getBadWords.get().stream().anyMatch(message::contains);
+    public static Function<String, Boolean> search = message -> badWords.get()
+            .stream()
+            .anyMatch(message::contains);
 
 }

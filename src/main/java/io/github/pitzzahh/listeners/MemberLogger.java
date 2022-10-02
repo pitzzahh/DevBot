@@ -24,19 +24,20 @@
 
 package io.github.pitzzahh.listeners;
 
-import net.dv8tion.jda.api.events.guild.GuildJoinEvent;
+import static io.github.pitzzahh.utilities.Util.EMBED_BUILDER;
 import net.dv8tion.jda.api.events.guild.GuildLeaveEvent;
+import net.dv8tion.jda.api.events.guild.GuildJoinEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
+import static io.github.pitzzahh.Bot.getConfig;
+import static java.time.LocalDateTime.now;
 import org.jetbrains.annotations.NotNull;
-import net.dv8tion.jda.api.EmbedBuilder;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
+import static java.lang.String.format;
+import static java.time.ZoneId.of;
 import java.awt.*;
 
 public class MemberLogger extends ListenerAdapter {
-
-    private final EmbedBuilder EMBED_BUILDER = new EmbedBuilder();
-
+    private final String CHANNEL_NAME = getConfig.get().get("MEMBER_UPDATES_CHANNEL");
+    private final String CATEGORY_NAME = getConfig.get().get("MEMBER_UPDATES_CHANNEL_CATEGORY");
     /**
      * Greets a new member that joined the server.
      * @param event the event
@@ -45,14 +46,13 @@ public class MemberLogger extends ListenerAdapter {
     public void onGuildJoin(@NotNull GuildJoinEvent event) {
         final var MEMBER = event.getGuild().getSelfMember();
         final var CATEGORY = event.getGuild()
-                .getCategoriesByName("information", true)
+                .getCategoriesByName(CATEGORY_NAME, true)
                 .stream()
                 .findAny();
-
         CATEGORY.ifPresent(
                 category -> {
                     var MEMBER_UPDATES_CHANNEL = event.getGuild()
-                            .getTextChannelsByName("member-updates🎉", true)
+                            .getTextChannelsByName(CHANNEL_NAME, true)
                             .stream()
                             .findAny();
                     MEMBER_UPDATES_CHANNEL.ifPresent(
@@ -62,7 +62,11 @@ public class MemberLogger extends ListenerAdapter {
                                         .setColor(Color.BLUE)
                                         .setTitle(String.format("%s Joined the Server!", MEMBER.getEffectiveName()))
                                         .appendDescription("joined")
-                                        .setTimestamp(LocalDateTime.now(ZoneId.of("UTC")));
+                                        .setTimestamp(now(of("UTC")))
+                                        .setFooter(
+                                                format("Created by %s", event.getJDA().getSelfUser().getAsTag()),
+                                                event.getJDA().getSelfUser().getAvatarUrl()
+                                        );
                                 c.sendMessageEmbeds(EMBED_BUILDER.build()).queue();
                             }
                     );
@@ -78,13 +82,13 @@ public class MemberLogger extends ListenerAdapter {
     public void onGuildLeave(@NotNull GuildLeaveEvent event) {
         final var MEMBER = event.getGuild().getSelfMember();
         final var CATEGORY = event.getGuild()
-                .getCategoriesByName("information", true)
+                .getCategoriesByName(CATEGORY_NAME, true)
                 .stream()
                 .findAny();
         CATEGORY.ifPresent(
                 category -> {
                     var MEMBER_UPDATES_CHANNEL = event.getGuild()
-                            .getTextChannelsByName("member-updates🎉", true)
+                            .getTextChannelsByName(CHANNEL_NAME, true)
                             .stream().findAny();
                     MEMBER_UPDATES_CHANNEL.ifPresent(
                             c -> {
@@ -92,7 +96,12 @@ public class MemberLogger extends ListenerAdapter {
                                         .clearFields()
                                         .setColor(Color.RED)
                                         .setTitle(String.format("%s Leaved the Server💔", MEMBER.getEffectiveName()))
-                                        .appendDescription("farewell");
+                                        .appendDescription("farewell")
+                                        .setTimestamp(now(of("UTC")))
+                                        .setFooter(
+                                                format("Created by %s", event.getJDA().getSelfUser().getAsTag()),
+                                                event.getJDA().getSelfUser().getAvatarUrl()
+                                        );
                                 c.sendMessageEmbeds(EMBED_BUILDER.build()).queue();
                                 final var ROLE = event.getGuild().getRolesByName("verified", false).stream().findAny();
                                 ROLE.ifPresent(

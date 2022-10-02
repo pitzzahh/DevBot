@@ -23,13 +23,13 @@
  */
 package io.github.pitzzahh;
 
-import io.github.pitzzahh.listeners.MemberLogger;
 import net.dv8tion.jda.api.sharding.DefaultShardManagerBuilder;
 import io.github.pitzzahh.listeners.SlashCommandListener;
 import io.github.pitzzahh.listeners.MessageListener;
 import io.github.pitzzahh.listeners.ButtonListener;
 import net.dv8tion.jda.api.requests.GatewayIntent;
 import net.dv8tion.jda.api.sharding.ShardManager;
+import io.github.pitzzahh.listeners.MemberLogger;
 import javax.security.auth.login.LoginException;
 import net.dv8tion.jda.api.entities.Activity;
 import io.github.pitzzahh.utilities.Util;

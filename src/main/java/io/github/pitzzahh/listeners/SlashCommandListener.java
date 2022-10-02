@@ -49,7 +49,7 @@ public class SlashCommandListener extends ListenerAdapter {
 
     @Override
     public void onGuildReady(@NotNull GuildReadyEvent event) {
-        var COMMANDS = SLASH_COMMAND_MANAGER.getCommands();
+        final var COMMANDS = SLASH_COMMAND_MANAGER.getCommands();
         var guild = event.getGuild();
         var COM = COMMANDS.values()
                 .stream()
