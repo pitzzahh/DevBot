@@ -24,13 +24,12 @@
 package io.github.pitzzahh.listeners;
 
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
+import static io.github.pitzzahh.utilities.Util.EMBED_BUILDER;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
+import java.time.format.DateTimeFormatter;
 import org.jetbrains.annotations.NotNull;
 import net.dv8tion.jda.api.entities.Role;
-import net.dv8tion.jda.api.EmbedBuilder;
-import java.time.format.DateTimeFormatter;
 import java.time.format.FormatStyle;
-import java.util.concurrent.TimeUnit;
 import java.time.LocalDateTime;
 import java.util.Objects;
 import java.time.Clock;
@@ -38,7 +37,6 @@ import java.awt.*;
 
 public class ButtonListener extends ListenerAdapter {
 
-    private final EmbedBuilder EMBED_BUILDER = new EmbedBuilder();
 
     @Override
     public void onButtonInteraction(@NotNull ButtonInteractionEvent event) {
@@ -58,11 +56,21 @@ public class ButtonListener extends ListenerAdapter {
                             .clearFields()
                             .setColor(Color.RED)
                             .setTitle("Already Verified")
-                            .setFooter("This message will be automatically deleted");
+                            .setFooter(
+                                    String.format(
+                                            "This message will be automatically deleted on %s",
+                                            LocalDateTime.now(Clock.systemDefaultZone())
+                                                    .plusMinutes(1)
+                                                    .format(
+                                                            DateTimeFormatter.ofLocalizedTime(FormatStyle.SHORT)
+                                                    )
+                                    )
+                            );
                     event.getInteraction()
                             .replyEmbeds(EMBED_BUILDER.build())
                             .setEphemeral(true)
-                            .queue(e -> event.getInteraction().getMessage().delete().queueAfter(1, TimeUnit.MINUTES));
+                            .queue();
+
                 }
                 else {
                     EMBED_BUILDER.clear()
@@ -84,7 +92,7 @@ public class ButtonListener extends ListenerAdapter {
                     event.getInteraction()
                             .replyEmbeds(EMBED_BUILDER.build())
                             .setEphemeral(true)
-                            .queue(e -> e.deleteOriginal().queueAfter(1, TimeUnit.MINUTES));
+                            .queue();
                 }
             }
         }
