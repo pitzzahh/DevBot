@@ -28,7 +28,7 @@ import static io.github.pitzzahh.Bot.getConfig;
 
 public interface ICategory {
 
-    String MEMBER_UPDATES_CHANNEL_CATEGORY = getConfig.get().get("MEMBER_UPDATES_CHANNEL_CATEGORY");
+    String MEMBER_UPDATES_CATEGORY = getConfig.get().get("MEMBER_UPDATES_CATEGORY");
 
     String CREATE_SECRETS_CATEGORY = getConfig.get().get("CREATE_SECRETS_CATEGORY");
 
