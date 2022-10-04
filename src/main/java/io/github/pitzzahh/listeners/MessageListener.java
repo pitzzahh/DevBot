@@ -131,7 +131,7 @@ public class MessageListener extends ListenerAdapter {
                                             format(
                                                     AUTHOR.getAsMention().concat(" Cannot send messages until %s"),
                                                     now(systemDefaultZone())
-                                                            .plusMinutes(1)
+                                                            .plusMinutes(5)
                                                             .format(ofLocalizedTime(SHORT))
                                             )
                                     )
