@@ -106,10 +106,10 @@ public class Game implements SlashCommand {
                 description().get())
                 .addOptions(
                         new OptionData(OptionType.STRING, "game", "Choose your game", true)
-                                .setDescription("GAMES")
+                                .setDescription("Select your desired game")
                                 .addChoice("Random Math Problem", "RMP"),
                         new OptionData(OptionType.STRING, "difficulty", "The difficulty of the game", true)
-                                .setDescription("DIFFICULTY")
+                                .setDescription("Select your desired difficulty")
                                 .addChoice("EASY", "EASY")
                                 .addChoice("MEDIUM", "MEDIUM")
                                 .addChoice("HARD", "HARD")

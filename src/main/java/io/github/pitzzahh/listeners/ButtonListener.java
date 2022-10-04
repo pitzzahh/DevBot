@@ -28,11 +28,11 @@ import static java.time.format.DateTimeFormatter.ofLocalizedTime;
 import static io.github.pitzzahh.utilities.Util.EMBED_BUILDER;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import static java.time.format.FormatStyle.SHORT;
+import static java.time.Clock.systemDefaultZone;
 import static java.time.LocalDateTime.now;
 import org.jetbrains.annotations.NotNull;
 import net.dv8tion.jda.api.entities.Role;
 import static java.lang.String.format;
-import static java.time.ZoneId.of;
 import static java.awt.Color.BLUE;
 import static java.awt.Color.RED;
 import java.util.Objects;
@@ -52,9 +52,9 @@ public class ButtonListener extends ListenerAdapter {
                         .stream()
                         .map(Role::getName)
                         .anyMatch(e -> VERIFIED_ROLE.get().getName().equals(e));
-                if (isVerified) message(true);
+                if (isVerified) message(false);
                 else {
-                    message(false);
+                    message(true);
                     event.getGuild().addRoleToMember(MEMBER, VERIFIED_ROLE.get()).queue();
                 }
                 event.getInteraction()
@@ -72,7 +72,7 @@ public class ButtonListener extends ListenerAdapter {
                 .setFooter(
                         format(
                                 "This message will be automatically deleted on %s",
-                                now(of("UTC"))
+                                now(systemDefaultZone())
                                         .plusMinutes(1)
                                         .format(ofLocalizedTime(SHORT))
                         )
