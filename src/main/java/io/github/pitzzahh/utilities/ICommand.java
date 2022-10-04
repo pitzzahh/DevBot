@@ -32,4 +32,6 @@ public interface ICommand {
 
     String SECRETS_COMMAND = getConfig.get().get("SECRETS_COMMAND");
 
+    String MEMBER_UPDATES_COMMAND = getConfig.get().get("MEMBER_UPDATES_COMMAND");
+
 }
