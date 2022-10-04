@@ -30,7 +30,9 @@ import static net.dv8tion.jda.api.interactions.components.ActionRow.of;
 import static io.github.pitzzahh.moderation.MessageChecker.search;
 import static java.time.format.DateTimeFormatter.ofLocalizedTime;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
-import io.github.pitzzahh.commands.chat_command.CommandManager;
+import io.github.pitzzahh.commands.chat_command.CommandManager;import static io.github.pitzzahh.utilities.ICategory.*;
+import static io.github.pitzzahh.utilities.IChannels.*;
+import static io.github.pitzzahh.utilities.ICommand.*;
 import static java.util.concurrent.TimeUnit.MINUTES;
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static io.github.pitzzahh.utilities.Util.*;
@@ -45,7 +47,6 @@ import static java.lang.String.format;
 import static java.time.ZoneId.of;
 import static java.awt.Color.*;
 import java.util.Objects;
-import java.time.Clock;
 
 /**
  * Class that listens to messages on text channels.
@@ -61,12 +62,8 @@ public class MessageListener extends ListenerAdapter {
         final var MESSAGE = event.getMessage().getContentRaw();
         if (MESSAGE.startsWith(PREFIX)) MANAGER.handle(event);
         else {
-            if (MESSAGE.equals(getConfig.get().get("VERIFY_COMMAND"))) {
-
-                final var VERIFY_CHANNEL_NAME = getConfig.get().get("VERIFY_CHANNEL_NAME");
-
+            if (MESSAGE.equals(VERIFY_COMMAND)) {
                 final var BUTTON = primary("verify-button", "Verify");
-
                 EMBED_BUILDER.clear()
                         .clearFields()
                         .setColor(BLUE)
@@ -77,7 +74,6 @@ public class MessageListener extends ListenerAdapter {
                                 format("Created by %s", event.getJDA().getSelfUser().getAsTag()),
                                 event.getJDA().getSelfUser().getAvatarUrl()
                         );
-
                 MESSAGE_BUILDER.clear()
                         .setActionRows(of(BUTTON))
                         .setEmbeds(EMBED_BUILDER.build());
@@ -85,36 +81,35 @@ public class MessageListener extends ListenerAdapter {
                         .createTextChannel(VERIFY_CHANNEL_NAME)
                         .queue(c -> c.sendMessage(MESSAGE_BUILDER.build()).queue());
             }
-            else if (MESSAGE.equals(getConfig.get().get("SECRETS_COMMAND")) && Objects.requireNonNull(event.getMember()).isOwner()){
-                final var CATEGORY_NAME = getConfig.get().get("CREATE_SECRETS_CATEGORY");
-                event.getGuild().createCategory(CATEGORY_NAME)
+            else if (MESSAGE.equals(SECRETS_COMMAND) && Objects.requireNonNull(event.getMember()).isOwner()){
+                event.getGuild().createCategory(CREATE_SECRETS_CATEGORY)
                         .syncPermissionOverrides()
                         .queue(
-                        category -> {
-                            EMBED_BUILDER.clear()
-                                    .clearFields()
-                                    .setColor(CYAN)
-                                    .setTitle("Write your secret here")
-                                    .setDescription("your secret will be anonymous")
-                                    .appendDescription(", use `/secret` to tell a secret")
-                                    .setFooter(
-                                            format("Created by %s", event.getJDA().getSelfUser().getAsTag()),
-                                            category.getJDA().getSelfUser().getAvatarUrl()
-                                    );
-                            category.createTextChannel(getConfig.get().get("SECRET_CHANNEL"))
-                                    .queue(c -> c.sendMessageEmbeds(EMBED_BUILDER.build()).queue());
-                            category.createTextChannel(getConfig.get().get("SECRETS_CHANNEL"))
-                                    .queue();
+                                category -> {
+                                    EMBED_BUILDER.clear()
+                                            .clearFields()
+                                            .setColor(CYAN)
+                                            .setTitle("Write your secret here")
+                                            .setDescription("your secret will be anonymous")
+                                            .appendDescription(", use `/secret` to tell a secret")
+                                            .setFooter(
+                                                    format("Created by %s", event.getJDA().getSelfUser().getAsTag()),
+                                                    category.getJDA().getSelfUser().getAvatarUrl()
+                                            );
+                                    category.createTextChannel(ENTER_SECRET_CHANNEL)
+                                            .queue(c -> c.sendMessageEmbeds(EMBED_BUILDER.build()).queue());
+                                    category.createTextChannel(SENT_SECRET_CHANNEL)
+                                            .queue();
                         }
                 );
             } else {
-                if (event.getChannel().getName().equals(getConfig.get().get("SECRET_CHANNEL")) && !event.getAuthor().isBot()) {
+                if (event.getChannel().getName().equals(SENT_SECRET_CHANNEL) && !event.getAuthor().isBot()) {
                     EMBED_BUILDER.clear()
                             .clearFields()
                             .setColor(RED)
                             .appendDescription("Please use `/secret` to tell a secret")
                             .setTimestamp(now(of("UTC")).plusSeconds(10))
-                            .setFooter("This message will be automatically deleted");
+                            .setFooter("This message will be automatically deleted on");
                     event.getMessage()
                             .replyEmbeds(EMBED_BUILDER.build())
                             .queue(e -> e.delete().queueAfter(5, SECONDS));
@@ -186,7 +181,10 @@ public class MessageListener extends ListenerAdapter {
                                         .clearFields()
                                         .setColor(BLUE)
                                         .setTitle("Correct!")
-                                        .setTimestamp(now(Clock.systemDefaultZone()));
+                                        .setFooter(
+                                                format("Checked by %s", event.getJDA().getSelfUser().getAsTag()),
+                                                event.getJDA().getSelfUser().getAvatarUrl()
+                                        );
                                 event.getMessage()
                                         .replyEmbeds(EMBED_BUILDER.build())
                                         .queue();
@@ -195,7 +193,11 @@ public class MessageListener extends ListenerAdapter {
                                 EMBED_BUILDER.clear()
                                         .clearFields()
                                         .setColor(RED)
-                                        .setTitle("WRONG ANSWER");
+                                        .setTitle("WRONG ANSWER")
+                                        .setFooter(
+                                                format("Checked by %s", event.getJDA().getSelfUser().getAsTag()),
+                                                event.getJDA().getSelfUser().getAvatarUrl()
+                                        );
                                 event.getMessage()
                                         .replyEmbeds(EMBED_BUILDER.build())
                                         .queue();
