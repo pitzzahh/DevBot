@@ -28,11 +28,9 @@ import io.github.pitzzahh.exceptions.ChannelNotFoundException;
 import net.dv8tion.jda.api.entities.PrivateChannel;
 import net.dv8tion.jda.api.entities.VoiceChannel;
 import net.dv8tion.jda.api.entities.TextChannel;
-import io.github.pitzzahh.Bot;
-
-import java.util.List;
-
 import static java.lang.String.format;
+import io.github.pitzzahh.Bot;
+import java.util.List;
 
 public class Channels {
 

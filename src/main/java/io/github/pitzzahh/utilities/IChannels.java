@@ -24,13 +24,10 @@
 
 package io.github.pitzzahh.utilities;
 
-import net.dv8tion.jda.api.entities.TextChannel;
-import net.dv8tion.jda.api.events.Event;
 import net.dv8tion.jda.api.events.guild.GenericGuildEvent;
-
-import java.util.Optional;
-
+import net.dv8tion.jda.api.entities.TextChannel;
 import static io.github.pitzzahh.Bot.getConfig;
+import java.util.Optional;
 
 public interface IChannels {
 
