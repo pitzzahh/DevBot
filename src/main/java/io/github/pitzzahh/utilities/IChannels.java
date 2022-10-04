@@ -24,6 +24,12 @@
 
 package io.github.pitzzahh.utilities;
 
+import net.dv8tion.jda.api.entities.TextChannel;
+import net.dv8tion.jda.api.events.Event;
+import net.dv8tion.jda.api.events.guild.GenericGuildEvent;
+
+import java.util.Optional;
+
 import static io.github.pitzzahh.Bot.getConfig;
 
 public interface IChannels {
@@ -35,5 +41,13 @@ public interface IChannels {
     String ENTER_SECRET_CHANNEL = getConfig.get().get("ENTER_SECRET_CHANNEL");
 
     String SENT_SECRET_CHANNEL = getConfig.get().get("SENT_SECRET_CHANNEL");
+
+    static Optional<TextChannel> getChannelByName(GenericGuildEvent event, String name) {
+        return event
+                .getGuild()
+                .getTextChannelsByName(name, true)
+                .stream()
+                .findAny();
+    }
 
 }
