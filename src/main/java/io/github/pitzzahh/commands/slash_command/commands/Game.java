@@ -79,7 +79,6 @@ public class Game implements SlashCommand {
                                 RMP.getSecondNumber()
                         )
                 );
-
         context.getEvent()
                 .getInteraction()
                 .replyEmbeds(EMBED_BUILDER.build())

@@ -52,31 +52,9 @@ public class ButtonListener extends ListenerAdapter {
                         .stream()
                         .map(Role::getName)
                         .anyMatch(e -> VERIFIED_ROLE.get().getName().equals(e));
-                if (isVerified) {
-                    EMBED_BUILDER.clear()
-                            .clearFields()
-                            .setColor(RED)
-                            .setTitle("Already Verified")
-                            .setFooter(
-                                    format(
-                                            "This message will be automatically deleted on %s",
-                                            now(of("UTC"))
-                                                    .plusMinutes(1)
-                                                    .format(ofLocalizedTime(SHORT))
-                                    )
-                            );
-                }
+                if (isVerified) message(true);
                 else {
-                    EMBED_BUILDER.clear()
-                            .clearFields()
-                            .setColor(BLUE)
-                            .setTitle("Verified ✅")
-                            .setFooter(format("This message will be automatically deleted on %s",
-                                            now(of("UTC"))
-                                                    .plusMinutes(1)
-                                                    .format(ofLocalizedTime(SHORT))
-                                    )
-                            );
+                    message(false);
                     event.getGuild().addRoleToMember(MEMBER, VERIFIED_ROLE.get()).queue();
                 }
                 event.getInteraction()
@@ -85,5 +63,19 @@ public class ButtonListener extends ListenerAdapter {
                         .queue();
             }
         }
+    }
+    private void message(boolean flag) {
+        EMBED_BUILDER.clear()
+                .clearFields()
+                .setColor(flag ? BLUE : RED)
+                .setTitle(flag ? "Verified ✅" : "Already Verified")
+                .setFooter(
+                        format(
+                                "This message will be automatically deleted on %s",
+                                now(of("UTC"))
+                                        .plusMinutes(1)
+                                        .format(ofLocalizedTime(SHORT))
+                        )
+                );
     }
 }
