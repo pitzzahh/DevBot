@@ -66,11 +66,6 @@ public class ButtonListener extends ListenerAdapter {
                                                     .format(ofLocalizedTime(SHORT))
                                     )
                             );
-                    event.getInteraction()
-                            .replyEmbeds(EMBED_BUILDER.build())
-                            .setEphemeral(true)
-                            .queue();
-
                 }
                 else {
                     EMBED_BUILDER.clear()
@@ -83,13 +78,12 @@ public class ButtonListener extends ListenerAdapter {
                                                     .format(ofLocalizedTime(SHORT))
                                     )
                             );
-
                     event.getGuild().addRoleToMember(MEMBER, VERIFIED_ROLE.get()).queue();
-                    event.getInteraction()
-                            .replyEmbeds(EMBED_BUILDER.build())
-                            .setEphemeral(true)
-                            .queue();
                 }
+                event.getInteraction()
+                        .replyEmbeds(EMBED_BUILDER.build())
+                        .setEphemeral(true)
+                        .queue();
             }
         }
     }
