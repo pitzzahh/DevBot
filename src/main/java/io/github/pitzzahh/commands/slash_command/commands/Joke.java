@@ -110,6 +110,6 @@ public class Joke implements SlashCommand {
      */
     @Override
     public Supplier<String> description() {
-        return () -> "Returns a random Dad Joke";
+        return () -> "Sends a random Joke";
     }
 }

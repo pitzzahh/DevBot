@@ -24,54 +24,36 @@
 
 package io.github.pitzzahh.listeners;
 
+import static io.github.pitzzahh.utilities.IChannels.MEMBER_UPDATES_CHANNEL;
+import static io.github.pitzzahh.utilities.IChannels.getChannelByName;
 import static io.github.pitzzahh.utilities.Util.EMBED_BUILDER;
+import net.dv8tion.jda.api.events.guild.GenericGuildEvent;
 import net.dv8tion.jda.api.events.guild.GuildLeaveEvent;
 import net.dv8tion.jda.api.events.guild.GuildJoinEvent;
+import static io.github.pitzzahh.utilities.ICategory.*;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
-import static io.github.pitzzahh.Bot.getConfig;
+import net.dv8tion.jda.api.entities.TextChannel;
+import net.dv8tion.jda.api.entities.Member;
 import static java.time.LocalDateTime.now;
 import org.jetbrains.annotations.NotNull;
 import static java.lang.String.format;
 import static java.time.ZoneId.of;
-import java.awt.*;
+import static java.awt.Color.*;
 
 public class MemberLogger extends ListenerAdapter {
-    private final String CHANNEL_NAME = getConfig.get().get("MEMBER_UPDATES_CHANNEL");
-    private final String CATEGORY_NAME = getConfig.get().get("MEMBER_UPDATES_CHANNEL_CATEGORY");
+
     /**
      * Greets a new member that joined the server.
-     * @param event the event
+     * @param event the event.
      */
     @Override
     public void onGuildJoin(@NotNull GuildJoinEvent event) {
-        final var MEMBER = event.getGuild().getSelfMember();
-        final var CATEGORY = event.getGuild()
-                .getCategoriesByName(CATEGORY_NAME, true)
+        event.getGuild()
+                .getCategoriesByName(MEMBER_UPDATES_CATEGORY, true)
                 .stream()
-                .findAny();
-        CATEGORY.ifPresent(
-                category -> {
-                    var MEMBER_UPDATES_CHANNEL = event.getGuild()
-                            .getTextChannelsByName(CHANNEL_NAME, true)
-                            .stream()
-                            .findAny();
-                    MEMBER_UPDATES_CHANNEL.ifPresent(
-                            c -> {
-                                EMBED_BUILDER.clear()
-                                        .clearFields()
-                                        .setColor(Color.BLUE)
-                                        .setTitle(String.format("%s Joined the Server!", MEMBER.getEffectiveName()))
-                                        .appendDescription("joined")
-                                        .setTimestamp(now(of("UTC")))
-                                        .setFooter(
-                                                format("Created by %s", event.getJDA().getSelfUser().getAsTag()),
-                                                event.getJDA().getSelfUser().getAvatarUrl()
-                                        );
-                                c.sendMessageEmbeds(EMBED_BUILDER.build()).queue();
-                            }
-                    );
-                }
-        );
+                .findAny()
+                .flatMap(category -> getChannelByName(event, MEMBER_UPDATES_CHANNEL))
+                .ifPresent(channel -> joining(channel, event, event.getGuild().getSelfMember()));
     }
 
     /**
@@ -80,36 +62,63 @@ public class MemberLogger extends ListenerAdapter {
      */
     @Override
     public void onGuildLeave(@NotNull GuildLeaveEvent event) {
-        final var MEMBER = event.getGuild().getSelfMember();
-        final var CATEGORY = event.getGuild()
-                .getCategoriesByName(CATEGORY_NAME, true)
+        event.getGuild()
+                .getCategoriesByName(MEMBER_UPDATES_CATEGORY, true)
                 .stream()
-                .findAny();
-        CATEGORY.ifPresent(
-                category -> {
-                    var MEMBER_UPDATES_CHANNEL = event.getGuild()
-                            .getTextChannelsByName(CHANNEL_NAME, true)
-                            .stream().findAny();
-                    MEMBER_UPDATES_CHANNEL.ifPresent(
-                            c -> {
-                                EMBED_BUILDER.clear()
-                                        .clearFields()
-                                        .setColor(Color.RED)
-                                        .setTitle(String.format("%s Leaved the Server💔", MEMBER.getEffectiveName()))
-                                        .appendDescription("farewell")
-                                        .setTimestamp(now(of("UTC")))
-                                        .setFooter(
-                                                format("Created by %s", event.getJDA().getSelfUser().getAsTag()),
-                                                event.getJDA().getSelfUser().getAvatarUrl()
-                                        );
-                                c.sendMessageEmbeds(EMBED_BUILDER.build()).queue();
-                                final var ROLE = event.getGuild().getRolesByName("verified", false).stream().findAny();
-                                ROLE.ifPresent(
-                                        role ->  event.getGuild().removeRoleFromMember(MEMBER, ROLE.get()).queue()
-                                );
-                            }
-                    );
-                }
+                .findAny()
+                .flatMap(category -> getChannelByName(event, MEMBER_UPDATES_CHANNEL))
+                .ifPresent(channel -> leaving(channel, event, event.getGuild().getSelfMember()));
+    }
+
+    /**
+     * Logic
+     * @param channel the text channel.
+     * @param event the event occurred.
+     * @param member the member who leaved the guild.
+     */
+    private void joining(TextChannel channel, GenericGuildEvent event, Member member) {
+        message(event, member, true);
+        channel.sendMessageEmbeds(EMBED_BUILDER.build()).queue();
+    }
+
+    /**
+     * Logic
+     * @param channel the text channel.
+     * @param event the event occurred.
+     * @param member the member who leaved the guild.
+     */
+    private void leaving(TextChannel channel, GenericGuildEvent event, Member member) {
+        message(event, member, false);
+        channel.sendMessageEmbeds(EMBED_BUILDER.build()).queue();
+        removeRole(event, member);
+    }
+
+    private void removeRole(GenericGuildEvent event, Member member) {
+        final var ROLE = event.getGuild().getRolesByName("verified", false).stream().findAny();
+        ROLE.ifPresent(
+                role ->  event.getGuild()
+                        .removeRoleFromMember(member, ROLE.get())
+                        .queue()
         );
     }
+
+    /**
+     * Creates an embedded message for guild join or leave message.
+     * @param event the event occurred.
+     * @param member the member who leaved the guild.
+     * @param flag if {@code true} a member joined the server.
+     */
+    public void message(GenericGuildEvent event, Member member, boolean flag) {
+        EMBED_BUILDER.clear()
+                .clearFields()
+                .setColor(flag ? GREEN : RED)
+                .setTitle(format(flag ? "%s Joined the Server!" : "%s Leaved the Server💔" , member.getEffectiveName()))
+                .appendDescription(flag ? "joined" : "farewell")
+                .setTimestamp(now(of("UTC")))
+                .setFooter(
+                        format("Created by %s", event.getJDA().getSelfUser().getAsTag()),
+                        event.getJDA().getSelfUser().getAvatarUrl()
+                );
+    }
+
 }

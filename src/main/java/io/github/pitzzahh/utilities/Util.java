@@ -23,13 +23,13 @@
  */
 package io.github.pitzzahh.utilities;
 
-import static io.github.pitzzahh.utilities.Print.println;
 import net.dv8tion.jda.api.MessageBuilder;
 import java.nio.charset.StandardCharsets;
 import org.jetbrains.annotations.NotNull;
 import net.dv8tion.jda.api.EmbedBuilder;
 import com.google.common.io.Resources;
 import java.util.function.BiConsumer;
+import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
@@ -88,7 +88,6 @@ public class Util {
     public static BiConsumer<String, String> addQuestion = QUESTIONS::put;
 
     public static boolean isTheOneWhoPlays(String username) {
-        println(QUESTIONS);
         if (isDone.apply(username)) return false;
         return QUESTIONS.keySet()
                 .stream()
@@ -97,12 +96,14 @@ public class Util {
 
     /**
      * Checks if the user answer is correct.
-     * @param player the user that is playing.
-     * @param guess the user guess on a question.
-     * @return {@code true} if the user guessed the answer.
+     * param player the user that is playing.
+     * param guess the user guess on a question.
+     * returns {@code true} if the user guessed the answer.
      */
-    public static boolean answer(String player, String guess) {
-        final var ANSWER =  QUESTIONS.entrySet()
+    public static BiFunction<String, String, Boolean> answer = Util::processAnswer;
+
+    private static boolean processAnswer(String player, String guess) {
+        final var ANSWER = QUESTIONS.entrySet()
                 .stream()
                 .filter(e -> e.getKey().equals(player))
                 .map(Map.Entry::getValue)
@@ -111,7 +112,8 @@ public class Util {
         return guess.equals(ANSWER);
     }
 
-    public static Function<String, Boolean> isDone = player -> QUESTIONS.entrySet()
+    public static Function<String, Boolean> isDone = player -> QUESTIONS
+            .entrySet()
             .stream()
             .filter(e -> e.getKey().equals(player))
             .map(Map.Entry::getValue)

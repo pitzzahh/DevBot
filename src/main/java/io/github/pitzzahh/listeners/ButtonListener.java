@@ -24,19 +24,20 @@
 package io.github.pitzzahh.listeners;
 
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
+import static java.time.format.DateTimeFormatter.ofLocalizedTime;
 import static io.github.pitzzahh.utilities.Util.EMBED_BUILDER;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
-import java.time.format.DateTimeFormatter;
+import static java.time.format.FormatStyle.SHORT;
+import static java.time.LocalDateTime.now;
 import org.jetbrains.annotations.NotNull;
 import net.dv8tion.jda.api.entities.Role;
-import java.time.format.FormatStyle;
-import java.time.LocalDateTime;
+import static java.lang.String.format;
+import static java.time.ZoneId.of;
+import static java.awt.Color.BLUE;
+import static java.awt.Color.RED;
 import java.util.Objects;
-import java.time.Clock;
-import java.awt.*;
 
 public class ButtonListener extends ListenerAdapter {
-
 
     @Override
     public void onButtonInteraction(@NotNull ButtonInteractionEvent event) {
@@ -44,7 +45,7 @@ public class ButtonListener extends ListenerAdapter {
         final var MEMBER = event.getMember();
         if ("ok".equals(ID)) event.getInteraction().getMessage().delete().queue();
         else if ("verify-button".equals(ID)) {
-            final var VERIFIED_ROLE = Objects.requireNonNull(event.getGuild()).getRolesByName("verified", false).stream().findAny();
+            final var VERIFIED_ROLE = Objects.requireNonNull(event.getGuild(), "Cannot find verified role").getRolesByName("verified", false).stream().findAny();
             if (VERIFIED_ROLE.isPresent()) {
                 assert MEMBER != null;
                 var isVerified = MEMBER.getRoles()
@@ -54,46 +55,34 @@ public class ButtonListener extends ListenerAdapter {
                 if (isVerified) {
                     EMBED_BUILDER.clear()
                             .clearFields()
-                            .setColor(Color.RED)
+                            .setColor(RED)
                             .setTitle("Already Verified")
                             .setFooter(
-                                    String.format(
+                                    format(
                                             "This message will be automatically deleted on %s",
-                                            LocalDateTime.now(Clock.systemDefaultZone())
+                                            now(of("UTC"))
                                                     .plusMinutes(1)
-                                                    .format(
-                                                            DateTimeFormatter.ofLocalizedTime(FormatStyle.SHORT)
-                                                    )
+                                                    .format(ofLocalizedTime(SHORT))
                                     )
                             );
-                    event.getInteraction()
-                            .replyEmbeds(EMBED_BUILDER.build())
-                            .setEphemeral(true)
-                            .queue();
-
                 }
                 else {
                     EMBED_BUILDER.clear()
                             .clearFields()
-                            .setColor(Color.BLUE)
+                            .setColor(BLUE)
                             .setTitle("Verified ✅")
-                            .setFooter(
-                                    String.format(
-                                            "This message will be automatically deleted on %s",
-                                            LocalDateTime.now(Clock.systemDefaultZone())
+                            .setFooter(format("This message will be automatically deleted on %s",
+                                            now(of("UTC"))
                                                     .plusMinutes(1)
-                                                    .format(
-                                                            DateTimeFormatter.ofLocalizedTime(FormatStyle.SHORT)
-                                                    )
+                                                    .format(ofLocalizedTime(SHORT))
                                     )
                             );
-
                     event.getGuild().addRoleToMember(MEMBER, VERIFIED_ROLE.get()).queue();
-                    event.getInteraction()
-                            .replyEmbeds(EMBED_BUILDER.build())
-                            .setEphemeral(true)
-                            .queue();
                 }
+                event.getInteraction()
+                        .replyEmbeds(EMBED_BUILDER.build())
+                        .setEphemeral(true)
+                        .queue();
             }
         }
     }
