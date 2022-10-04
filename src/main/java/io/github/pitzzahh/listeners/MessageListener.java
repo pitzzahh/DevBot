@@ -175,7 +175,7 @@ public class MessageListener extends ListenerAdapter {
                     }
 
                     if (isTheOneWhoPlays(AUTHOR.getName())) {
-                        final var IS_CORRECT = answer(AUTHOR.getName(), MESSAGE);
+                        final var IS_CORRECT = answer.apply(AUTHOR.getName(), MESSAGE);
                         if (isWholeNumber().or(isDecimalNumber()).test(MESSAGE)) {
                             if (IS_CORRECT) {
                                 EMBED_BUILDER.clear()
