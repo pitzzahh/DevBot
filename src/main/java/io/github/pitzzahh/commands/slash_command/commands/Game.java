@@ -24,21 +24,21 @@
 
 package io.github.pitzzahh.commands.slash_command.commands;
 
+import static io.github.pitzzahh.utilities.classes.enums.Difficulty.valueOf;
 import net.dv8tion.jda.api.interactions.commands.build.CommandData;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 import io.github.pitzzahh.commands.slash_command.CommandContext;
 import io.github.pitzzahh.commands.slash_command.SlashCommand;
-import io.github.pitzzahh.utilities.classes.enums.Difficulty;
 import net.dv8tion.jda.internal.interactions.CommandDataImpl;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import static io.github.pitzzahh.utilities.Print.println;
 import static io.github.pitzzahh.utilities.Util.*;
+import static java.util.Objects.requireNonNull;
+import static io.github.pitzzahh.games.RMP.*;
 import static java.lang.String.format;
-import io.github.pitzzahh.games.RMP;
 import java.util.function.Supplier;
 import java.util.function.Consumer;
-import java.util.Objects;
-import java.awt.*;
+import static java.awt.Color.*;
 
 public class Game implements SlashCommand {
 
@@ -56,17 +56,17 @@ public class Game implements SlashCommand {
      * @param context the command context containing the information about the command.
      */
     private void process(CommandContext context) {
-        final var PLAYER = Objects.requireNonNull(context.event().getMember()).getEffectiveName();
-        final var SELECTED_DIFFICULTY = Objects.requireNonNull(context.getEvent().getOption("difficulty")).getAsString();
-        final var DIFFICULTY = Difficulty.valueOf(SELECTED_DIFFICULTY);
+        final var PLAYER = requireNonNull(context.event().getMember(), "Null player").getEffectiveName();
+        final var SELECTED_DIFFICULTY = requireNonNull(context.getEvent().getOption("difficulty"), "Null game difficulty").getAsString();
+        final var DIFFICULTY = valueOf(SELECTED_DIFFICULTY);
         println("DIFFICULTY = " + DIFFICULTY);
         final var COLOR = switch (DIFFICULTY) {
-            case EASY -> Color.GREEN;
-            case MEDIUM -> Color.YELLOW;
-            case HARD -> Color.RED;
+            case EASY -> GREEN;
+            case MEDIUM -> YELLOW;
+            case HARD -> RED;
         };
-        RMP.setDifficulty(DIFFICULTY);
-        RMP.play();
+        setDifficulty(DIFFICULTY);
+        play();
         EMBED_BUILDER.clear()
                 .clearFields()
                 .setColor(COLOR)
@@ -74,16 +74,16 @@ public class Game implements SlashCommand {
                 .setDescription(
                         format(
                                 "Problem: %s %s %s = ?",
-                                RMP.getFirstNumber(),
-                                RMP.getOperation(),
-                                RMP.getSecondNumber()
+                                getFirstNumber(),
+                                getOperation(),
+                                getSecondNumber()
                         )
                 );
         context.getEvent()
                 .getInteraction()
                 .replyEmbeds(EMBED_BUILDER.build())
                 .queue();
-        addQuestion.accept(PLAYER, RMP.getAnswer());
+        addQuestion.accept(PLAYER, getAnswer());
     }
 
     /**
