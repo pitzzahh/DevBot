@@ -76,7 +76,7 @@ public class MemberLogger extends ListenerAdapter {
      * @param event the event occurred.
      * @param member the member who leaved the guild.
      */
-    private void joining(TextChannel channel, GenericGuildEvent event, Member member) {
+    private void joining(TextChannel channel, GuildJoinEvent event, Member member) {
         message(event, member, true);
         channel.sendMessageEmbeds(EMBED_BUILDER.build()).queue();
     }
@@ -87,7 +87,7 @@ public class MemberLogger extends ListenerAdapter {
      * @param event the event occurred.
      * @param member the member who leaved the guild.
      */
-    private void leaving(TextChannel channel, GenericGuildEvent event, Member member) {
+    private void leaving(TextChannel channel, GuildLeaveEvent event, Member member) {
         message(event, member, false);
         channel.sendMessageEmbeds(EMBED_BUILDER.build()).queue();
         removeRole(event, member);
