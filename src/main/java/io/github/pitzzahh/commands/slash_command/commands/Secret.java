@@ -37,6 +37,7 @@ import net.dv8tion.jda.api.interactions.commands.OptionType;
 import static io.github.pitzzahh.utilities.IChannels.*;
 import static java.util.concurrent.TimeUnit.MINUTES;
 import static java.time.format.FormatStyle.SHORT;
+import io.github.pitzzahh.utilities.IChannels;
 import net.dv8tion.jda.api.entities.Message;
 import static java.time.LocalDateTime.now;
 import static java.lang.String.format;
@@ -44,7 +45,6 @@ import java.util.function.Consumer;
 import java.util.function.Supplier;
 import static java.awt.Color.GREEN;
 import static java.time.ZoneId.of;
-import io.github.pitzzahh.Bot;
 import java.util.Objects;
 import java.awt.*;
 
@@ -64,11 +64,7 @@ public class Secret implements SlashCommand {
      */
     private void process(CommandContext context) {
         if (context.getEvent().getChannel().getName().equals(ENTER_SECRET_CHANNEL)) {
-
-            final var CONFESSIONS = Bot.getShardManager.get()
-                    .getTextChannelsByName(SENT_SECRET_CHANNEL, false)
-                    .stream()
-                    .findAny();
+            final var CONFESSIONS = IChannels.getChannelByName(context.getEvent(), "SENT_SECRET_CHANNEL");
 
             final var SECRET_MESSAGE = Objects.requireNonNull(context.getEvent().getOption("secret-message")).getAsString();
 
@@ -79,26 +75,10 @@ public class Secret implements SlashCommand {
                     .setDescription(SECRET_MESSAGE)
                     .setFooter("anonymous 👀")
                     .setTimestamp(now(of("UTC")));
-            CONFESSIONS.ifPresent(
-                    c -> c.sendMessageEmbeds(EMBED_BUILDER.build())
-                            .queue(message -> confirmationMessage(context, message))
-            );
+            CONFESSIONS.ifPresent(c -> c.sendMessageEmbeds(EMBED_BUILDER.build()).queue(message -> confirmationMessage(context, message)));
         }
         else {
-            EMBED_BUILDER.clear()
-                    .setColor(GREEN)
-                    .setTitle("Cannot use command here")
-                    .setDescription(format("To tell a secret message, go to %s", getTextChannel(ENTER_SECRET_CHANNEL).getAsMention()))
-                    .setFooter(format("This message will be deleted on %s",
-                                    now(of("UTC"))
-                                            .plusMinutes(1)
-                                            .format(ofLocalizedTime(SHORT))
-                            )
-                    );
-
-            MESSAGE_BUILDER
-                    .clear()
-                    .setEmbeds(EMBED_BUILDER.build());
+            message("Cannot use command here", format("To tell a secret message, go to %s", getTextChannel(ENTER_SECRET_CHANNEL).getAsMention()));
             context.getEvent()
                     .getInteraction()
                     .reply(MESSAGE_BUILDER.build())
@@ -106,25 +86,35 @@ public class Secret implements SlashCommand {
                     .queue();
         }
     }
-    private void confirmationMessage(CommandContext context, Message message) {
-        EMBED_BUILDER
-                .clear()
+
+    /**
+     * Constructs an embedded message.
+     * @param title the title of the message.
+     * @param description the description of the message.
+     */
+    private static void message(String title, String description) {
+        EMBED_BUILDER.clear()
                 .setColor(GREEN)
-                .setTitle("Secret message sent")
-                .setDescription("This message will be deleted")
-                .setFooter(
-                        format("This message will be deleted on %s",
+                .setTitle(title)
+                .setDescription(description)
+                .setFooter(format("This message will be deleted on %s",
                                 now(of("UTC"))
                                         .plusMinutes(1)
-                                        .format(
-                                                ofLocalizedTime(SHORT)
-                                        )
+                                        .format(ofLocalizedTime(SHORT))
                         )
                 );
-
         MESSAGE_BUILDER
                 .clear()
                 .setEmbeds(EMBED_BUILDER.build());
+    }
+
+    /**
+     * Constructs the confirmation message when a user send a secret message.
+     * @param context the context of the command.
+     * @param message the message to be deleted after.
+     */
+    private void confirmationMessage(CommandContext context, Message message) {
+        message("Secret message sent", "This message will be deleted");
         context.getEvent()
                 .getInteraction()
                 .reply(MESSAGE_BUILDER.build())
@@ -133,11 +123,22 @@ public class Secret implements SlashCommand {
         message.delete().queueAfter(1, MINUTES);
     }
 
+    /**
+     * Supplies the name of the slash command.
+     * @return a {@code Supplier<String>}.
+     * @see Supplier
+     */
     @Override
     public Supplier<String> name() {
         return () -> "secret";
     }
 
+    /**
+     * Supplies the command data of a slash command.
+     * @return a {@code Supplier<CommandData>}.
+     * @see Supplier
+     * @see CommandData
+     */
     @Override
     public Supplier<CommandData> getCommandData() {
         return () -> new CommandDataImpl(
@@ -152,6 +153,11 @@ public class Secret implements SlashCommand {
         );
     }
 
+    /**
+     * Supplies the description of a slash command.
+     * @return a {code Supplier<String>} containing the description of the command.
+     * @see Supplier
+     */
     @Override
     public Supplier<String> description() {
         return () -> "Tell a secret message";
