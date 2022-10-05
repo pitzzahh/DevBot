@@ -24,9 +24,13 @@
 
 package io.github.pitzzahh.utilities;
 
+import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
+import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
+import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.events.guild.GenericGuildEvent;
 import net.dv8tion.jda.api.entities.TextChannel;
 import static io.github.pitzzahh.Bot.getConfig;
+import java.util.Objects;
 import java.util.Optional;
 
 public interface IChannels {
@@ -47,4 +51,27 @@ public interface IChannels {
                 .findAny();
     }
 
+    static Optional<TextChannel> getChannelByName(MessageReceivedEvent event, String name) {
+        return event
+                .getGuild()
+                .getTextChannelsByName(name, true)
+                .stream()
+                .findAny();
+    }
+
+    static Optional<TextChannel> getChannelByName(ButtonInteractionEvent event, String name) {
+        return Objects.requireNonNull(event
+                        .getGuild(), "button interaction event cannot be null")
+                        .getTextChannelsByName(name, true)
+                        .stream()
+                        .findAny();
+    }
+
+    static Optional<TextChannel> getChannelByName(SlashCommandInteractionEvent event, String name) {
+        return Objects.requireNonNull(event
+                        .getGuild(), "slash command event cannot be null")
+                        .getTextChannelsByName(name, true)
+                        .stream()
+                        .findAny();
+    }
 }
