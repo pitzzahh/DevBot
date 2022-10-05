@@ -24,13 +24,14 @@
 
 package io.github.pitzzahh.games;
 
-import static io.github.pitzzahh.utilities.classes.enums.Operation.DIVISION;
+import static io.github.pitzzahh.utilities.classes.enums.Operation.*;
 import io.github.pitzzahh.utilities.classes.enums.Difficulty;
 import io.github.pitzzahh.utilities.classes.enums.Operation;
 import static io.github.pitzzahh.utilities.Print.println;
 import io.github.pitzzahh.computing.Calculator;
 import static java.math.RoundingMode.HALF_UP;
 import static java.lang.String.valueOf;
+import static java.lang.String.format;
 import java.math.MathContext;
 import java.util.Objects;
 import java.util.Random;
@@ -84,10 +85,10 @@ public class RMP {
     private static Operation getRandomOperation() {
         var randomNumber = RANDOM.nextInt(4) + 1;
         return switch (randomNumber) {
-            case 1 -> Operation.MULTIPLICATION;
+            case 1 -> MULTIPLICATION;
             case 2 -> DIVISION;
-            case 3 -> Operation.ADDITION;
-            case 4 -> Operation.SUBTRACTION;
+            case 3 -> ADDITION;
+            case 4 -> SUBTRACTION;
             default -> throw new IllegalStateException("Unexpected value: " + randomNumber);
         };
     }
@@ -139,6 +140,6 @@ public class RMP {
     }
 
     public static String getQuestion() {
-        return String.format("%s %s %s = ?", getFirstNumber(), getOperation(), getSecondNumber());
+        return format("%s %s %s = ?", getFirstNumber(), getOperation(), getSecondNumber());
     }
 }
