@@ -28,6 +28,9 @@ import io.github.pitzzahh.utilities.classes.enums.Difficulty;
 import io.github.pitzzahh.utilities.classes.enums.Operation;
 import static io.github.pitzzahh.utilities.Print.println;
 import io.github.pitzzahh.computing.Calculator;
+import static java.lang.String.valueOf;
+import java.math.MathContext;
+import java.math.RoundingMode;
 import java.util.Objects;
 import java.util.Random;
 
@@ -51,7 +54,8 @@ public class RMP {
         Objects.requireNonNull(difficulty, "Please set a difficulty");
         operation = getRandomOperation();
         println(getQuestion());
-        toBeAnswered = String.valueOf(calculator.calculate(firstNumber, secondNumber, operation));
+        final var RESULT = calculator.calculate(firstNumber, secondNumber, operation);
+        toBeAnswered = operation == Operation.DIVISION ? valueOf(RESULT.round(new MathContext(2, RoundingMode.HALF_UP)) ): valueOf(RESULT);
         println("answer: " + getAnswer());
     }
 
@@ -96,7 +100,7 @@ public class RMP {
     }
 
     public static boolean isCorrect(String guess) {
-        return guess.contentEquals(toBeAnswered) | Integer.valueOf(guess).equals(Integer.valueOf(toBeAnswered));
+        return guess.contentEquals(toBeAnswered);
     }
 
     /**
