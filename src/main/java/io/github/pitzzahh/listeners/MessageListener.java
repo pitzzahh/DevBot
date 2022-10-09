@@ -117,7 +117,7 @@ public class MessageListener extends ListenerAdapter {
                     event.getMessage().delete().queue();
                 }
 
-                // TODO: refactor embedded messages, removed code duplication
+                // TODO: refactor embedded messages, remove code and effort duplication
                 else if (!AUTHOR.isBot()){
                     var contains = search.apply(event.getMessage().getContentRaw());
                     System.out.println("is bad word = " + contains);
