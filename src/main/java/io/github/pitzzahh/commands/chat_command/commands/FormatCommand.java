@@ -27,15 +27,15 @@ import static net.dv8tion.jda.api.interactions.components.buttons.Button.primary
 import static net.dv8tion.jda.api.interactions.components.ActionRow.of;
 import io.github.pitzzahh.commands.chat_command.CommandContext;
 import io.github.pitzzahh.commands.chat_command.Command;
-import net.dv8tion.jda.api.MessageBuilder;
+import static io.github.pitzzahh.utilities.Util.*;
 import org.jetbrains.annotations.NotNull;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
+import static java.awt.Color.RED;
 import io.github.pitzzahh.Bot;
 
 public class FormatCommand implements Command {
 
-    private final MessageBuilder MESSAGE_BUILDER = new MessageBuilder();
 
     /**
      * Contains the process to be handled.
@@ -48,8 +48,12 @@ public class FormatCommand implements Command {
 
         if (ARGS.size() < 2) {
             final var BUTTON = primary("ok", "okay");
+            EMBED_BUILDER.clear()
+                    .clearFields()
+                    .setColor(RED)
+                    .setTitle("MISSING CONTENT");
             MESSAGE_BUILDER.clear()
-                    .append("MISSING CONTENT")
+                    .setEmbeds(EMBED_BUILDER.build())
                     .setActionRows(of(BUTTON));
             CHANNEL.sendMessage(MESSAGE_BUILDER.build()).queue();
             return;
