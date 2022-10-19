@@ -30,6 +30,7 @@ import io.github.pitzzahh.exceptions.CommandAlreadyExistException;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import static io.github.pitzzahh.Bot.getConfig;
 import org.jetbrains.annotations.NotNull;
+import java.util.function.Function;
 import java.util.regex.Pattern;
 import java.util.ArrayList;
 import java.util.Optional;
@@ -52,10 +53,10 @@ public class CommandManager {
      * @param command the chat_command to add.
      */
     private void addCommand(Command command) {
-        var found = this.COMMANDS.stream()
+        var found = COMMANDS.stream()
                 .anyMatch(c -> c.name().get().equalsIgnoreCase(command.name().get()));
         if (found) throw new CommandAlreadyExistException("A Command With this name is already present!");
-        this.COMMANDS.add(command);
+        COMMANDS.add(command);
     }
 
     private void addCommands(@NotNull Command... command) {
@@ -64,16 +65,13 @@ public class CommandManager {
 
     /**
      * Gets a chat_command from the list.
-     * @param s the name of the chat_command
-     * @return a {@code Command}.
+     * accepts a String the name of the chat_command
+     * returns a {@code Command}.
      */
-    public Optional<Command> getCommand(@NotNull final String s) {
-        final var COMMAND = s.toLowerCase();
-        return this.COMMANDS
-                .stream()
-                .filter(c -> c.name().get().equalsIgnoreCase(COMMAND) || c.aliases().get().contains(COMMAND))
-                .findAny();
-    }
+    public Function<String, Optional<Command>> getCommand = command -> COMMANDS
+            .stream()
+            .filter(c -> c.name().get().equalsIgnoreCase(command.toLowerCase()) || c.aliases().get().contains(command.toLowerCase()))
+            .findAny();
 
     /**
      * Handles commands.
@@ -84,7 +82,7 @@ public class CommandManager {
                 .replaceFirst("(?i)".concat(Pattern.quote(getConfig.get().get("PREFIX"))), "")
                 .split("\\s+");
         final var INVOKED = SPLIT[0].toLowerCase();
-        final var COMMAND = this.getCommand(INVOKED);
+        final var COMMAND = getCommand.apply(INVOKED);
         event.getChannel().sendTyping().queue();
         final var ARGS = Arrays.asList(SPLIT).subList(1, SPLIT.length);
         final var COMMAND_CONTEXT = new CommandContext(event, ARGS);
@@ -99,6 +97,6 @@ public class CommandManager {
      * @return a {@code List<Command>}.
      */
     public List<Command> getCOMMANDS() {
-        return this.COMMANDS;
+        return COMMANDS;
     }
 }
