@@ -73,7 +73,7 @@ public class HelpCommand implements Command {
             return;
         }
         final var SEARCH = ARGS.get(0);
-        final var COMMAND = MANAGER.getCommand(SEARCH);
+        final var COMMAND = MANAGER.getCommand.apply(SEARCH);
         if (COMMAND.isEmpty()) CHANNEL.sendMessageFormat("Nothing found on chat_command: %s", SEARCH).queue();
         else {
             BUILDER.clear()
