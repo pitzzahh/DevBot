@@ -58,7 +58,6 @@ public class RMP {
         println(getQuestion());
         final var RESULT = calculator.calculate(firstNumber, secondNumber, operation);
         toBeAnswered = operation == DIVISION ? valueOf(RESULT.round(new MathContext(2, HALF_UP)) ): valueOf(RESULT);
-        println("answer: " + getAnswer());
     }
 
     /**
@@ -89,7 +88,7 @@ public class RMP {
             case 2 -> DIVISION;
             case 3 -> ADDITION;
             case 4 -> SUBTRACTION;
-            default -> throw new IllegalStateException("Unexpected value: " + randomNumber);
+            default -> throw new UnsupportedOperationException("Unsupported operation: " + randomNumber);
         };
     }
 
