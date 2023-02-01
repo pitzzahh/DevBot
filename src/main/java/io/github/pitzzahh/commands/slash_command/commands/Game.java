@@ -36,6 +36,7 @@ import static io.github.pitzzahh.utilities.Util.*;
 import static java.util.Objects.requireNonNull;
 import static io.github.pitzzahh.games.RMP.*;
 import static java.lang.String.format;
+import io.github.pitzzahh.games.RMP;
 import java.util.function.Supplier;
 import java.util.function.Consumer;
 import static java.awt.Color.*;
@@ -59,7 +60,7 @@ public class Game implements SlashCommand {
         final var PLAYER = requireNonNull(context.event().getMember(), "Null player").getEffectiveName();
         final var SELECTED_DIFFICULTY = requireNonNull(context.getEvent().getOption("difficulty"), "Null game difficulty").getAsString();
         final var DIFFICULTY = valueOf(SELECTED_DIFFICULTY);
-        println("DIFFICULTY = " + DIFFICULTY);
+        println("DIFFICULTY = " + RMP.getDifficulty());
         final var COLOR = switch (DIFFICULTY) {
             case EASY -> GREEN;
             case MEDIUM -> YELLOW;
@@ -71,14 +72,7 @@ public class Game implements SlashCommand {
                 .clearFields()
                 .setColor(COLOR)
                 .setTitle(format("Difficulty: %s", DIFFICULTY.name()))
-                .setDescription(
-                        format(
-                                "Problem: %s %s %s = ?",
-                                getFirstNumber(),
-                                getOperation(),
-                                getSecondNumber()
-                        )
-                );
+                .setDescription(RMP.getQuestion());
         context.getEvent()
                 .getInteraction()
                 .replyEmbeds(EMBED_BUILDER.build())
