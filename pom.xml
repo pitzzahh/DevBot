@@ -69,7 +69,7 @@
                             <archive>
                                 <manifest>
                                     <mainClass>
-                                        io.github.pitzzahh.App
+                                        io.github.pitzzahh.Bot
                                     </mainClass>
                                 </manifest>
                             </archive>
