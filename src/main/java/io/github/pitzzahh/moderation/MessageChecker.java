@@ -30,6 +30,6 @@ public class MessageChecker {
 
     public static Function<String, Boolean> search = message -> badWords.get()
             .stream()
-            .anyMatch(message::contains);
-
+            .filter(message::contains)
+            .anyMatch(message::equalsIgnoreCase);
 }
