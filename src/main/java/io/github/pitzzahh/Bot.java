@@ -43,7 +43,7 @@ public class Bot {
     private static Dotenv config;
     private static ShardManager shardManager;
 
-    public static void start() throws LoginException, IOException {
+    public static void main(String[] args) throws LoginException, IOException {
         config = Dotenv.configure().load();
 
         final var TOKEN = config.get("TOKEN");
