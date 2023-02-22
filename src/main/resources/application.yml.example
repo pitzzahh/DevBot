@@ -1,3 +1,7 @@
+spring:
+  application:
+    name: pitzzahh-bot
+    version: 1.0.0
 bot:
   token: <your bot token>
   channel:
