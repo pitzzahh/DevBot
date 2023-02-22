@@ -1,0 +1,28 @@
+bot:
+  token: <your bot token>
+  channel:
+    verification:
+      name: verify
+    member-updates-channel:
+      name: member-updates
+    confessions:
+      enter-confession-channel:
+        name: enter-confession-here
+      sent-confessions-channel:
+        name: confessions
+  commands:
+    verification:
+      verify-command: $verify
+    confessions:
+      confess-command: $confessions
+      message-deletion-delay-in-minutes: 1 # must be a whole positive number above 0
+    member-updates:
+      member-updates-command: $member-updates
+    prefix: ;
+  category:
+    welcome-category: information
+    member-updates-category: member-updates
+    create-confessions-category: confessions
+  moderation:
+    reply-deletion-delay-in-minutes: 1 # must be a whole positive number above 0
+    message-deletion-delay-in-seconds: 10 # must be a whole positive number above 0
