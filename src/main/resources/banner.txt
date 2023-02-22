@@ -6,7 +6,7 @@
 ██║     ██║   ██║   ███████╗███████╗██║  ██║██║  ██║██║  ██║      ██████╔╝╚██████╔╝   ██║
 ╚═╝     ╚═╝   ╚═╝   ╚══════╝╚══════╝╚═╝  ╚═╝╚═╝  ╚═╝╚═╝  ╚═╝      ╚═════╝  ╚═════╝    ╚═╝
 
-Application Name: ${application.title}
+Application Name: ${application.name}
 Application Version: ${application.version}
 ::${AnsiColor.GREEN} Spring Boot${AnsiColor.BRIGHT_CYAN}${spring-boot.formatted-version}${AnsiColor.DEFAULT} ::
 ${AnsiColor.GREEN}JVM:${AnsiColor.DEFAULT}${AnsiColor.BRIGHT_CYAN} ${java.version} (${java.vendor} ${java.vm.name} ${java.vm.version})
