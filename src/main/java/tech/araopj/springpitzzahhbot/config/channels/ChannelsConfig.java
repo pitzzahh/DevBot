@@ -22,16 +22,20 @@
  * SOFTWARE.
  */
 
-package io.github.pitzzahh.utilities;
+package tech.araopj.springpitzzahhbot.config.channels;
 
-import static io.github.pitzzahh.Bot.getConfig;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.beans.factory.annotation.Value;
+import lombok.Getter;
 
-public interface ICommand {
+@Getter
+@Configuration
+public class ChannelsConfig {
 
-    String VERIFY_COMMAND = getConfig.get().get("VERIFY_COMMAND");
+    @Value("${bot.channel.verification.name}")
+    private String verifyChannelName;
 
-    String SECRETS_COMMAND = getConfig.get().get("SECRETS_COMMAND");
-
-    String MEMBER_UPDATES_COMMAND = getConfig.get().get("MEMBER_UPDATES_COMMAND");
+    @Value("${bot.channel.member-updates-channel.name}")
+    private String memberUpdatesChannel;
 
 }

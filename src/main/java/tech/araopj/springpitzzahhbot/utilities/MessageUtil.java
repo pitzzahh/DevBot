@@ -21,15 +21,24 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
+package tech.araopj.springpitzzahhbot.utilities;
 
-package io.github.pitzzahh.utilities;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Bean;
+import net.dv8tion.jda.api.MessageBuilder;
+import net.dv8tion.jda.api.EmbedBuilder;
 
-import static io.github.pitzzahh.Bot.getConfig;
+@Configuration
+public class MessageUtil {
 
-public interface ICategory {
+    @Bean
+    public EmbedBuilder getEmbedBuilder() {
+        return new EmbedBuilder();
+    }
 
-    String MEMBER_UPDATES_CATEGORY = getConfig.get().get("MEMBER_UPDATES_CATEGORY");
-
-    String CREATE_SECRETS_CATEGORY = getConfig.get().get("CREATE_SECRETS_CATEGORY");
+    @Bean
+    public MessageBuilder getMessageBuilder() {
+        return new MessageBuilder();
+    }
 
 }
