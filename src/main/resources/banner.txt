@@ -6,9 +6,9 @@
 ██║     ██║   ██║   ███████╗███████╗██║  ██║██║  ██║██║  ██║      ██████╔╝╚██████╔╝   ██║
 ╚═╝     ╚═╝   ╚═╝   ╚══════╝╚══════╝╚═╝  ╚═╝╚═╝  ╚═╝╚═╝  ╚═╝      ╚═════╝  ╚═════╝    ╚═╝
 
-Application Name: ${application.name}
-Application Version: ${application.version}
-::${AnsiColor.GREEN} Spring Boot${AnsiColor.BRIGHT_CYAN}${spring-boot.formatted-version}${AnsiColor.DEFAULT} ::
-${AnsiColor.GREEN}JVM:${AnsiColor.DEFAULT}${AnsiColor.BRIGHT_CYAN} ${java.version} (${java.vendor} ${java.vm.name} ${java.vm.version})
---> Created by: Peter John Arao
+Application Name: ${AnsiColor.BRIGHT_GREEN}${bot.name}${AnsiColor.DEFAULT}
+Application Version: ${AnsiColor.BRIGHT_GREEN}${bot.version}${AnsiColor.DEFAULT}
+::${AnsiColor.BRIGHT_GREEN} Spring Boot${AnsiColor.BRIGHT_CYAN}${spring-boot.formatted-version}${AnsiColor.DEFAULT} ::
+${AnsiColor.BRIGHT_GREEN}JVM:${AnsiColor.DEFAULT}${AnsiColor.BRIGHT_CYAN} ${java.version} ${AnsiColor.DEFAULT}(${AnsiColor.BRIGHT_GREEN}${java.vendor} ${AnsiColor.BLUE}${java.vm.name} ${AnsiColor.BRIGHT_MAGENTA}${java.vm.version}${AnsiColor.DEFAULT})
+--> Created by: ${AnsiColor.BRIGHT_CYAN}Peter John Arao
 ${AnsiColor.DEFAULT}
