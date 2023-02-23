@@ -2,5 +2,5 @@ package tech.araopj.springpitzzahhbot.commands.slash_command.commands.joke.entit
 
 import lombok.Builder;
 
-SuppressWarnings
+@Builder
 public record Category(String name) { }
