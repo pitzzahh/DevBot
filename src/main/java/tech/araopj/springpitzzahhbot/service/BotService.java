@@ -1,8 +1,9 @@
 package tech.araopj.springpitzzahhbot.service;
 
 import tech.araopj.springpitzzahhbot.commands.slash_command.commands.confessions.service.ConfessionService;
-import tech.araopj.springpitzzahhbot.commands.slash_command.commands.confessions.Confession;
+import tech.araopj.springpitzzahhbot.commands.slash_command.commands.joke.service.JokesService;
 import tech.araopj.springpitzzahhbot.commands.slash_command.commands.game.service.GameService;
+import tech.araopj.springpitzzahhbot.commands.slash_command.commands.confessions.Confession;
 import tech.araopj.springpitzzahhbot.config.moderation.service.MessageCheckerService;
 import tech.araopj.springpitzzahhbot.commands.slash_command.SlashCommandManager;
 import tech.araopj.springpitzzahhbot.config.moderation.service.ViolationService;
@@ -39,6 +40,7 @@ public record BotService(
         CommandManager commandManager,
         ChannelService channelService,
         TokenService tokenService,
+        JokesService jokesService,
         GameService gameService,
         MessageUtil messageUtil,
         Confession confession
@@ -80,6 +82,7 @@ public record BotService(
                                 confessionService,
                                 commandsService,
                                 channelService,
+                                jokesService,
                                 gameService,
                                 messageUtil
                         )
