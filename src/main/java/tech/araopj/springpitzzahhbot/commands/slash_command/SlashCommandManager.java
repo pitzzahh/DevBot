@@ -29,6 +29,7 @@ import tech.araopj.springpitzzahhbot.commands.slash_command.commands.game.servic
 import tech.araopj.springpitzzahhbot.commands.slash_command.commands.confessions.service.ConfessionService;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import tech.araopj.springpitzzahhbot.commands.slash_command.commands.game.Game;
+import tech.araopj.springpitzzahhbot.commands.slash_command.commands.joke.service.JokesService;
 import tech.araopj.springpitzzahhbot.exceptions.CommandAlreadyExistException;
 import tech.araopj.springpitzzahhbot.config.channels.service.ChannelService;
 import tech.araopj.springpitzzahhbot.commands.slash_command.commands.joke.Joke;
@@ -53,13 +54,14 @@ public class SlashCommandManager {
             ConfessionService confessionService,
             CommandsService commandsService,
             ChannelService channelService,
+            JokesService jokesService,
             GameService gameService,
             MessageUtil messageUtil
     ) {
         addCommands(
                 new Confession(confessionService, commandsService, channelService, messageUtil),
                 new Game(gameService, messageUtil),
-                new Joke(messageUtil)
+                new Joke(messageUtil, jokesService)
         );
     }
 

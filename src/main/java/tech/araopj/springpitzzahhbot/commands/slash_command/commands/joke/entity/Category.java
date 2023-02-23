@@ -1,6 +1,10 @@
 package tech.araopj.springpitzzahhbot.commands.slash_command.commands.joke.entity;
 
-import lombok.Builder;
+import net.dv8tion.jda.api.interactions.commands.Command;
+import org.jetbrains.annotations.NotNull;
 
-SuppressWarnings
-public record Category(String name) { }
+public class Category extends Command.Choice {
+    public Category(@NotNull String name, long value) {
+        super(name, value);
+    }
+}

@@ -25,6 +25,7 @@
 package tech.araopj.springpitzzahhbot.commands.slash_command.commands.joke;
 
 
+import lombok.extern.slf4j.Slf4j;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.CommandData;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
@@ -32,8 +33,8 @@ import net.dv8tion.jda.internal.interactions.CommandDataImpl;
 import org.springframework.stereotype.Component;
 import tech.araopj.springpitzzahhbot.commands.slash_command.CommandContext;
 import tech.araopj.springpitzzahhbot.commands.slash_command.SlashCommand;
+import tech.araopj.springpitzzahhbot.commands.slash_command.commands.joke.service.JokesService;
 import tech.araopj.springpitzzahhbot.utilities.MessageUtil;
-
 import java.io.IOException;
 import java.net.URI;
 import java.net.http.HttpClient;
@@ -46,8 +47,9 @@ import static java.lang.String.format;
 import static java.time.LocalDateTime.now;
 import static java.time.ZoneId.of;
 
+@Slf4j
 @Component
-public record Joke(MessageUtil messageUtil) implements SlashCommand {
+public record Joke(MessageUtil messageUtil, JokesService jokesService) implements SlashCommand {
 
     /**
      * Executes a {@code SlashCommand}
@@ -72,12 +74,13 @@ public record Joke(MessageUtil messageUtil) implements SlashCommand {
                 .GET()
                 .build();
 
-        // TODO: add builder to build requests
         final HttpResponse<String> RESPONSE;
 
         try {
             RESPONSE = CLIENT.send(REQUEST, HttpResponse.BodyHandlers.ofString());
+            log.info("Response from joke api: {}", RESPONSE.body());
         } catch (IOException | InterruptedException e) {
+            log.error("Error while sending request to joke api", e);
             throw new RuntimeException(e);
         }
 
@@ -124,14 +127,12 @@ public record Joke(MessageUtil messageUtil) implements SlashCommand {
                 name().get(),
                 description().get())
                 .addOptions(
-                        new OptionData(OptionType.STRING, "category", "Choose your category", true)
+                        new OptionData(OptionType.STRING, "category", "Category of the joke", true)
                                 .setDescription("Select your desired joke category")
-                                .addChoices(),
-                        new OptionData(OptionType.STRING, "difficulty", "The difficulty of the game", true)
-                                .setDescription("Select your desired difficulty")
-                                .addChoice("EASY", "EASY")
-                                .addChoice("MEDIUM", "MEDIUM")
-                                .addChoice("HARD", "HARD")
+                                .addChoices(jokesService.getCategories()),
+                        new OptionData(OptionType.STRING, "language", "Language of the joke", true)
+                                .setDescription("Select your desired joke language")
+                                .addChoices(jokesService.getLanguages())
                 );
     }
 
