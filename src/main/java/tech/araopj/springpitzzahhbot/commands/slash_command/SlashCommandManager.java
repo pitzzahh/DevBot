@@ -31,7 +31,7 @@ import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEve
 import tech.araopj.springpitzzahhbot.commands.slash_command.commands.game.Game;
 import tech.araopj.springpitzzahhbot.exceptions.CommandAlreadyExistException;
 import tech.araopj.springpitzzahhbot.config.channels.service.ChannelService;
-import tech.araopj.springpitzzahhbot.commands.slash_command.commands.Joke;
+import tech.araopj.springpitzzahhbot.commands.slash_command.commands.joke.Joke;
 import tech.araopj.springpitzzahhbot.commands.service.CommandsService;
 import tech.araopj.springpitzzahhbot.utilities.MessageUtil;
 import org.springframework.stereotype.Component;

@@ -22,9 +22,13 @@
  * SOFTWARE.
  */
 
-package tech.araopj.springpitzzahhbot.commands.slash_command.commands;
+package tech.araopj.springpitzzahhbot.commands.slash_command.commands.joke;
 
 
+import net.dv8tion.jda.api.interactions.commands.OptionType;
+import net.dv8tion.jda.api.interactions.commands.build.CommandData;
+import net.dv8tion.jda.api.interactions.commands.build.OptionData;
+import net.dv8tion.jda.internal.interactions.CommandDataImpl;
 import org.springframework.stereotype.Component;
 import tech.araopj.springpitzzahhbot.commands.slash_command.CommandContext;
 import tech.araopj.springpitzzahhbot.commands.slash_command.SlashCommand;
@@ -67,6 +71,8 @@ public record Joke(MessageUtil messageUtil) implements SlashCommand {
                 .uri(URI.create("https://v2.jokeapi.dev/joke/Any?blacklistFlags=nsfw,religious,political,racist,sexist,explicit&format=txt"))
                 .GET()
                 .build();
+
+        // TODO: add builder to build requests
         final HttpResponse<String> RESPONSE;
 
         try {
@@ -105,6 +111,28 @@ public record Joke(MessageUtil messageUtil) implements SlashCommand {
     @Override
     public Supplier<String> name() {
         return () -> "joke";
+    }
+
+    /**
+     * Gets the command data.
+     *
+     * @return a {@code Supplier<CommandData>}.
+     */
+    @Override
+    public Supplier<CommandData> getCommandData() {
+        return () -> new CommandDataImpl(
+                name().get(),
+                description().get())
+                .addOptions(
+                        new OptionData(OptionType.STRING, "category", "Choose your category", true)
+                                .setDescription("Select your desired joke category")
+                                .addChoices(),
+                        new OptionData(OptionType.STRING, "difficulty", "The difficulty of the game", true)
+                                .setDescription("Select your desired difficulty")
+                                .addChoice("EASY", "EASY")
+                                .addChoice("MEDIUM", "MEDIUM")
+                                .addChoice("HARD", "HARD")
+                );
     }
 
     /**
