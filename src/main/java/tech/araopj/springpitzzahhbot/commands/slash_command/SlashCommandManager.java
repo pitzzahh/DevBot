@@ -24,17 +24,18 @@
 
 package tech.araopj.springpitzzahhbot.commands.slash_command;
 
-import tech.araopj.springpitzzahhbot.commands.slash_command.commands.confessions.Confession;
-import tech.araopj.springpitzzahhbot.commands.slash_command.commands.game.service.GameService;
 import tech.araopj.springpitzzahhbot.commands.slash_command.commands.confessions.service.ConfessionService;
+import tech.araopj.springpitzzahhbot.commands.slash_command.commands.joke.getJoke.service.JokesService;
+import tech.araopj.springpitzzahhbot.commands.slash_command.commands.game.service.GameService;
+import tech.araopj.springpitzzahhbot.commands.slash_command.commands.confessions.Confession;
+import tech.araopj.springpitzzahhbot.commands.slash_command.commands.joke.getJoke.GetJoke;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import tech.araopj.springpitzzahhbot.commands.slash_command.commands.game.Game;
-import tech.araopj.springpitzzahhbot.commands.slash_command.commands.joke.service.JokesService;
 import tech.araopj.springpitzzahhbot.exceptions.CommandAlreadyExistException;
 import tech.araopj.springpitzzahhbot.config.channels.service.ChannelService;
-import tech.araopj.springpitzzahhbot.commands.slash_command.commands.joke.Joke;
 import tech.araopj.springpitzzahhbot.commands.service.CommandsService;
 import tech.araopj.springpitzzahhbot.utilities.MessageUtil;
+import tech.araopj.springpitzzahhbot.config.HttpConfig;
 import org.springframework.stereotype.Component;
 import org.jetbrains.annotations.NotNull;
 import java.util.function.Consumer;
@@ -56,12 +57,13 @@ public class SlashCommandManager {
             ChannelService channelService,
             JokesService jokesService,
             GameService gameService,
-            MessageUtil messageUtil
-    ) {
+            MessageUtil messageUtil,
+            HttpConfig httpConfig
+            ) {
         addCommands(
                 new Confession(confessionService, commandsService, channelService, messageUtil),
                 new Game(gameService, messageUtil),
-                new Joke(messageUtil, jokesService)
+                new GetJoke(messageUtil, jokesService, httpConfig)
         );
     }
 
