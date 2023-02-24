@@ -25,17 +25,29 @@
 package tech.araopj.springpitzzahhbot.config;
 
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Bean;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Async;
-
+import org.springframework.context.annotation.Bean;
+import java.net.http.HttpRequest;
 import java.net.http.HttpClient;
+import lombok.Getter;
 
+@Getter
 @Configuration
 public class HttpConfig {
+
+    @Value("${joke-api.url}")
+    private String jokeApiUrl;
 
     @Bean
     @Async
     public HttpClient httpClient() {
         return HttpClient.newHttpClient();
+    }
+
+    @Bean
+    @Async
+    public HttpRequest.Builder httpBuilder() {
+        return HttpRequest.newBuilder();
     }
 }

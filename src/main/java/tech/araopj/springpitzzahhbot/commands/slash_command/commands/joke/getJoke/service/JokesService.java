@@ -22,20 +22,22 @@
  * SOFTWARE.
  */
 
-package tech.araopj.springpitzzahhbot.commands.slash_command.commands.joke.service;
+package tech.araopj.springpitzzahhbot.commands.slash_command.commands.joke.getJoke.service;
 
-import tech.araopj.springpitzzahhbot.commands.slash_command.commands.joke.entity.Category;
-import tech.araopj.springpitzzahhbot.commands.slash_command.commands.joke.entity.Language;
+import tech.araopj.springpitzzahhbot.commands.slash_command.commands.joke.getJoke.entity.*;
+import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import tech.araopj.springpitzzahhbot.config.HttpConfig;
 import java.util.concurrent.ExecutionException;
 import org.springframework.stereotype.Service;
 import com.google.gson.reflect.TypeToken;
+import java.util.stream.Collectors;
 import java.net.http.HttpResponse;
 import java.net.http.HttpRequest;
 import lombok.extern.slf4j.Slf4j;
 import java.util.Collection;
 import com.google.gson.Gson;
-import java.util.List;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.net.URI;
 
 @Slf4j
@@ -57,7 +59,14 @@ public record JokesService(HttpConfig httpConfig) {
             log.error("Error while getting categories", e);
             throw new RuntimeException(e);
         }
-        return new Gson().fromJson(stringHttpResponse.body(), new TypeToken<List<Category>>(){}.getType());
+
+        var categories = (String[]) new Gson().fromJson(stringHttpResponse.body(), new TypeToken<String[]>() {}.getType());
+
+        // Now the categories array should contain the parsed values
+        log.info("Categories: {}", Arrays.toString(categories));
+        return Arrays.stream(categories)
+                .map(category -> new Category(category, category))
+                .collect(Collectors.toCollection(ArrayList::new));
     }
 
     public Collection<Language> getLanguages() {
@@ -73,7 +82,28 @@ public record JokesService(HttpConfig httpConfig) {
             log.error("Error while getting languages", e);
             throw new RuntimeException(e);
         }
-        return new Gson().fromJson(stringHttpResponse.body(), new TypeToken<List<Language>>(){}.getType());
+
+        var languages = (String[]) new Gson().fromJson(stringHttpResponse.body(), new TypeToken<String[]>() {}.getType());
+
+        // Now the categories array should contain the parsed values
+        log.info("Languages: {}", Arrays.toString(languages));
+
+        return Arrays.stream(languages)
+                .map(language -> new Language(language, language))
+                .collect(Collectors.toCollection(ArrayList::new));
+    }
+
+    public String createJokeRequestUrl(OptionMapping category, OptionMapping language) {
+        var url = httpConfig.getJokeApiUrl();
+        if (category != null && language != null) url += "random?category=" + category.getAsString() + "&language=" + language.getAsString();
+        else if (category != null) url += "random?category=" + category.getAsString();
+        else if (language != null) url += "random?language=" + language.getAsString();
+        else url += "random";
+        return url;
+    }
+
+    public String createJokeSubmitUrl() {
+        return httpConfig.getJokeApiUrl().concat("submit");
     }
 
 }
