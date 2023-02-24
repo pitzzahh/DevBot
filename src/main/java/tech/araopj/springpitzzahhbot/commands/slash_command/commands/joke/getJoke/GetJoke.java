@@ -40,6 +40,8 @@ import org.springframework.stereotype.Component;
 import static java.awt.Color.YELLOW;
 import static java.time.LocalDateTime.now;
 import static java.lang.String.format;
+
+import java.time.ZoneId;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 import java.net.http.HttpResponse;
@@ -114,7 +116,7 @@ public record GetJoke(
                     .setColor(CYAN)
                     .setTitle("GetJoke of the day")
                     .setDescription(joke != null ? joke : "No joke found")
-                    .setTimestamp(now())
+                    .setTimestamp(now(ZoneId.systemDefault()))
                     .setFooter(
                             format("Created by %s", context.getGuild().getJDA().getSelfUser().getAsTag()),
                             context.getGuild().getJDA().getSelfUser().getAvatarUrl()
@@ -130,7 +132,7 @@ public record GetJoke(
                     .setColor(YELLOW)
                     .setTitle("No joke found")
                     .setDescription("I couldn't find a joke for you 😢.")
-                    .setTimestamp(now())
+                    .setTimestamp(now(ZoneId.systemDefault()))
                     .setFooter(
                             format("Created by %s", context.getGuild().getJDA().getSelfUser().getAsTag()),
                             context.getGuild().getJDA().getSelfUser().getAvatarUrl()
