@@ -22,13 +22,13 @@
  * SOFTWARE.
  */
 
-package tech.araopj.springpitzzahhbot.commands.slash_command.commands.joke.entity;
+package tech.araopj.springpitzzahhbot.commands.slash_command.commands.joke.getJoke.entity;
 
 import net.dv8tion.jda.api.interactions.commands.Command;
 import org.jetbrains.annotations.NotNull;
 
 public class Language extends Command.Choice {
-    public Language(@NotNull String name, long value) {
+    public Language(@NotNull String name, @NotNull String value) {
         super(name, value);
     }
 }
