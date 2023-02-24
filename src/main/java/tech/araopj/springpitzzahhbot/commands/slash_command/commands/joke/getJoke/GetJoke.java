@@ -36,18 +36,16 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import tech.araopj.springpitzzahhbot.config.HttpConfig;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.stereotype.Component;
-
-import static java.awt.Color.YELLOW;
 import static java.time.LocalDateTime.now;
 import static java.lang.String.format;
-
-import java.time.ZoneId;
+import static java.awt.Color.YELLOW;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 import java.net.http.HttpResponse;
 import static java.awt.Color.CYAN;
 import lombok.extern.slf4j.Slf4j;
 import java.io.IOException;
+import java.time.ZoneId;
 import java.net.URI;
 
 @Slf4j
@@ -82,7 +80,7 @@ public record GetJoke(
         log.info("Language: {}", language);
         String url = jokesService.createJokeRequestUrl(category, language);
         log.info("Url: {}", url);
-        final var REQUEST = httpConfig.httpBuilder() // TODO: create a uri builder
+        final var REQUEST = httpConfig.httpBuilder()
                 .uri(URI.create(url))
                 .GET()
                 .build();
