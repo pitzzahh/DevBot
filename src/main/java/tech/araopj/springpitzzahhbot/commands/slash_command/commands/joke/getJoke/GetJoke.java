@@ -22,34 +22,39 @@
  * SOFTWARE.
  */
 
-package tech.araopj.springpitzzahhbot.commands.slash_command.commands.joke;
+package tech.araopj.springpitzzahhbot.commands.slash_command.commands.joke.getJoke;
 
-
-import lombok.extern.slf4j.Slf4j;
-import net.dv8tion.jda.api.interactions.commands.OptionType;
+import tech.araopj.springpitzzahhbot.commands.slash_command.commands.joke.getJoke.service.JokesService;
+import tech.araopj.springpitzzahhbot.commands.slash_command.CommandContext;
+import tech.araopj.springpitzzahhbot.commands.slash_command.SlashCommand;
 import net.dv8tion.jda.api.interactions.commands.build.CommandData;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 import net.dv8tion.jda.internal.interactions.CommandDataImpl;
-import org.springframework.stereotype.Component;
-import tech.araopj.springpitzzahhbot.commands.slash_command.CommandContext;
-import tech.araopj.springpitzzahhbot.commands.slash_command.SlashCommand;
-import tech.araopj.springpitzzahhbot.commands.slash_command.commands.joke.service.JokesService;
+import net.dv8tion.jda.api.interactions.commands.OptionType;
 import tech.araopj.springpitzzahhbot.utilities.MessageUtil;
-import java.io.IOException;
-import java.net.URI;
-import java.net.http.HttpClient;
-import java.net.http.HttpRequest;
-import java.net.http.HttpResponse;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import tech.araopj.springpitzzahhbot.config.HttpConfig;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.springframework.stereotype.Component;
+
+import static java.awt.Color.YELLOW;
+import static java.time.LocalDateTime.now;
+import static java.lang.String.format;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
+import java.net.http.HttpResponse;
 import static java.awt.Color.CYAN;
-import static java.lang.String.format;
-import static java.time.LocalDateTime.now;
-import static java.time.ZoneId.of;
+import lombok.extern.slf4j.Slf4j;
+import java.io.IOException;
+import java.net.URI;
 
 @Slf4j
 @Component
-public record Joke(MessageUtil messageUtil, JokesService jokesService) implements SlashCommand {
+public record GetJoke(
+        MessageUtil messageUtil,
+        JokesService jokesService,
+        HttpConfig httpConfig
+) implements SlashCommand {
 
     /**
      * Executes a {@code SlashCommand}
@@ -66,43 +71,75 @@ public record Joke(MessageUtil messageUtil, JokesService jokesService) implement
      * Contains the process to be executed.
      * @param context the command context containing the information about the command.
      */
-    private void process(CommandContext context) {
-        final var CLIENT = HttpClient.newHttpClient();
+    private void process(CommandContext context){
 
-        final var REQUEST = HttpRequest.newBuilder()
-                .uri(URI.create("https://v2.jokeapi.dev/joke/Any?blacklistFlags=nsfw,religious,political,racist,sexist,explicit&format=txt"))
+        final var category = context.getEvent().getOption("category");
+        log.info("Category: {}", category);
+
+        final var language = context.getEvent().getOption("language");
+        log.info("Language: {}", language);
+        String url = jokesService.createJokeRequestUrl(category, language);
+        log.info("Url: {}", url);
+        final var REQUEST = httpConfig.httpBuilder() // TODO: create a uri builder
+                .uri(URI.create(url))
                 .GET()
                 .build();
 
         final HttpResponse<String> RESPONSE;
 
         try {
-            RESPONSE = CLIENT.send(REQUEST, HttpResponse.BodyHandlers.ofString());
+            RESPONSE = httpConfig.httpClient().send(REQUEST, HttpResponse.BodyHandlers.ofString());
             log.info("Response from joke api: {}", RESPONSE.body());
         } catch (IOException | InterruptedException e) {
             log.error("Error while sending request to joke api", e);
             throw new RuntimeException(e);
         }
 
-        var joke = RESPONSE.body();
-        messageUtil.getEmbedBuilder()
-                .clear()
-                .clearFields()
-                .setColor(CYAN)
-                .setTitle("Joke of the day")
-                .setDescription(joke)
-                .setTimestamp(now(of("UTC")))
-                .setFooter(
-                        format("Created by %s", context.getGuild().getJDA().getSelfUser().getAsTag()),
-                        context.getGuild().getJDA().getSelfUser().getAvatarUrl()
-                );
         if (RESPONSE.statusCode() == 200) {
+
+            var apiResponse = RESPONSE.body();
+
+            String joke;
+
+            try {
+                joke = new ObjectMapper().readTree(apiResponse).get("joke").asText();
+            } catch (JsonProcessingException e) {
+                log.error("Error while parsing joke api response", e);
+                throw new RuntimeException(e);
+            }
+
+            messageUtil.getEmbedBuilder()
+                    .clear()
+                    .clearFields()
+                    .setColor(CYAN)
+                    .setTitle("GetJoke of the day")
+                    .setDescription(joke != null ? joke : "No joke found")
+                    .setTimestamp(now())
+                    .setFooter(
+                            format("Created by %s", context.getGuild().getJDA().getSelfUser().getAsTag()),
+                            context.getGuild().getJDA().getSelfUser().getAvatarUrl()
+                    );
+            context.getEvent()
+                    .getInteraction()
+                    .replyEmbeds(messageUtil.getEmbedBuilder().build())
+                    .queue();
+        } else {
+            messageUtil.getEmbedBuilder()
+                    .clear()
+                    .clearFields()
+                    .setColor(YELLOW)
+                    .setTitle("No joke found")
+                    .setDescription("I couldn't find a joke for you 😢.")
+                    .setTimestamp(now())
+                    .setFooter(
+                            format("Created by %s", context.getGuild().getJDA().getSelfUser().getAsTag()),
+                            context.getGuild().getJDA().getSelfUser().getAvatarUrl()
+                    );
             context.getEvent()
                     .getInteraction()
                     .replyEmbeds(messageUtil.getEmbedBuilder().build())
                     .queue();
         }
-
     }
 
     /**
@@ -127,10 +164,10 @@ public record Joke(MessageUtil messageUtil, JokesService jokesService) implement
                 name().get(),
                 description().get())
                 .addOptions(
-                        new OptionData(OptionType.STRING, "category", "Category of the joke", true)
+                        new OptionData(OptionType.STRING, "category", "Category of the joke", false)
                                 .setDescription("Select your desired joke category")
                                 .addChoices(jokesService.getCategories()),
-                        new OptionData(OptionType.STRING, "language", "Language of the joke", true)
+                        new OptionData(OptionType.STRING, "language", "Language of the joke", false)
                                 .setDescription("Select your desired joke language")
                                 .addChoices(jokesService.getLanguages())
                 );
@@ -144,6 +181,6 @@ public record Joke(MessageUtil messageUtil, JokesService jokesService) implement
      */
     @Override
     public Supplier<String> description() {
-        return () -> "Sends a random Joke";
+        return () -> "Sends a random GetJoke";
     }
 }
