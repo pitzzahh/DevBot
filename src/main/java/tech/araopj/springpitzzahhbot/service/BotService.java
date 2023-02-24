@@ -1,7 +1,7 @@
 package tech.araopj.springpitzzahhbot.service;
 
 import tech.araopj.springpitzzahhbot.commands.slash_command.commands.confessions.service.ConfessionService;
-import tech.araopj.springpitzzahhbot.commands.slash_command.commands.joke.service.JokesService;
+import tech.araopj.springpitzzahhbot.commands.slash_command.commands.joke.getJoke.service.JokesService;
 import tech.araopj.springpitzzahhbot.commands.slash_command.commands.game.service.GameService;
 import tech.araopj.springpitzzahhbot.commands.slash_command.commands.confessions.Confession;
 import tech.araopj.springpitzzahhbot.config.moderation.service.MessageCheckerService;
@@ -19,6 +19,7 @@ import tech.araopj.springpitzzahhbot.listeners.MessageListener;
 import net.dv8tion.jda.api.sharding.DefaultShardManagerBuilder;
 import tech.araopj.springpitzzahhbot.listeners.MemberLogger;
 import tech.araopj.springpitzzahhbot.utilities.MessageUtil;
+import tech.araopj.springpitzzahhbot.config.HttpConfig;
 import org.springframework.context.annotation.Bean;
 import net.dv8tion.jda.api.requests.GatewayIntent;
 import net.dv8tion.jda.api.sharding.ShardManager;
@@ -43,7 +44,8 @@ public record BotService(
         JokesService jokesService,
         GameService gameService,
         MessageUtil messageUtil,
-        Confession confession
+        Confession confession,
+        HttpConfig httpConfig
 ) {
 
     @Bean
@@ -84,7 +86,8 @@ public record BotService(
                                 channelService,
                                 jokesService,
                                 gameService,
-                                messageUtil
+                                messageUtil,
+                                httpConfig
                         )
                 ),
                 new MemberLogger(
