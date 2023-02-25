@@ -24,7 +24,7 @@
 
 package tech.araopj.springpitzzahhbot.commands.slash_command.commands.joke.getJoke;
 
-import tech.araopj.springpitzzahhbot.commands.slash_command.commands.joke.getJoke.service.JokesService;
+import tech.araopj.springpitzzahhbot.commands.slash_command.commands.joke.service.JokesService;
 import tech.araopj.springpitzzahhbot.commands.slash_command.CommandContext;
 import tech.araopj.springpitzzahhbot.commands.slash_command.SlashCommand;
 import net.dv8tion.jda.api.interactions.commands.build.CommandData;
