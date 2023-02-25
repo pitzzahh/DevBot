@@ -26,12 +26,12 @@ package tech.araopj.springpitzzahhbot.commands.slash_command.commands.joke.getJo
 
 import tech.araopj.springpitzzahhbot.commands.slash_command.commands.joke.service.JokesService;
 import tech.araopj.springpitzzahhbot.commands.slash_command.CommandContext;
+import tech.araopj.springpitzzahhbot.utilities.service.MessageUtilService;
 import tech.araopj.springpitzzahhbot.commands.slash_command.SlashCommand;
 import net.dv8tion.jda.api.interactions.commands.build.CommandData;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 import net.dv8tion.jda.internal.interactions.CommandDataImpl;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
-import tech.araopj.springpitzzahhbot.utilities.MessageUtil;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import tech.araopj.springpitzzahhbot.config.HttpConfig;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -51,7 +51,7 @@ import java.net.URI;
 @Slf4j
 @Component
 public record GetJoke(
-        MessageUtil messageUtil,
+        MessageUtilService messageUtilService,
         JokesService jokesService,
         HttpConfig httpConfig
 ) implements SlashCommand {
@@ -105,7 +105,7 @@ public record GetJoke(
                 throw new RuntimeException(e);
             }
 
-            messageUtil.getEmbedBuilder()
+            messageUtilService.getEmbedBuilder()
                     .clear()
                     .clearFields()
                     .setColor(CYAN)
@@ -118,10 +118,10 @@ public record GetJoke(
                     );
             context.getEvent()
                     .getInteraction()
-                    .replyEmbeds(messageUtil.getEmbedBuilder().build())
+                    .replyEmbeds(messageUtilService.getEmbedBuilder().build())
                     .queue();
         } else {
-            messageUtil.getEmbedBuilder()
+            messageUtilService.getEmbedBuilder()
                     .clear()
                     .clearFields()
                     .setColor(YELLOW)
@@ -134,7 +134,7 @@ public record GetJoke(
                     );
             context.getEvent()
                     .getInteraction()
-                    .replyEmbeds(messageUtil.getEmbedBuilder().build())
+                    .replyEmbeds(messageUtilService.getEmbedBuilder().build())
                     .queue();
         }
     }
@@ -178,6 +178,6 @@ public record GetJoke(
      */
     @Override
     public Supplier<String> description() {
-        return () -> "Sends a random GetJoke";
+        return () -> "Get a random GetJoke";
     }
 }

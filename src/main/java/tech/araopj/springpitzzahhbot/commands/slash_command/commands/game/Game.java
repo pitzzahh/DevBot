@@ -24,30 +24,30 @@
 
 package tech.araopj.springpitzzahhbot.commands.slash_command.commands.game;
 
+import tech.araopj.springpitzzahhbot.commands.slash_command.commands.game.service.GameService;
+import static tech.araopj.springpitzzahhbot.games.RandomMathProblemGenerator.*;
+import tech.araopj.springpitzzahhbot.utilities.service.MessageUtilService;
+import tech.araopj.springpitzzahhbot.commands.slash_command.CommandContext;
+import tech.araopj.springpitzzahhbot.commands.slash_command.SlashCommand;
+import tech.araopj.springpitzzahhbot.games.RandomMathProblemGenerator;
 import io.github.pitzzahh.util.utilities.classes.enums.Difficulty;
-import lombok.extern.slf4j.Slf4j;
-import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.CommandData;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 import net.dv8tion.jda.internal.interactions.CommandDataImpl;
+import net.dv8tion.jda.api.interactions.commands.OptionType;
 import org.springframework.stereotype.Service;
-import tech.araopj.springpitzzahhbot.commands.slash_command.CommandContext;
-import tech.araopj.springpitzzahhbot.commands.slash_command.SlashCommand;
-import tech.araopj.springpitzzahhbot.commands.slash_command.commands.game.service.GameService;
-import tech.araopj.springpitzzahhbot.games.RandomMathProblemGenerator;
-import tech.araopj.springpitzzahhbot.utilities.MessageUtil;
+import static java.util.Objects.requireNonNull;
+import static java.lang.String.format;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
+import lombok.extern.slf4j.Slf4j;
 import static java.awt.Color.*;
-import static java.lang.String.format;
-import static java.util.Objects.requireNonNull;
-import static tech.araopj.springpitzzahhbot.games.RandomMathProblemGenerator.*;
 
 @Slf4j
 @Service
 public record Game(
-        GameService gameService,
-        MessageUtil messageUtil
+        MessageUtilService messageUtilService,
+        GameService gameService
 ) implements SlashCommand {
 
     /**
@@ -77,7 +77,7 @@ public record Game(
         setDifficulty(DIFFICULTY);
         log.info("DIFFICULTY = " + RandomMathProblemGenerator.getDifficulty());
         play();
-        messageUtil.getEmbedBuilder()
+        messageUtilService.getEmbedBuilder()
                 .clear()
                 .clearFields()
                 .setColor(COLOR)
@@ -85,7 +85,7 @@ public record Game(
                 .setDescription(RandomMathProblemGenerator.getQuestion());
         context.getEvent()
                 .getInteraction()
-                .replyEmbeds(messageUtil.getEmbedBuilder().build())
+                .replyEmbeds(messageUtilService.getEmbedBuilder().build())
                 .queue();
         gameService.addQuestion().accept(PLAYER, getAnswer());
     }
@@ -113,7 +113,9 @@ public record Game(
                 .addOptions(
                         new OptionData(OptionType.STRING, "game", "Choose your game", true)
                                 .setDescription("Select your desired game")
-                                .addChoice("Random Math Problem", "RandomMathProblemGenerator"),
+                                .addChoice("Random Math Problem", "RandomMathProblemGenerator")
+                                .addChoice("Rock Paper Scissors", "RockPaperScissors")
+                                .addChoice("Tic Tac Toe", "TicTacToe"),
                         new OptionData(OptionType.STRING, "difficulty", "The difficulty of the game", true)
                                 .setDescription("Select your desired difficulty")
                                 .addChoice("EASY", "EASY")

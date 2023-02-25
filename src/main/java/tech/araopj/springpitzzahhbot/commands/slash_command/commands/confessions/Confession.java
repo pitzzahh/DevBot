@@ -31,13 +31,13 @@ import net.dv8tion.jda.api.interactions.commands.build.CommandData;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 import net.dv8tion.jda.internal.interactions.CommandDataImpl;
 import org.springframework.stereotype.Component;
-import tech.araopj.springpitzzahhbot.commands.service.CommandsService;
 import tech.araopj.springpitzzahhbot.commands.slash_command.CommandContext;
 import tech.araopj.springpitzzahhbot.commands.slash_command.SlashCommand;
 import tech.araopj.springpitzzahhbot.commands.slash_command.commands.confessions.service.ConfessionService;
 import tech.araopj.springpitzzahhbot.config.channels.service.ChannelService;
-import tech.araopj.springpitzzahhbot.utilities.MessageUtil;
+import tech.araopj.springpitzzahhbot.utilities.service.MessageUtilService;
 import java.awt.*;
+import java.time.ZoneId;
 import java.util.Objects;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
@@ -45,8 +45,6 @@ import static java.awt.Color.GREEN;
 import static java.lang.String.format;
 import static java.time.LocalDateTime.now;
 import static java.time.ZoneId.of;
-import static java.time.format.DateTimeFormatter.ofLocalizedTime;
-import static java.time.format.FormatStyle.SHORT;
 import static java.util.concurrent.TimeUnit.MINUTES;
 
 /**
@@ -55,10 +53,9 @@ import static java.util.concurrent.TimeUnit.MINUTES;
 @Slf4j
 @Component
 public record Confession(
+        MessageUtilService messageUtilService,
         ConfessionService confessionService,
-        CommandsService commandsService,
-        ChannelService channelService,
-        MessageUtil messageUtil
+        ChannelService channelService
 ) implements SlashCommand {
 
     @Override
@@ -80,14 +77,14 @@ public record Confession(
                     context.getEvent().getOption(name().get().concat("ion"))
             ).getAsString();
 
-            messageUtil.getEmbedBuilder()
+            messageUtilService.getEmbedBuilder()
                     .clear()
                     .clearFields()
                     .setColor(Color.RED)
                     .setDescription(SECRET_MESSAGE)
                     .setFooter("anonymous 👀")
                     .setTimestamp(now(of("UTC")));
-            CONFESSIONS.ifPresent(c -> c.sendMessageEmbeds(messageUtil.getEmbedBuilder().build()).queue(message -> confirmationMessage(context)));
+            CONFESSIONS.ifPresent(c -> c.sendMessageEmbeds(messageUtilService.getEmbedBuilder().build()).queue(message -> confirmationMessage(context)));
             log.info("Sent confession message to {} channel", confessionService.sentSecretChannelName());
         } else {
             log.warn("User {} tried to use confession command in {} channel", context.getEvent().getUser().getAsTag(), context.getEvent().getChannel().getName());
@@ -101,14 +98,14 @@ public record Confession(
                                             confessionService.enterSecretChannelName()
                                     )
                                     .map(TextChannel::getAsMention)
-                                    .orElse("channel")
+                                    .orElse("general")
                     )
             );
             context.getEvent()
                     .getInteraction()
-                    .reply(messageUtil.getMessageBuilder().build())
+                    .reply(messageUtilService.getMessageBuilder().build())
                     .setEphemeral(true)
-                    .queue();
+                    .queue(m -> m.deleteOriginal().queueAfter(messageUtilService.getReplyDeletionDelayInMinutes(), MINUTES));
             log.info("Sent ephemeral message to user {}", context.getEvent().getUser().getAsTag());
         }
     }
@@ -120,20 +117,15 @@ public record Confession(
      * @param description the description of the message.
      */
     private void message(String title, String description) {
-        messageUtil.getEmbedBuilder().clear()
+        messageUtilService.getEmbedBuilder().clear()
                 .setColor(GREEN)
                 .setTitle(title)
                 .setDescription(description)
-                .setFooter(
-                        format(
-                                "This message will be deleted on %s",
-                                now().plusMinutes(commandsService.messageDeletionDelay())
-                                        .format(ofLocalizedTime(SHORT))
-                        )
-                );
-        messageUtil.getMessageBuilder()
+                .setTimestamp(now(ZoneId.systemDefault()).plusMinutes(messageUtilService.getReplyDeletionDelayInMinutes()))
+                .setFooter("This message will be automatically deleted on");
+        messageUtilService.getMessageBuilder()
                 .clear()
-                .setEmbeds(messageUtil.getEmbedBuilder().build());
+                .setEmbeds(messageUtilService.getEmbedBuilder().build());
     }
 
     /**
@@ -152,14 +144,14 @@ public record Confession(
                                         confessionService.sentSecretChannelName()
                                 )
                                 .map(TextChannel::getAsMention)
-                                .orElse("channel")
+                                .orElse("general")
                 )
         );
         context.getEvent()
                 .getInteraction()
-                .reply(messageUtil.getMessageBuilder().build())
+                .reply(messageUtilService.getMessageBuilder().build())
                 .setEphemeral(true)
-                .queue(m -> m.deleteOriginal().queueAfter(commandsService.messageDeletionDelay(), MINUTES));
+                .queue(m -> m.deleteOriginal().queueAfter(messageUtilService.getReplyDeletionDelayInMinutes(), MINUTES));
     }
 
     /**

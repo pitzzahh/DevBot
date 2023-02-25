@@ -10,6 +10,7 @@ import tech.araopj.springpitzzahhbot.config.moderation.service.ViolationService;
 import tech.araopj.springpitzzahhbot.config.category.service.CategoryService;
 import tech.araopj.springpitzzahhbot.config.channels.service.ChannelService;
 import tech.araopj.springpitzzahhbot.commands.chat_command.CommandManager;
+import tech.araopj.springpitzzahhbot.utilities.service.MessageUtilService;
 import tech.araopj.springpitzzahhbot.commands.service.CommandsService;
 import tech.araopj.springpitzzahhbot.config.channels.ChannelsConfig;
 import tech.araopj.springpitzzahhbot.listeners.SlashCommandListener;
@@ -34,6 +35,7 @@ import java.io.IOException;
 @Service
 public record BotService(
         MessageCheckerService messageCheckerService,
+        MessageUtilService messageUtilService,
         ConfessionService confessionService,
         ViolationService violationService,
         CommandsService commandsService,
@@ -43,7 +45,6 @@ public record BotService(
         TokenService tokenService,
         JokesService jokesService,
         GameService gameService,
-        MessageUtil messageUtil,
         Confession confession,
         HttpConfig httpConfig
 ) {
@@ -68,25 +69,24 @@ public record BotService(
         builder.addEventListeners(
                 new MessageListener(
                         messageCheckerService,
+                        messageUtilService,
                         confessionService,
                         violationService,
                         commandsService,
                         categoryService,
                         channelService,
                         commandManager,
-                        messageUtil,
                         gameService,
                         confession
                 ),
-                new ButtonListener(messageUtil),
+                new ButtonListener(messageUtilService),
                 new SlashCommandListener(
                         new SlashCommandManager(
+                                messageUtilService,
                                 confessionService,
-                                commandsService,
                                 channelService,
                                 jokesService,
                                 gameService,
-                                messageUtil,
                                 httpConfig
                         )
                 ),

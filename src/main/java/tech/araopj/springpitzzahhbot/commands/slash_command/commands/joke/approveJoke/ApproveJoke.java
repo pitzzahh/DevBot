@@ -24,29 +24,29 @@
 
 package tech.araopj.springpitzzahhbot.commands.slash_command.commands.joke.approveJoke;
 
-import net.dv8tion.jda.api.Permission;
-import net.dv8tion.jda.api.interactions.commands.OptionType;
-import net.dv8tion.jda.api.interactions.commands.build.OptionData;
-import net.dv8tion.jda.internal.interactions.CommandDataImpl;
 import tech.araopj.springpitzzahhbot.commands.slash_command.commands.joke.service.JokesService;
 import tech.araopj.springpitzzahhbot.commands.slash_command.CommandContext;
+import tech.araopj.springpitzzahhbot.utilities.service.MessageUtilService;
 import tech.araopj.springpitzzahhbot.commands.slash_command.SlashCommand;
 import net.dv8tion.jda.api.interactions.commands.build.CommandData;
-import tech.araopj.springpitzzahhbot.utilities.MessageUtil;
+import net.dv8tion.jda.api.interactions.commands.build.OptionData;
+import net.dv8tion.jda.internal.interactions.CommandDataImpl;
+import net.dv8tion.jda.api.interactions.commands.OptionType;
 import tech.araopj.springpitzzahhbot.config.HttpConfig;
 import org.springframework.stereotype.Component;
-import java.time.ZoneId;
+import static java.time.LocalDateTime.now;
+import net.dv8tion.jda.api.Permission;
+import java.util.concurrent.TimeUnit;
+import static java.awt.Color.YELLOW;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 import lombok.extern.slf4j.Slf4j;
-import static java.awt.Color.YELLOW;
-import static java.lang.String.format;
-import static java.time.LocalDateTime.now;
+import java.time.ZoneId;
 
 @Slf4j
 @Component
 public record ApproveJoke(
-        MessageUtil messageUtil,
+        MessageUtilService messageUtilService,
         JokesService jokesService,
         HttpConfig httpConfig
 ) implements SlashCommand {
@@ -71,21 +71,18 @@ public record ApproveJoke(
         boolean isAdmin = context.getMember().getRoles().stream()
                 .anyMatch(r -> r.hasPermission(Permission.ADMINISTRATOR));
         log.info("Is user {} an admin? {}", context.getMember().getEffectiveName(), isAdmin);
-        messageUtil.getEmbedBuilder()
+        messageUtilService.getEmbedBuilder()
                 .clear()
                 .clearFields()
                 .setColor(YELLOW)
                 .setTitle("Testing")
                 .setDescription(String.format("Is user %s an admin? %s", context.getMember().getEffectiveName(), isAdmin))
-                .setTimestamp(now(ZoneId.systemDefault()))
-                .setFooter(
-                        format("Created by %s", context.getGuild().getJDA().getSelfUser().getAsTag()),
-                        context.getGuild().getJDA().getSelfUser().getAvatarUrl()
-                );
+                .setTimestamp(now(ZoneId.systemDefault()).plusMinutes(messageUtilService.getReplyDeletionDelayInMinutes()))
+                .setFooter("This message will be automatically deleted on");
         context.getEvent()
                 .getInteraction()
-                .replyEmbeds(messageUtil.getEmbedBuilder().build())
-                .queue();
+                .replyEmbeds(messageUtilService.getEmbedBuilder().build())
+                .queue(m -> m.deleteOriginal().queueAfter(messageUtilService.getReplyDeletionDelayInMinutes(), TimeUnit.MINUTES));
     }
 
     /**
