@@ -22,8 +22,9 @@
  * SOFTWARE.
  */
 
-package tech.araopj.springpitzzahhbot.commands.slash_command.commands.joke.getJoke.service;
+package tech.araopj.springpitzzahhbot.commands.slash_command.commands.joke.service;
 
+import tech.araopj.springpitzzahhbot.commands.slash_command.commands.joke.entity.Joke;
 import tech.araopj.springpitzzahhbot.commands.slash_command.commands.joke.getJoke.entity.*;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import tech.araopj.springpitzzahhbot.config.HttpConfig;
@@ -106,4 +107,15 @@ public record JokesService(HttpConfig httpConfig) {
         return httpConfig.getJokeApiUrl().concat("submit");
     }
 
+    public String createJokeSubmitBody(OptionMapping joke, OptionMapping category, OptionMapping language) {
+        var jokeObject = category != null ? Joke.builder()
+                .joke(joke.getAsString())
+                .category(category.getAsString())
+                .language(language.getAsString())
+                .build() : Joke.builder()
+                .joke(joke.getAsString())
+                .language(language.getAsString())
+                .build();
+        return new Gson().toJson(jokeObject);
+    }
 }
