@@ -30,7 +30,7 @@ import java.util.List;
 /**
  * Interface used to handle commands.
  */
-public interface Command {
+public interface ChatCommand {
 
     /**
      * Handles the chat_command.
