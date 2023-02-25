@@ -25,9 +25,12 @@
 package tech.araopj.springpitzzahhbot.commands.slash_command.commands.joke.service;
 
 import tech.araopj.springpitzzahhbot.commands.slash_command.commands.joke.getJoke.entity.*;
-import tech.araopj.springpitzzahhbot.commands.slash_command.commands.joke.entity.Joke;
+import tech.araopj.springpitzzahhbot.commands.slash_command.commands.joke.approveJoke.entity.Joke;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import tech.araopj.springpitzzahhbot.config.HttpConfig;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.concurrent.ExecutionException;
 import org.springframework.stereotype.Service;
 import com.google.gson.reflect.TypeToken;
@@ -117,5 +120,35 @@ public record JokesService(HttpConfig httpConfig) {
                 .language(language.getAsString())
                 .build();
         return new Gson().toJson(jokeObject);
+    }
+
+    public Collection<Joke> getSubmittedJokes() {
+        var httpResponseCompletableFuture = httpConfig.httpClient()
+                .sendAsync(HttpRequest.newBuilder()
+                                .GET()
+                                .uri(URI.create("https://jokes.araopj.tech/v1/submit/all"))
+                                .build(),
+                        HttpResponse.BodyHandlers.ofString()
+                );
+        HttpResponse<String> stringHttpResponse;
+        try {
+            stringHttpResponse = httpResponseCompletableFuture.get();
+        } catch (InterruptedException | ExecutionException e) {
+            log.error("Error while getting categories", e);
+            throw new RuntimeException(e);
+        }
+        ObjectMapper objectMapper = new ObjectMapper();
+        Collection<Joke> jokes;
+        try {
+            jokes = objectMapper.readValue(stringHttpResponse.body(), new TypeReference<>() {});
+            log.info("Submitted Jokes: {}", jokes);
+        } catch (JsonProcessingException e) {
+            log.error("Error while getting categories", e);
+            throw new RuntimeException(e);
+        }
+        return jokes
+                .stream()
+                .filter(j -> !j.approved())
+                .collect(Collectors.toCollection(ArrayList::new));
     }
 }
