@@ -25,10 +25,10 @@
 package tech.araopj.springpitzzahhbot.commands.slash_command.commands.joke.getJoke.entity;
 
 import net.dv8tion.jda.api.interactions.commands.Command;
-import org.jetbrains.annotations.NotNull;
+import org.springframework.lang.NonNull;
 
 public class Language extends Command.Choice {
-    public Language(@NotNull String name, @NotNull String value) {
+    public Language(@NonNull String name, @NonNull String value) {
         super(name, value);
     }
 }

@@ -1,10 +1,10 @@
 package tech.araopj.springpitzzahhbot.commands.slash_command.commands.joke.getJoke.entity;
 
 import net.dv8tion.jda.api.interactions.commands.Command;
-import org.jetbrains.annotations.NotNull;
+import org.springframework.lang.NonNull;
 
 public class Category extends Command.Choice {
-    public Category(@NotNull String name, @NotNull String value) {
+    public Category(@NonNull String name, @NonNull String value) {
         super(name, value);
     }
 }
