@@ -24,9 +24,15 @@
 
 package tech.araopj.springpitzzahhbot.commands;
 
-import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.beans.factory.annotation.Value;
 import lombok.Getter;
+import tech.araopj.springpitzzahhbot.commands.chat_command.ChatCommand;
+import tech.araopj.springpitzzahhbot.commands.slash_command.SlashCommand;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Getter
 @Configuration
@@ -43,5 +49,15 @@ public class CommandsConfig {
 
     @Value("${bot.commands.prefix}")
     private String prefix;
+
+    @Bean
+    public List<ChatCommand> getChatCommands() {
+        return new ArrayList<>();
+    }
+
+    @Bean
+    public List<SlashCommand> getSlashCommands() {
+        return new ArrayList<>();
+    }
 
 }
