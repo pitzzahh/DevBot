@@ -24,8 +24,8 @@
 
 package tech.araopj.springpitzzahhbot.commands.slash_command.commands.joke.service;
 
-import tech.araopj.springpitzzahhbot.commands.slash_command.commands.joke.entity.Joke;
 import tech.araopj.springpitzzahhbot.commands.slash_command.commands.joke.getJoke.entity.*;
+import tech.araopj.springpitzzahhbot.commands.slash_command.commands.joke.entity.Joke;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import tech.araopj.springpitzzahhbot.config.HttpConfig;
 import java.util.concurrent.ExecutionException;
