@@ -24,14 +24,13 @@
 
 package tech.araopj.springpitzzahhbot.commands;
 
-import org.springframework.context.annotation.Bean;
+import tech.araopj.springpitzzahhbot.commands.slash_command.SlashCommand;
+import tech.araopj.springpitzzahhbot.commands.chat_command.ChatCommand;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.beans.factory.annotation.Value;
-import lombok.Getter;
-import tech.araopj.springpitzzahhbot.commands.chat_command.ChatCommand;
-import tech.araopj.springpitzzahhbot.commands.slash_command.SlashCommand;
-
+import org.springframework.context.annotation.Bean;
 import java.util.ArrayList;
+import lombok.Getter;
 import java.util.List;
 
 @Getter
