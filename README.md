@@ -9,19 +9,19 @@
 ___
 My Discord bot is built using Java Discord API with Spring framework integration. It contains several features, including:
 ___
-![GitHub Issues](https://img.shields.io/github/issues/pitzzahh/spring-pitzzahh-bot)
-![Forks](https://img.shields.io/github/forks/pitzzahh/spring-pitzzahh-bot)
-![Stars](https://img.shields.io/github/stars/pitzzahh/spring-pitzzahh-bot)
-![License](https://img.shields.io/github/license/pitzzahh/spring-pitzzahh-bot)
-![Forks](https://img.shields.io/github/forks/pitzzahh/spring-pitzzahh-bot)
-![Stars](https://img.shields.io/github/stars/pitzzahh/spring-pitzzahh-bot)
-![Contributors](https://img.shields.io/github/contributors/pitzzahh/spring-pitzzahh-bot)
-![Last Commit](https://img.shields.io/github/last-commit/pitzzahh/spring-pitzzahh-bot)
-![Code size](https://img.shields.io/github/languages/code-size/pitzzahh/spring-pitzzahh-bot)
-![Top language](https://img.shields.io/github/languages/top/pitzzahh/spring-pitzzahh-bot)
-![Languages count](https://img.shields.io/github/languages/count/pitzzahh/spring-pitzzahh-bot)
-![Repo size](https://img.shields.io/github/repo-size/pitzzahh/spring-pitzzahh-bot)
-![Lines of code](https://img.shields.io/tokei/lines/github/pitzzahh/spring-pitzzahh-bot?label=lines%20of%20code)
+![GitHub Issues](https://img.shields.io/github/issues/pitzzahh/pitzzahh-bot)
+![Forks](https://img.shields.io/github/forks/pitzzahh/pitzzahh-bot)
+![Stars](https://img.shields.io/github/stars/pitzzahh/pitzzahh-bot)
+![License](https://img.shields.io/github/license/pitzzahh/pitzzahh-bot)
+![Forks](https://img.shields.io/github/forks/pitzzahh/pitzzahh-bot)
+![Stars](https://img.shields.io/github/stars/pitzzahh/pitzzahh-bot)
+![Contributors](https://img.shields.io/github/contributors/pitzzahh/pitzzahh-bot)
+![Last Commit](https://img.shields.io/github/last-commit/pitzzahh/pitzzahh-bot)
+![Code size](https://img.shields.io/github/languages/code-size/pitzzahh/pitzzahh-bot)
+![Top language](https://img.shields.io/github/languages/top/pitzzahh/pitzzahh-bot)
+![Languages count](https://img.shields.io/github/languages/count/pitzzahh/pitzzahh-bot)
+![Repo size](https://img.shields.io/github/repo-size/pitzzahh/pitzzahh-bot)
+![Lines of code](https://img.shields.io/tokei/lines/github/pitzzahh/pitzzahh-bot?label=lines%20of%20code)
 ___
 
 - User Verification: This feature allows users to verify their account before joining the server, ensuring that only authorized users can access the server.
