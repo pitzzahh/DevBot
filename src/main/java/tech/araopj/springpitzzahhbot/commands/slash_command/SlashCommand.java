@@ -26,8 +26,6 @@ package tech.araopj.springpitzzahhbot.commands.slash_command;
 
 import net.dv8tion.jda.api.interactions.commands.build.CommandData;
 import net.dv8tion.jda.internal.interactions.CommandDataImpl;
-
-import java.io.IOException;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
@@ -38,7 +36,7 @@ public interface SlashCommand {
      * @return nothing.
      * @see Consumer
      */
-    Consumer<CommandContext> execute() throws InterruptedException, IOException;
+    Consumer<CommandContext> execute();
 
     /**
      * Supplies the name of the slash command.
