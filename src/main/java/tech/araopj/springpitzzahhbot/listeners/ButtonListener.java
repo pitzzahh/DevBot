@@ -57,9 +57,12 @@ public class ButtonListener extends ListenerAdapter {
         final var MEMBER = event.getMember();
         if ("ok".equals(ID)) event.getInteraction().getMessage().delete().queue();
         else if ("verify-button".equals(ID)) {
-            final var VERIFIED_ROLE = Objects.requireNonNull(event.getGuild(), "Cannot find verified role").getRolesByName("verified", false).stream().findAny();
+            final var VERIFIED_ROLE = Objects.requireNonNull(event.getGuild(), "Cannot find verified role")
+                    .getRolesByName("verified", false)
+                    .stream()
+                    .findAny();
             if (VERIFIED_ROLE.isPresent()) {
-                log.info("Verified role is present");
+                log.info("verified role is present");
                 assert MEMBER != null;
                 var isVerified = MEMBER.getRoles()
                         .stream()
