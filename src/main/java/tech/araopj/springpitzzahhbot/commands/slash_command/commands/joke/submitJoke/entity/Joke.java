@@ -22,7 +22,7 @@
  * SOFTWARE.
  */
 
-package tech.araopj.springpitzzahhbot.commands.slash_command.commands.joke.entity;
+package tech.araopj.springpitzzahhbot.commands.slash_command.commands.joke.submitJoke.entity;
 
 import lombok.Builder;
 
