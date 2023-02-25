@@ -30,10 +30,9 @@ import tech.araopj.springpitzzahhbot.commands.slash_command.SlashCommand;
 import net.dv8tion.jda.api.events.guild.GuildReadyEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import org.springframework.stereotype.Component;
-import org.jetbrains.annotations.NotNull;
+import org.springframework.lang.NonNull;
 import java.util.function.Supplier;
 import lombok.AllArgsConstructor;
-import java.io.IOException;
 
 @Component
 @AllArgsConstructor
@@ -42,16 +41,12 @@ public class SlashCommandListener extends ListenerAdapter {
     private final SlashCommandManager SLASH_COMMAND_MANAGER;
 
     @Override
-    public void onSlashCommandInteraction(@NotNull SlashCommandInteractionEvent event) {
-        try {
-            SLASH_COMMAND_MANAGER.handle(event);
-        } catch (IOException | InterruptedException e) {
-            throw new RuntimeException(e);
-        }
+    public void onSlashCommandInteraction(@NonNull SlashCommandInteractionEvent event) {
+        SLASH_COMMAND_MANAGER.handle(event);
     }
 
     @Override
-    public void onGuildReady(@NotNull GuildReadyEvent event) {
+    public void onGuildReady(@NonNull GuildReadyEvent event) {
         final var COMMANDS = SLASH_COMMAND_MANAGER.getCommands();
         var guild = event.getGuild();
         var COM = COMMANDS.values()
