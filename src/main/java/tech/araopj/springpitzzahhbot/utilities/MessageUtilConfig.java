@@ -32,7 +32,7 @@ import lombok.Getter;
 
 @Getter
 @Configuration
-public class MessageUtil {
+public class MessageUtilConfig {
 
     @Value("${bot.moderation.reply-deletion-delay-in-minutes}")
     public int replyDeletionDelayInMinutes;
