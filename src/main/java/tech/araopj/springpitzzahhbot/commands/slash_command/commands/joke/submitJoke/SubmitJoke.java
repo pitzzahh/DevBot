@@ -72,22 +72,19 @@ public record SubmitJoke(
      * @param context the command context containing the information about the command.
      */
     private void process(CommandContext context) {
-        final var category = context.getEvent().getOption("category");
-        log.info("Category: {}", category);
 
-        final var language = context.getEvent().getOption("language");
-        log.info("Language: {}", language);
+        var url = jokesService.createJokeSubmitUrl();
 
-        final var joke = context.getEvent().getOption("joke");
-        log.info("Joke: {}", joke);
-
-        String url = jokesService.createJokeSubmitUrl();
-
-        log.info("Url: {}", url);
-        String jokeSubmitBody = jokesService.createJokeSubmitBody(category, language, joke);
-        log.info("Joke submit body: {}", jokeSubmitBody);
+        log.info("Submit Joke url: {}", url);
+        var jokeSubmitBody = jokesService.createJokeSubmitBody(
+                context.getEvent().getOption("joke"),
+                context.getEvent().getOption("category"),
+                context.getEvent().getOption("language")
+        );
+        log.info("Submit Joke body: {}", jokeSubmitBody);
         final var REQUEST = httpConfig.httpBuilder()
                 .uri(URI.create(url))
+                .header("Content-Type", "application/json")
                 .POST(HttpRequest.BodyPublishers.ofString(jokeSubmitBody))
                 .build();
 
@@ -95,7 +92,6 @@ public record SubmitJoke(
 
         try {
             RESPONSE = httpConfig.httpClient().send(REQUEST, HttpResponse.BodyHandlers.ofString());
-
             log.info("Response from joke api: {}", RESPONSE.body());
         } catch (IOException | InterruptedException e) {
             log.error("Error while sending request to joke api", e);
@@ -161,13 +157,13 @@ public record SubmitJoke(
                 name().get(),
                 description().get())
                 .addOptions(
-                        new OptionData(OptionType.STRING, "category", "Category of the joke", false)
-                                .setDescription("Select your desired joke category")
+                        new OptionData(OptionType.STRING, "category", "Category of the joke", true)
+                                .setDescription("Select the category of your joke")
                                 .addChoices(jokesService.getCategories()),
-                        new OptionData(OptionType.STRING, "language", "Language of the joke", false)
-                                .setDescription("Select your desired joke language")
+                        new OptionData(OptionType.STRING, "language", "Language of the joke", true)
+                                .setDescription("Select the language of your joke")
                                 .addChoices(jokesService.getLanguages()),
-                        new OptionData(OptionType.STRING, "joke", "The joke you want to submit", false)
+                        new OptionData(OptionType.STRING, "joke", "The joke you to submit", true)
                                 .setDescription("Enter your joke")
                 );
     }

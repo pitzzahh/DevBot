@@ -72,14 +72,11 @@ public record GetJoke(
      * @param context the command context containing the information about the command.
      */
     private void process(CommandContext context){
-
-        final var category = context.getEvent().getOption("category");
-        log.info("Category: {}", category);
-
-        final var language = context.getEvent().getOption("language");
-        log.info("Language: {}", language);
-        String url = jokesService.createJokeRequestUrl(category, language);
-        log.info("Url: {}", url);
+        var url = jokesService.createJokeRequestUrl(
+                context.getEvent().getOption("category"),
+                context.getEvent().getOption("language")
+        );
+        log.info("Get Joke url: {}", url);
         final var REQUEST = httpConfig.httpBuilder()
                 .uri(URI.create(url))
                 .GET()
