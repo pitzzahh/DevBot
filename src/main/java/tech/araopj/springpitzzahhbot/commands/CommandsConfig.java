@@ -41,9 +41,6 @@ public class CommandsConfig {
     @Value("${bot.commands.member-updates.member-updates-command}")
     private String memberUpdatesCommand;
 
-    @Value("${bot.commands.confessions.message-deletion-delay-in-minutes}")
-    private int messageDeletionDelayInMinutes;
-
     @Value("${bot.commands.prefix}")
     private String prefix;
 
