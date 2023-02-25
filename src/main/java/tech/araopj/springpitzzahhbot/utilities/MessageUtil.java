@@ -24,12 +24,21 @@
 package tech.araopj.springpitzzahhbot.utilities;
 
 import org.springframework.context.annotation.Configuration;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.EmbedBuilder;
+import lombok.Getter;
 
+@Getter
 @Configuration
 public class MessageUtil {
+
+    @Value("${bot.moderation.reply-deletion-delay-in-minutes}")
+    public int replyDeletionDelayInMinutes;
+
+    @Value("${bot.moderation.message-deletion-delay-in-seconds}")
+    public int messageDeletionDelayInSeconds;
 
     @Bean
     public EmbedBuilder getEmbedBuilder() {
