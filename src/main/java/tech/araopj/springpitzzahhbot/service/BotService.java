@@ -1,7 +1,7 @@
 package tech.araopj.springpitzzahhbot.service;
 
 import tech.araopj.springpitzzahhbot.commands.slash_command.commands.confessions.service.ConfessionService;
-import tech.araopj.springpitzzahhbot.commands.slash_command.commands.joke.getJoke.service.JokesService;
+import tech.araopj.springpitzzahhbot.commands.slash_command.commands.joke.service.JokesService;
 import tech.araopj.springpitzzahhbot.commands.slash_command.commands.game.service.GameService;
 import tech.araopj.springpitzzahhbot.commands.slash_command.commands.confessions.Confession;
 import tech.araopj.springpitzzahhbot.config.moderation.service.MessageCheckerService;
