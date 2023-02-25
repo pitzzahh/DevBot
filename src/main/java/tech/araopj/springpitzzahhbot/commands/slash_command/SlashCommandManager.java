@@ -25,6 +25,7 @@
 package tech.araopj.springpitzzahhbot.commands.slash_command;
 
 import tech.araopj.springpitzzahhbot.commands.slash_command.commands.confessions.service.ConfessionService;
+import tech.araopj.springpitzzahhbot.commands.slash_command.commands.joke.approveJoke.ApproveJoke;
 import tech.araopj.springpitzzahhbot.commands.slash_command.commands.joke.submitJoke.SubmitJoke;
 import tech.araopj.springpitzzahhbot.commands.slash_command.commands.joke.service.JokesService;
 import tech.araopj.springpitzzahhbot.commands.slash_command.commands.game.service.GameService;
@@ -65,7 +66,8 @@ public class SlashCommandManager {
                 new Confession(confessionService, commandsService, channelService, messageUtil),
                 new Game(gameService, messageUtil),
                 new GetJoke(messageUtil, jokesService, httpConfig),
-                new SubmitJoke(messageUtil, jokesService, httpConfig)
+                new SubmitJoke(messageUtil, jokesService, httpConfig),
+                new ApproveJoke(messageUtil, jokesService, httpConfig)
         );
     }
 
