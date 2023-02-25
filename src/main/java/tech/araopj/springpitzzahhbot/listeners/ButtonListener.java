@@ -23,32 +23,32 @@
  */
 package tech.araopj.springpitzzahhbot.listeners;
 
-import lombok.extern.slf4j.Slf4j;
-import net.dv8tion.jda.api.entities.Role;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
-import net.dv8tion.jda.api.hooks.ListenerAdapter;
-import org.jetbrains.annotations.NotNull;
+import tech.araopj.springpitzzahhbot.utilities.service.MessageUtilService;
+import static java.time.format.DateTimeFormatter.ofLocalizedTime;
 import org.springframework.beans.factory.annotation.Autowired;
+import net.dv8tion.jda.api.hooks.ListenerAdapter;
+import static java.time.format.FormatStyle.SHORT;
+import static java.time.Clock.systemDefaultZone;
 import org.springframework.stereotype.Component;
-import tech.araopj.springpitzzahhbot.utilities.MessageUtil;
-import java.util.Objects;
+import static java.time.LocalDateTime.now;
+import net.dv8tion.jda.api.entities.Role;
+import org.jetbrains.annotations.NotNull;
+import static java.lang.String.format;
 import static java.awt.Color.BLUE;
 import static java.awt.Color.RED;
-import static java.lang.String.format;
-import static java.time.Clock.systemDefaultZone;
-import static java.time.LocalDateTime.now;
-import static java.time.format.DateTimeFormatter.ofLocalizedTime;
-import static java.time.format.FormatStyle.SHORT;
+import lombok.extern.slf4j.Slf4j;
+import java.util.Objects;
 
 @Slf4j
 @Component
 public class ButtonListener extends ListenerAdapter {
 
-    private final MessageUtil messageUtil;
+    private final MessageUtilService messageUtilService;
 
     @Autowired
-    public ButtonListener(MessageUtil messageUtil) {
-        this.messageUtil = messageUtil;
+    public ButtonListener(MessageUtilService messageUtilService) {
+        this.messageUtilService = messageUtilService;
     }
 
     @Override
@@ -57,15 +57,18 @@ public class ButtonListener extends ListenerAdapter {
         final var MEMBER = event.getMember();
         if ("ok".equals(ID)) event.getInteraction().getMessage().delete().queue();
         else if ("verify-button".equals(ID)) {
-            final var VERIFIED_ROLE = Objects.requireNonNull(event.getGuild(), "Cannot find verified role").getRolesByName("verified", false).stream().findAny();
+            final var VERIFIED_ROLE = Objects.requireNonNull(event.getGuild(), "Cannot find verified role")
+                    .getRolesByName("verified", false)
+                    .stream()
+                    .findAny();
             if (VERIFIED_ROLE.isPresent()) {
-                log.info("Verified role is present");
+                log.info("verified role is present");
                 assert MEMBER != null;
                 var isVerified = MEMBER.getRoles()
                         .stream()
                         .map(Role::getName)
                         .anyMatch(e -> VERIFIED_ROLE.get().getName().equals(e));
-                messageUtil.getMessageBuilder().clear();
+                messageUtilService.getMessageBuilder().clear();
                 if (isVerified) {
                     log.info("User {} is already verified", MEMBER.getUser().getAsTag());
                     message(false);
@@ -77,7 +80,7 @@ public class ButtonListener extends ListenerAdapter {
                     log.info("User {} is verified", MEMBER.getUser().getAsTag());
                 }
                 event.getInteraction()
-                        .replyEmbeds(messageUtil.getEmbedBuilder().build())
+                        .replyEmbeds(messageUtilService.getEmbedBuilder().build())
                         .setEphemeral(true)
                         .queue();
             } else log.error("Verified role is not present");
@@ -86,7 +89,7 @@ public class ButtonListener extends ListenerAdapter {
 
     private void message(boolean flag) {
         log.info("Message is being sent");
-        messageUtil.getEmbedBuilder()
+        messageUtilService.getEmbedBuilder()
                 .clear()
                 .clearFields()
                 .setColor(flag ? BLUE : RED)

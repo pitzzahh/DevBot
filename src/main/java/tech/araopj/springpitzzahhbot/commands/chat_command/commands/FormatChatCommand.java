@@ -24,22 +24,22 @@
 package tech.araopj.springpitzzahhbot.commands.chat_command.commands;
 
 import static net.dv8tion.jda.api.interactions.components.buttons.Button.primary;
+import tech.araopj.springpitzzahhbot.utilities.service.MessageUtilService;
 import tech.araopj.springpitzzahhbot.commands.chat_command.CommandContext;
 import static net.dv8tion.jda.api.interactions.components.ActionRow.of;
-import tech.araopj.springpitzzahhbot.commands.chat_command.Command;
-import tech.araopj.springpitzzahhbot.commands.CommandsConfig;
-import tech.araopj.springpitzzahhbot.utilities.MessageUtil;
+import tech.araopj.springpitzzahhbot.commands.chat_command.ChatCommand;
+import tech.araopj.springpitzzahhbot.commands.service.CommandsService;
 import org.springframework.stereotype.Component;
-import org.jetbrains.annotations.NotNull;
+import org.springframework.lang.NonNull;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 import static java.awt.Color.RED;
 
 @Component
-public record FormatCommand(
-        CommandsConfig commandsConfig,
-        MessageUtil messageUtil
-) implements Command {
+public record FormatChatCommand(
+        MessageUtilService messageUtilService,
+        CommandsService commandsService
+) implements ChatCommand {
 
 
     /**
@@ -47,20 +47,20 @@ public record FormatCommand(
      * @param context a {@code CommandContext}.
      * @see CommandContext
      */
-    public void process(@NotNull CommandContext context) {
+    public void process(@NonNull CommandContext context) {
         final var ARGS = context.getArgs();
         final var CHANNEL = context.getEvent().getChannel();
 
         if (ARGS.size() < 2) {
             final var BUTTON = primary("ok", "okay");
-            messageUtil.getEmbedBuilder().clear()
+            messageUtilService.getEmbedBuilder().clear()
                     .clearFields()
                     .setColor(RED)
                     .setTitle("MISSING CONTENT");
-            messageUtil.getMessageBuilder().clear()
-                    .setEmbeds(messageUtil.getEmbedBuilder().build())
+            messageUtilService.getMessageBuilder().clear()
+                    .setEmbeds(messageUtilService.getEmbedBuilder().build())
                     .setActionRows(of(BUTTON));
-            CHANNEL.sendMessage(messageUtil.getMessageBuilder().build()).queue();
+            CHANNEL.sendMessage(messageUtilService.getMessageBuilder().build()).queue();
             return;
         }
         final var LANGUAGE = ARGS.get(0);
@@ -106,6 +106,6 @@ public record FormatCommand(
     @Override
     public Supplier<String> description() {
         return () -> "Formats a code.\n" +
-                "Usage: ".concat(commandsConfig.getPrefix().concat(name().get())).concat(" [language] [content]");
+                "Usage: ".concat(commandsService.getPrefix().concat(name().get())).concat(" [language] [content]");
     }
 }

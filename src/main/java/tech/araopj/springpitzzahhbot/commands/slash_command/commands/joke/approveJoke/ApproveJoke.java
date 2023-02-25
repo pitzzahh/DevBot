@@ -22,38 +22,39 @@
  * SOFTWARE.
  */
 
-package tech.araopj.springpitzzahhbot.commands.slash_command.commands.game;
+package tech.araopj.springpitzzahhbot.commands.slash_command.commands.joke.approveJoke;
 
-import tech.araopj.springpitzzahhbot.commands.slash_command.commands.game.service.GameService;
-import static tech.araopj.springpitzzahhbot.games.RandomMathProblemGenerator.*;
-import tech.araopj.springpitzzahhbot.utilities.service.MessageUtilService;
+import tech.araopj.springpitzzahhbot.commands.slash_command.commands.joke.service.JokesService;
 import tech.araopj.springpitzzahhbot.commands.slash_command.CommandContext;
+import tech.araopj.springpitzzahhbot.utilities.service.MessageUtilService;
 import tech.araopj.springpitzzahhbot.commands.slash_command.SlashCommand;
-import tech.araopj.springpitzzahhbot.games.RandomMathProblemGenerator;
-import io.github.pitzzahh.util.utilities.classes.enums.Difficulty;
 import net.dv8tion.jda.api.interactions.commands.build.CommandData;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 import net.dv8tion.jda.internal.interactions.CommandDataImpl;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
-import org.springframework.stereotype.Service;
-import static java.util.Objects.requireNonNull;
-import static java.lang.String.format;
+import tech.araopj.springpitzzahhbot.config.HttpConfig;
+import org.springframework.stereotype.Component;
+import static java.time.LocalDateTime.now;
+import net.dv8tion.jda.api.Permission;
+import java.util.concurrent.TimeUnit;
+import static java.awt.Color.YELLOW;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 import lombok.extern.slf4j.Slf4j;
-import static java.awt.Color.*;
+import java.time.ZoneId;
 
 @Slf4j
-@Service
-public record Game(
+@Component
+public record ApproveJoke(
         MessageUtilService messageUtilService,
-        GameService gameService
+        JokesService jokesService,
+        HttpConfig httpConfig
 ) implements SlashCommand {
-
     /**
-     * Executes the command.
+     * Executes a {@code SlashCommand}
      *
-     * @return a {@code Supplier<CommandContext>}
+     * @return nothing.
+     * @see Consumer
      */
     @Override
     public Consumer<CommandContext> execute() {
@@ -66,44 +67,41 @@ public record Game(
      * @param context the command context containing the information about the command.
      */
     private void process(CommandContext context) {
-        final var PLAYER = requireNonNull(context.event().getMember(), "Null player").getEffectiveName();
-        final var SELECTED_DIFFICULTY = requireNonNull(context.getEvent().getOption("difficulty"), "Null game difficulty").getAsString();
-        final var DIFFICULTY = Difficulty.valueOf(SELECTED_DIFFICULTY);
-        final var COLOR = switch (DIFFICULTY) {
-            case EASY -> GREEN;
-            case MEDIUM -> YELLOW;
-            case HARD -> RED;
-        };
-        setDifficulty(DIFFICULTY);
-        log.info("DIFFICULTY = " + RandomMathProblemGenerator.getDifficulty());
-        play();
+        log.info("Processing command: {}", name().get());
+        boolean isAdmin = context.getMember().getRoles().stream()
+                .anyMatch(r -> r.hasPermission(Permission.ADMINISTRATOR));
+        log.info("Is user {} an admin? {}", context.getMember().getEffectiveName(), isAdmin);
         messageUtilService.getEmbedBuilder()
                 .clear()
                 .clearFields()
-                .setColor(COLOR)
-                .setTitle(format("Difficulty: %s", DIFFICULTY.name()))
-                .setDescription(RandomMathProblemGenerator.getQuestion());
+                .setColor(YELLOW)
+                .setTitle("Testing")
+                .setDescription(String.format("Is user %s an admin? %s", context.getMember().getEffectiveName(), isAdmin))
+                .setTimestamp(now(ZoneId.systemDefault()).plusMinutes(messageUtilService.getReplyDeletionDelayInMinutes()))
+                .setFooter("This message will be automatically deleted on");
         context.getEvent()
                 .getInteraction()
                 .replyEmbeds(messageUtilService.getEmbedBuilder().build())
-                .queue();
-        gameService.addQuestion().accept(PLAYER, getAnswer());
+                .queue(m -> m.deleteOriginal().queueAfter(messageUtilService.getReplyDeletionDelayInMinutes(), TimeUnit.MINUTES));
     }
 
     /**
-     * Gets the name of the command.
+     * Supplies the name of the slash command.
      *
-     * @return a {@code Supplier<String>}
+     * @return a {@code Supplier<String>}.
+     * @see Supplier
      */
     @Override
     public Supplier<String> name() {
-        return () -> "play";
+        return () -> "approve-joke";
     }
 
     /**
-     * Gets the command data.
+     * Supplies the command data of a slash command.
      *
      * @return a {@code Supplier<CommandData>}.
+     * @see Supplier
+     * @see CommandData
      */
     @Override
     public Supplier<CommandData> getCommandData() {
@@ -111,27 +109,19 @@ public record Game(
                 name().get(),
                 description().get())
                 .addOptions(
-                        new OptionData(OptionType.STRING, "game", "Choose your game", true)
-                                .setDescription("Select your desired game")
-                                .addChoice("Random Math Problem", "RandomMathProblemGenerator")
-                                .addChoice("Rock Paper Scissors", "RockPaperScissors")
-                                .addChoice("Tic Tac Toe", "TicTacToe"),
-                        new OptionData(OptionType.STRING, "difficulty", "The difficulty of the game", true)
-                                .setDescription("Select your desired difficulty")
-                                .addChoice("EASY", "EASY")
-                                .addChoice("MEDIUM", "MEDIUM")
-                                .addChoice("HARD", "HARD")
+                        new OptionData(OptionType.STRING, "joke-id", "List of requested jokes", true)
+                                .setDescription("Enter the id of the joke you want to approve")
                 );
     }
 
     /**
-     * Returns the description of the command.
+     * Supplies the description of a slash command.
      *
-     * @return a {@code Supplier<String>}.
+     * @return a {code Supplier<String>} containing the description of the command.
+     * @see Supplier
      */
     @Override
     public Supplier<String> description() {
-        return () -> "Play a game";
+        return () -> "Approves joke requests";
     }
-
 }

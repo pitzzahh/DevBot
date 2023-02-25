@@ -25,6 +25,7 @@
 package tech.araopj.springpitzzahhbot.commands.slash_command;
 
 import tech.araopj.springpitzzahhbot.commands.slash_command.commands.confessions.service.ConfessionService;
+import tech.araopj.springpitzzahhbot.commands.slash_command.commands.joke.approveJoke.ApproveJoke;
 import tech.araopj.springpitzzahhbot.commands.slash_command.commands.joke.submitJoke.SubmitJoke;
 import tech.araopj.springpitzzahhbot.commands.slash_command.commands.joke.service.JokesService;
 import tech.araopj.springpitzzahhbot.commands.slash_command.commands.game.service.GameService;
@@ -34,14 +35,12 @@ import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEve
 import tech.araopj.springpitzzahhbot.commands.slash_command.commands.game.Game;
 import tech.araopj.springpitzzahhbot.exceptions.CommandAlreadyExistException;
 import tech.araopj.springpitzzahhbot.config.channels.service.ChannelService;
-import tech.araopj.springpitzzahhbot.commands.service.CommandsService;
-import tech.araopj.springpitzzahhbot.utilities.MessageUtil;
+import tech.araopj.springpitzzahhbot.utilities.service.MessageUtilService;
 import tech.araopj.springpitzzahhbot.config.HttpConfig;
 import org.springframework.stereotype.Component;
-import org.jetbrains.annotations.NotNull;
+import org.springframework.lang.NonNull;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
-import java.io.IOException;
 import java.util.Objects;
 import java.util.HashMap;
 import java.util.Arrays;
@@ -53,19 +52,19 @@ public class SlashCommandManager {
     private final Map<String, SlashCommand> COMMANDS = new HashMap<>();
 
     public SlashCommandManager(
+            MessageUtilService messageUtilService,
             ConfessionService confessionService,
-            CommandsService commandsService,
             ChannelService channelService,
             JokesService jokesService,
             GameService gameService,
-            MessageUtil messageUtil,
             HttpConfig httpConfig
             ) {
         addCommands(
-                new Confession(confessionService, commandsService, channelService, messageUtil),
-                new Game(gameService, messageUtil),
-                new GetJoke(messageUtil, jokesService, httpConfig),
-                new SubmitJoke(messageUtil, jokesService, httpConfig)
+                new Confession(messageUtilService, confessionService, channelService),
+                new Game(messageUtilService, gameService),
+                new GetJoke(messageUtilService, jokesService, httpConfig),
+                new SubmitJoke(messageUtilService, jokesService, httpConfig),
+                new ApproveJoke(messageUtilService, jokesService, httpConfig)
         );
     }
 
@@ -77,11 +76,11 @@ public class SlashCommandManager {
         this.COMMANDS.put(command.name().get(), command);
     };
 
-    private void addCommands(@NotNull SlashCommand... commands) {
+    private void addCommands(@NonNull SlashCommand... commands) {
         Arrays.stream(commands).forEachOrdered(e -> this.addCommand.accept(e));
     }
 
-    public void handle(@NotNull SlashCommandInteractionEvent event) throws IOException, InterruptedException {
+    public void handle(@NonNull SlashCommandInteractionEvent event) {
         var commandName = event.getName();
         var COMMAND_CONTEXT = new CommandContext(event);
         if (getCommands().containsKey(commandName)) getCommands().get(commandName).execute().accept(COMMAND_CONTEXT);

@@ -23,88 +23,66 @@
  */
 package tech.araopj.springpitzzahhbot.commands.chat_command;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import tech.araopj.springpitzzahhbot.commands.chat_command.commands.FormatCommand;
-import tech.araopj.springpitzzahhbot.commands.chat_command.commands.HelpCommand;
-import tech.araopj.springpitzzahhbot.commands.chat_command.commands.PingCommand;
 import tech.araopj.springpitzzahhbot.exceptions.CommandAlreadyExistException;
-import tech.araopj.springpitzzahhbot.commands.CommandsConfig;
+import tech.araopj.springpitzzahhbot.commands.service.CommandsService;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
-import tech.araopj.springpitzzahhbot.utilities.MessageUtil;
 import org.springframework.stereotype.Component;
-import org.jetbrains.annotations.NotNull;
-import java.util.function.Function;
+import org.springframework.lang.NonNull;
+import lombok.extern.slf4j.Slf4j;
 import java.util.regex.Pattern;
-import java.util.ArrayList;
 import java.util.Optional;
 import java.util.Arrays;
-import java.util.List;
 
+@Slf4j
 @Component
-public class CommandManager {
-
-    private final List<Command> COMMANDS = new ArrayList<>();
-    private final CommandsConfig commandsConfig;
-
-    @Autowired
-    public CommandManager(CommandsConfig commandsConfig, MessageUtil messageUtil) {
-        this.commandsConfig = commandsConfig;
-        addCommands(
-                new PingCommand(),
-                new FormatCommand(commandsConfig, messageUtil),
-                new HelpCommand(commandsConfig,this, messageUtil)
-        );
-    }
+public record ChatCommandManager(CommandsService commandsService) {
 
     /**
      * Adds a chat_command.
-     * @param command the chat_command to add.
+     * @param chatCommand the chat_command to add.
      */
-    private void addCommand(Command command) {
-        var found = COMMANDS.stream()
-                .anyMatch(c -> c.name().get().equalsIgnoreCase(command.name().get()));
-        if (found) throw new CommandAlreadyExistException("A Command With this name is already present!");
-        COMMANDS.add(command);
-    }
-
-    private void addCommands(@NotNull Command... command) {
-        Arrays.stream(command).forEach(this::addCommand);
+    public void addCommand(ChatCommand chatCommand) {
+        var found = commandsService
+                .chatCommands()
+                .stream()
+                .anyMatch(c -> c.name().get().equalsIgnoreCase(chatCommand.name().get()));
+        log.info("Does {} already added: {}", chatCommand.name().get(), found);
+        if (found) throw new CommandAlreadyExistException("A ChatCommand With this name is already present!");
+        log.info("Adding chat_command: {}", chatCommand.name().get());
+        commandsService.chatCommands().add(chatCommand);
     }
 
     /**
      * Gets a chat_command from the list.
      * accepts a String the name of the chat_command
-     * returns a {@code Command}.
+     * returns a {@code ChatCommand}.
      */
-    public Function<String, Optional<Command>> getCommand = command -> COMMANDS
-            .stream()
-            .filter(c -> c.name().get().equalsIgnoreCase(command.toLowerCase()) || c.aliases().get().contains(command.toLowerCase()))
-            .findAny();
+    public Optional<ChatCommand> getChatCommandByName(String name) {
+        return commandsService
+                .chatCommands()
+                .stream()
+                .filter(c -> c.name().get().equalsIgnoreCase(name.toLowerCase()) || c.aliases().get().contains(name.toLowerCase()))
+                .findAny();
+    }
+
 
     /**
      * Handles commands.
      * @param event the event that happened.
      */
-    public void handle(@NotNull MessageReceivedEvent event) {
+    public void handle(@NonNull MessageReceivedEvent event) {
         final var SPLIT = event.getMessage().getContentRaw()
-                .replaceFirst("(?i)".concat(Pattern.quote(commandsConfig.getPrefix())), "")
+                .replaceFirst("(?i)".concat(Pattern.quote(commandsService.getPrefix())), "")
                 .split("\\s+");
         final var INVOKED = SPLIT[0].toLowerCase();
-        final var COMMAND = getCommand.apply(INVOKED);
+        final var COMMAND = getChatCommandByName(INVOKED);
         event.getChannel().sendTyping().queue();
         final var ARGS = Arrays.asList(SPLIT).subList(1, SPLIT.length);
         final var COMMAND_CONTEXT = new CommandContext(event, ARGS);
-        COMMAND.ifPresentOrElse(command -> command.handle().accept(COMMAND_CONTEXT),
+        COMMAND.ifPresentOrElse(chatCommand -> chatCommand.handle().accept(COMMAND_CONTEXT),
                 () -> event.getMessage().reply(String.format("%s is not a chat_command", INVOKED)).queue(
                 e -> e.getChannel().sendMessage(";help").queue(m -> m.delete().queue())
         ));
     }
 
-    /**
-     * Gets all the commands.
-     * @return a {@code List<Command>}.
-     */
-    public List<Command> getCOMMANDS() {
-        return COMMANDS;
-    }
 }

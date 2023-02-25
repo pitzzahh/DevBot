@@ -22,13 +22,9 @@
  * SOFTWARE.
  */
 
-package tech.araopj.springpitzzahhbot.commands.slash_command.commands.joke.getJoke.entity;
+package tech.araopj.springpitzzahhbot.commands.slash_command.commands.joke.approveJoke.entity;
 
-import net.dv8tion.jda.api.interactions.commands.Command;
-import org.springframework.lang.NonNull;
+import lombok.Builder;
 
-public class Language extends Command.Choice {
-    public Language(@NonNull String name, @NonNull String value) {
-        super(name, value);
-    }
-}
+@Builder
+public record Joke(int id, String joke, String category, String language, boolean approved) { }

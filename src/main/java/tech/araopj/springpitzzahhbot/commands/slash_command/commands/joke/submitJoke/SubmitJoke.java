@@ -26,13 +26,14 @@ package tech.araopj.springpitzzahhbot.commands.slash_command.commands.joke.submi
 
 import tech.araopj.springpitzzahhbot.commands.slash_command.commands.joke.service.JokesService;
 import tech.araopj.springpitzzahhbot.commands.slash_command.CommandContext;
+import tech.araopj.springpitzzahhbot.utilities.service.MessageUtilService;
 import tech.araopj.springpitzzahhbot.commands.slash_command.SlashCommand;
 import net.dv8tion.jda.api.interactions.commands.build.CommandData;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 import net.dv8tion.jda.internal.interactions.CommandDataImpl;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
-import tech.araopj.springpitzzahhbot.utilities.MessageUtil;
 import tech.araopj.springpitzzahhbot.config.HttpConfig;
+import static java.util.concurrent.TimeUnit.MINUTES;
 import org.springframework.stereotype.Component;
 import java.io.IOException;
 import java.net.URI;
@@ -44,13 +45,12 @@ import java.util.function.Supplier;
 import lombok.extern.slf4j.Slf4j;
 import static java.awt.Color.CYAN;
 import static java.awt.Color.YELLOW;
-import static java.lang.String.format;
 import static java.time.LocalDateTime.now;
 
 @Slf4j
 @Component
 public record SubmitJoke(
-        MessageUtil messageUtil,
+        MessageUtilService messageUtilService,
         JokesService jokesService,
         HttpConfig httpConfig
 ) implements SlashCommand {
@@ -99,37 +99,46 @@ public record SubmitJoke(
         }
 
         if (RESPONSE.statusCode() == 200) {
-            messageUtil.getEmbedBuilder()
+            messageUtilService.getEmbedBuilder()
                     .clear()
                     .clearFields()
                     .setColor(CYAN)
                     .setTitle(RESPONSE.body())
                     .setDescription("Your joke has been sent to the joke api. It will be reviewed and added to the joke api if it is good enough.")
-                    .setTimestamp(now(ZoneId.systemDefault()))
-                    .setFooter(
-                            format("Created by %s", context.getGuild().getJDA().getSelfUser().getAsTag()),
-                            context.getGuild().getJDA().getSelfUser().getAvatarUrl()
-                    );
+                    .setTimestamp(now(ZoneId.systemDefault()).plusMinutes(messageUtilService.getReplyDeletionDelayInMinutes()))
+                    .setFooter("This message will be automatically deleted on");
             context.getEvent()
                     .getInteraction()
-                    .replyEmbeds(messageUtil.getEmbedBuilder().build())
-                    .queue();
-        } else {
-            messageUtil.getEmbedBuilder()
+                    .replyEmbeds(messageUtilService.getEmbedBuilder().build())
+                    .queue(m -> m.deleteOriginal().queueAfter(messageUtilService.getReplyDeletionDelayInMinutes(), MINUTES));
+        }
+        else if(RESPONSE.statusCode() == 400) {
+            messageUtilService.getEmbedBuilder()
+                    .clear()
+                    .clearFields()
+                    .setColor(YELLOW)
+                    .setTitle("Failed to send joke to joke api")
+                    .setDescription("Your joke is already the same as another joke in the joke api. Please try again with a different joke.")
+                    .setTimestamp(now(ZoneId.systemDefault()).plusMinutes(messageUtilService.getReplyDeletionDelayInMinutes()))
+                    .setFooter("This message will be automatically deleted on");
+            context.getEvent()
+                    .getInteraction()
+                    .replyEmbeds(messageUtilService.getEmbedBuilder().build())
+                    .queue(m -> m.deleteOriginal().queueAfter(messageUtilService.getReplyDeletionDelayInMinutes(), MINUTES));
+        }
+        else {
+            messageUtilService.getEmbedBuilder()
                     .clear()
                     .clearFields()
                     .setColor(YELLOW)
                     .setTitle("Failed to send joke to joke api")
                     .setDescription("I couldn't send your request at the moment😢.")
-                    .setTimestamp(now(ZoneId.systemDefault()))
-                    .setFooter(
-                            format("Created by %s", context.getGuild().getJDA().getSelfUser().getAsTag()),
-                            context.getGuild().getJDA().getSelfUser().getAvatarUrl()
-                    );
+                    .setTimestamp(now(ZoneId.systemDefault()).plusMinutes(messageUtilService.getReplyDeletionDelayInMinutes()))
+                    .setFooter("This message will be automatically deleted on");
             context.getEvent()
                     .getInteraction()
-                    .replyEmbeds(messageUtil.getEmbedBuilder().build())
-                    .queue();
+                    .replyEmbeds(messageUtilService.getEmbedBuilder().build())
+                    .queue(m -> m.deleteOriginal().queueAfter(messageUtilService.getReplyDeletionDelayInMinutes(), MINUTES));
         }
     }
 

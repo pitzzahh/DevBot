@@ -1,5 +1,8 @@
 package tech.araopj.springpitzzahhbot.service;
 
+import tech.araopj.springpitzzahhbot.commands.chat_command.commands.FormatChatCommand;
+import tech.araopj.springpitzzahhbot.commands.chat_command.commands.HelpChatCommand;
+import tech.araopj.springpitzzahhbot.commands.chat_command.commands.PingChatCommand;
 import tech.araopj.springpitzzahhbot.commands.slash_command.commands.confessions.service.ConfessionService;
 import tech.araopj.springpitzzahhbot.commands.slash_command.commands.joke.service.JokesService;
 import tech.araopj.springpitzzahhbot.commands.slash_command.commands.game.service.GameService;
@@ -9,16 +12,15 @@ import tech.araopj.springpitzzahhbot.commands.slash_command.SlashCommandManager;
 import tech.araopj.springpitzzahhbot.config.moderation.service.ViolationService;
 import tech.araopj.springpitzzahhbot.config.category.service.CategoryService;
 import tech.araopj.springpitzzahhbot.config.channels.service.ChannelService;
-import tech.araopj.springpitzzahhbot.commands.chat_command.CommandManager;
+import tech.araopj.springpitzzahhbot.commands.chat_command.ChatCommandManager;
+import tech.araopj.springpitzzahhbot.utilities.service.MessageUtilService;
 import tech.araopj.springpitzzahhbot.commands.service.CommandsService;
-import tech.araopj.springpitzzahhbot.config.channels.ChannelsConfig;
 import tech.araopj.springpitzzahhbot.listeners.SlashCommandListener;
 import tech.araopj.springpitzzahhbot.config.service.TokenService;
-import tech.araopj.springpitzzahhbot.listeners.ButtonListener;
 import tech.araopj.springpitzzahhbot.listeners.MessageListener;
 import net.dv8tion.jda.api.sharding.DefaultShardManagerBuilder;
+import tech.araopj.springpitzzahhbot.listeners.ButtonListener;
 import tech.araopj.springpitzzahhbot.listeners.MemberLogger;
-import tech.araopj.springpitzzahhbot.utilities.MessageUtil;
 import tech.araopj.springpitzzahhbot.config.HttpConfig;
 import org.springframework.context.annotation.Bean;
 import net.dv8tion.jda.api.requests.GatewayIntent;
@@ -34,16 +36,16 @@ import java.io.IOException;
 @Service
 public record BotService(
         MessageCheckerService messageCheckerService,
+        ChatCommandManager chatCommandManager,
+        MessageUtilService messageUtilService,
         ConfessionService confessionService,
         ViolationService violationService,
         CommandsService commandsService,
         CategoryService categoryService,
-        CommandManager commandManager,
         ChannelService channelService,
         TokenService tokenService,
         JokesService jokesService,
         GameService gameService,
-        MessageUtil messageUtil,
         Confession confession,
         HttpConfig httpConfig
 ) {
@@ -68,35 +70,41 @@ public record BotService(
         builder.addEventListeners(
                 new MessageListener(
                         messageCheckerService,
+                        messageUtilService,
                         confessionService,
                         violationService,
                         commandsService,
                         categoryService,
                         channelService,
-                        commandManager,
-                        messageUtil,
+                        chatCommandManager,
                         gameService,
                         confession
                 ),
-                new ButtonListener(messageUtil),
+                new ButtonListener(messageUtilService),
                 new SlashCommandListener(
                         new SlashCommandManager(
+                                messageUtilService,
                                 confessionService,
-                                commandsService,
                                 channelService,
                                 jokesService,
                                 gameService,
-                                messageUtil,
                                 httpConfig
                         )
                 ),
                 new MemberLogger(
-                        new ChannelService(new ChannelsConfig()),
-                        new MessageUtil()
+                        messageUtilService,
+                        channelService
                 )
         );
+        log.info("Command manager: {}", chatCommandManager);
 
+        chatCommandManager.addCommand(new PingChatCommand());
+        chatCommandManager.addCommand(new FormatChatCommand(messageUtilService, commandsService));
+        chatCommandManager.addCommand(new HelpChatCommand(messageUtilService, commandsService, chatCommandManager));
+
+        log.info("Chat Commands: {}", commandsService.chatCommands());
         try {
+            log.info("ShardManager initialized successfully!");
             return builder.build();
         } catch (LoginException e) {
             log.error(e.getMessage(), e);

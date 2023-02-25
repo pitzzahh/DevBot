@@ -22,11 +22,12 @@
  * SOFTWARE.
  */
 package tech.araopj.springpitzzahhbot.commands.chat_command.commands;
+
+import tech.araopj.springpitzzahhbot.commands.chat_command.ChatCommandManager;
+import tech.araopj.springpitzzahhbot.utilities.service.MessageUtilService;
 import tech.araopj.springpitzzahhbot.commands.chat_command.CommandContext;
-import tech.araopj.springpitzzahhbot.commands.chat_command.CommandManager;
-import tech.araopj.springpitzzahhbot.commands.chat_command.Command;
-import tech.araopj.springpitzzahhbot.commands.CommandsConfig;
-import tech.araopj.springpitzzahhbot.utilities.MessageUtil;
+import tech.araopj.springpitzzahhbot.commands.chat_command.ChatCommand;
+import tech.araopj.springpitzzahhbot.commands.service.CommandsService;
 import org.springframework.stereotype.Component;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
@@ -34,12 +35,11 @@ import java.util.List;
 import java.awt.*;
 
 @Component
-public record HelpCommand(
-        CommandsConfig commandsConfig,
-        CommandManager MANAGER,
-        MessageUtil messageUtil
-
-) implements Command {
+public record HelpChatCommand(
+        MessageUtilService messageUtilService,
+        CommandsService commandsService,
+        ChatCommandManager chatCommandManager
+        ) implements ChatCommand {
     /**
      * Contains the process to be handled.
      *
@@ -51,34 +51,35 @@ public record HelpCommand(
         final var CHANNEL = context.getEvent().getChannel();
 
         if (ARGS.isEmpty()) {
-            messageUtil.getEmbedBuilder().clear()
+            messageUtilService.getEmbedBuilder().clear()
                     .clearFields()
                     .setColor(Color.BLUE)
                     .setTitle("List of Commands")
                     .setFooter("Created by pitzzahh-bot#3464", context.getGuild().getIconUrl());
-            MANAGER.getCOMMANDS()
+            commandsService
+                    .chatCommands()
                     .forEach(
-                            c -> messageUtil.getEmbedBuilder()
+                            c -> messageUtilService.getEmbedBuilder()
                                     .addField(
-                                            commandsConfig.getPrefix().concat(c.name().get()),
+                                            commandsService.getPrefix().concat(c.name().get()),
                                             c.description().get(),
                                             true
                                     )
                     );
-            CHANNEL.sendMessageEmbeds(messageUtil.getEmbedBuilder().build()).queue();
+            CHANNEL.sendMessageEmbeds(messageUtilService.getEmbedBuilder().build()).queue();
             return;
         }
         final var SEARCH = ARGS.get(0);
-        final var COMMAND = MANAGER.getCommand.apply(SEARCH);
+        final var COMMAND = chatCommandManager.getChatCommandByName(SEARCH);
         if (COMMAND.isEmpty()) CHANNEL.sendMessageFormat("Nothing found on chat_command: %s", SEARCH).queue();
         else {
-            messageUtil.getEmbedBuilder().clear()
+            messageUtilService.getEmbedBuilder().clear()
                     .clearFields()
                     .setColor(Color.CYAN.brighter())
                     .setTitle(COMMAND.get().name().get())
                     .setDescription(COMMAND.get().description().get())
                     .setFooter("Created by pitzzahh-bot#3464", context.getGuild().getIconUrl());
-            CHANNEL.sendMessageEmbeds(messageUtil.getEmbedBuilder().build()).queue();
+            CHANNEL.sendMessageEmbeds(messageUtilService.getEmbedBuilder().build()).queue();
         }
     }
 
@@ -111,7 +112,7 @@ public record HelpCommand(
     @Override
     public Supplier<String> description() {
         return () -> "Shows the list of commands in the bot\n" +
-                     "Usage: ".concat(commandsConfig.getPrefix()).concat("help [chat_command]");
+                     "Usage: ".concat(commandsService.getPrefix()).concat("help [chat_command]");
     }
 
     /**

@@ -21,14 +21,41 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
+package tech.araopj.springpitzzahhbot.commands.chat_command;
 
-package tech.araopj.springpitzzahhbot.commands.slash_command.commands.joke.getJoke.entity;
+import java.util.function.Consumer;
+import java.util.function.Supplier;
+import java.util.List;
 
-import net.dv8tion.jda.api.interactions.commands.Command;
-import org.springframework.lang.NonNull;
+/**
+ * Interface used to handle commands.
+ */
+public interface ChatCommand {
 
-public class Language extends Command.Choice {
-    public Language(@NonNull String name, @NonNull String value) {
-        super(name, value);
+    /**
+     * Handles the chat_command.
+     * Accepts a {@code CommandContext}.
+     * @see CommandContext
+     */
+    Consumer<CommandContext> handle();
+
+    /**
+     * The name of the chat_command.
+     * Supplies the name of the chat_command.
+     */
+    Supplier<String> name();
+
+    /**
+     * The description of the chat_command.
+     * Supplies the description of the chat_command.
+     */
+    Supplier<String> description();
+    /**
+     * The possible aliases for a chat_command.
+     * @return a {@code List<String>} containing the aliases of a chat_command.
+     */
+    default Supplier<List<String>> aliases() {
+        return List::of;
     }
+
 }

@@ -24,9 +24,14 @@
 
 package tech.araopj.springpitzzahhbot.commands;
 
-import org.springframework.beans.factory.annotation.Value;
+import tech.araopj.springpitzzahhbot.commands.slash_command.SlashCommand;
+import tech.araopj.springpitzzahhbot.commands.chat_command.ChatCommand;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Bean;
+import java.util.ArrayList;
 import lombok.Getter;
+import java.util.List;
 
 @Getter
 @Configuration
@@ -41,10 +46,17 @@ public class CommandsConfig {
     @Value("${bot.commands.member-updates.member-updates-command}")
     private String memberUpdatesCommand;
 
-    @Value("${bot.commands.confessions.message-deletion-delay-in-minutes}")
-    private int messageDeletionDelayInMinutes;
-
     @Value("${bot.commands.prefix}")
     private String prefix;
+
+    @Bean
+    public List<ChatCommand> getChatCommands() {
+        return new ArrayList<>();
+    }
+
+    @Bean
+    public List<SlashCommand> getSlashCommands() {
+        return new ArrayList<>();
+    }
 
 }

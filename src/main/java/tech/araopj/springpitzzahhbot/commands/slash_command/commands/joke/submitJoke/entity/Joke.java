@@ -21,41 +21,10 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package tech.araopj.springpitzzahhbot.commands.chat_command;
 
-import java.util.function.Consumer;
-import java.util.function.Supplier;
-import java.util.List;
+package tech.araopj.springpitzzahhbot.commands.slash_command.commands.joke.submitJoke.entity;
 
-/**
- * Interface used to handle commands.
- */
-public interface Command {
+import lombok.Builder;
 
-    /**
-     * Handles the chat_command.
-     * Accepts a {@code CommandContext}.
-     * @see CommandContext
-     */
-    Consumer<CommandContext> handle();
-
-    /**
-     * The name of the chat_command.
-     * Supplies the name of the chat_command.
-     */
-    Supplier<String> name();
-
-    /**
-     * The description of the chat_command.
-     * Supplies the description of the chat_command.
-     */
-    Supplier<String> description();
-    /**
-     * The possible aliases for a chat_command.
-     * @return a {@code List<String>} containing the aliases of a chat_command.
-     */
-    default Supplier<List<String>> aliases() {
-        return List::of;
-    }
-
-}
+@Builder
+public record Joke(String joke, String category, String language) { }

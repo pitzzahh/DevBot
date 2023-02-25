@@ -22,9 +22,29 @@
  * SOFTWARE.
  */
 
-package tech.araopj.springpitzzahhbot.commands.slash_command.commands.joke.entity;
+package tech.araopj.springpitzzahhbot.utilities.service;
 
-import lombok.Builder;
+import tech.araopj.springpitzzahhbot.utilities.MessageUtilConfig;
+import org.springframework.stereotype.Service;
+import net.dv8tion.jda.api.MessageBuilder;
+import net.dv8tion.jda.api.EmbedBuilder;
 
-@Builder
-public record Joke(String joke, String category, String language) { }
+@Service
+public record MessageUtilService(MessageUtilConfig messageUtilConfig) {
+
+    public int getReplyDeletionDelayInMinutes() {
+        return messageUtilConfig.getReplyDeletionDelayInMinutes();
+    }
+
+    public int getMessageDeletionDelayInSeconds() {
+        return messageUtilConfig.getMessageDeletionDelayInSeconds();
+    }
+
+    public EmbedBuilder getEmbedBuilder() {
+        return messageUtilConfig.getEmbedBuilder();
+    }
+
+    public MessageBuilder getMessageBuilder() {
+        return messageUtilConfig.getMessageBuilder();
+    }
+}

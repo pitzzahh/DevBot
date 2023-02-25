@@ -24,13 +24,13 @@
 package tech.araopj.springpitzzahhbot.commands.chat_command.commands;
 
 import tech.araopj.springpitzzahhbot.commands.chat_command.CommandContext;
-import tech.araopj.springpitzzahhbot.commands.chat_command.Command;
+import tech.araopj.springpitzzahhbot.commands.chat_command.ChatCommand;
 import org.springframework.stereotype.Component;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 @Component
-public class PingCommand implements Command {
+public class PingChatCommand implements ChatCommand {
 
     /**
      * Contains the process to be handled.
