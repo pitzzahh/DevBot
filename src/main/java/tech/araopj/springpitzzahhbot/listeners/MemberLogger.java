@@ -25,7 +25,6 @@
 package tech.araopj.springpitzzahhbot.listeners;
 
 import tech.araopj.springpitzzahhbot.config.channels.service.ChannelService;
-import tech.araopj.springpitzzahhbot.utilities.MessageUtil;
 import lombok.AllArgsConstructor;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.TextChannel;
@@ -35,6 +34,7 @@ import net.dv8tion.jda.api.events.guild.GuildLeaveEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Component;
+import tech.araopj.springpitzzahhbot.utilities.service.MessageUtilService;
 import static java.awt.Color.GREEN;
 import static java.awt.Color.RED;
 import static java.lang.String.format;
@@ -45,8 +45,8 @@ import static java.time.ZoneId.of;
 @AllArgsConstructor
 public class MemberLogger extends ListenerAdapter {
 
+    private final MessageUtilService messageUtilService;
     private final ChannelService channelService;
-    private final MessageUtil messageUtil;
 
     /**
      * Greets a new member that joined the server.
@@ -89,7 +89,7 @@ public class MemberLogger extends ListenerAdapter {
      */
     private void joining(TextChannel channel, GuildJoinEvent event, Member member) {
         message(event, member, true);
-        channel.sendMessageEmbeds(messageUtil.getEmbedBuilder().build()).queue();
+        channel.sendMessageEmbeds(messageUtilService.getEmbedBuilder().build()).queue();
     }
 
     /**
@@ -101,7 +101,7 @@ public class MemberLogger extends ListenerAdapter {
      */
     private void leaving(TextChannel channel, GuildLeaveEvent event, Member member) {
         message(event, member, false);
-        channel.sendMessageEmbeds(messageUtil.getEmbedBuilder().build()).queue();
+        channel.sendMessageEmbeds(messageUtilService.getEmbedBuilder().build()).queue();
         removeRole(event, member);
     }
 
@@ -122,7 +122,7 @@ public class MemberLogger extends ListenerAdapter {
      * @param flag   if {@code true} a member joined the server.
      */
     public void message(GenericGuildEvent event, Member member, boolean flag) {
-        messageUtil.getEmbedBuilder().clear()
+        messageUtilService.getEmbedBuilder().clear()
                 .clearFields()
                 .setColor(flag ? GREEN : RED)
                 .setTitle(format(flag ? "%s Joined the Server!" : "%s Leaved the Server💔", member.getEffectiveName()))
