@@ -29,8 +29,11 @@ import tech.araopj.springpitzzahhbot.commands.chat_command.CommandContext;
 import tech.araopj.springpitzzahhbot.commands.chat_command.ChatCommand;
 import tech.araopj.springpitzzahhbot.commands.service.CommandsService;
 import org.springframework.stereotype.Component;
+import static java.lang.String.format;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.List;
 import java.awt.*;
 
@@ -47,40 +50,53 @@ public record HelpChatCommand(
      * @see CommandContext
      */
     public void process(CommandContext context) {
-        final var ARGS = context.getArgs();
-        final var CHANNEL = context.getEvent().getChannel();
+        final var contextArgs = context.getArgs();
+        final var channel = context.getEvent().getChannel();
 
-        if (ARGS.isEmpty()) {
-            messageUtilService.getEmbedBuilder().clear()
-                    .clearFields()
-                    .setColor(Color.BLUE)
-                    .setTitle("List of Commands")
-                    .setFooter("Created by pitzzahh-bot#3464", context.getGuild().getIconUrl());
+        if (contextArgs.isEmpty()) {
+            messageUtilService.generateBotSentMessage(
+                    context.getEvent(),
+                    Color.BLUE,
+                    "List of Commands",
+                    null,
+                    LocalDateTime.now(ZoneId.of("UTC")),
+                    format("Created by %s", context.getGuild().getJDA().getSelfUser().getAsTag())
+            );
             commandsService
                     .chatCommands()
                     .forEach(
-                            c -> messageUtilService.getEmbedBuilder()
-                                    .addField(
-                                            commandsService.getPrefix().concat(c.name().get()),
-                                            c.description().get(),
-                                            true
-                                    )
+                            chatCommand -> messageUtilService
+                                    .getEmbedBuilder()
+                                    .clear()
+                                    .clearFields()
+                                    .addField(commandsService.getPrefix().concat(chatCommand.name().get()), chatCommand.description().get(), true)
                     );
-            CHANNEL.sendMessageEmbeds(messageUtilService.getEmbedBuilder().build()).queue();
+            channel.sendMessageEmbeds(messageUtilService.getEmbedBuilder().build()).queue();
             return;
         }
-        final var SEARCH = ARGS.get(0);
-        final var COMMAND = chatCommandManager.getChatCommandByName(SEARCH);
-        if (COMMAND.isEmpty()) CHANNEL.sendMessageFormat("Nothing found on chat_command: %s", SEARCH).queue();
-        else {
-            messageUtilService.getEmbedBuilder().clear()
-                    .clearFields()
-                    .setColor(Color.CYAN.brighter())
-                    .setTitle(COMMAND.get().name().get())
-                    .setDescription(COMMAND.get().description().get())
-                    .setFooter("Created by pitzzahh-bot#3464", context.getGuild().getIconUrl());
-            CHANNEL.sendMessageEmbeds(messageUtilService.getEmbedBuilder().build()).queue();
+        final var chatCommandByName = contextArgs.get(0);
+        final var COMMAND = chatCommandManager.getChatCommandByName(chatCommandByName);
+        if (COMMAND.isEmpty()) {
+            messageUtilService.generateBotSentMessage(
+                    context.getEvent(),
+                    Color.CYAN.brighter(),
+                    format("No chat_command found for %s", chatCommandByName),
+                    null,
+                    LocalDateTime.now(ZoneId.of("UTC")),
+                    format("Created by %s", context.getGuild().getJDA().getSelfUser().getAsTag())
+            );
         }
+        else {
+            messageUtilService.generateBotSentMessage(
+                    context.getEvent(),
+                    Color.CYAN.brighter(),
+                    COMMAND.get().name().get(),
+                    COMMAND.get().description().get(),
+                    LocalDateTime.now(ZoneId.of("UTC")),
+                    format("Created by %s", context.getGuild().getJDA().getSelfUser().getAsTag())
+            );
+        }
+        channel.sendMessageEmbeds(messageUtilService.getEmbedBuilder().build()).queue();
     }
 
     /**
@@ -122,6 +138,6 @@ public record HelpChatCommand(
      */
     @Override
     public Supplier<List<String>> aliases() {
-        return () -> List.of("commands", "chat_command", "chat_command list", "com");
+        return () -> List.of("commands", "chat commands", "chat_command list", "com");
     }
 }
