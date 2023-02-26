@@ -24,8 +24,9 @@
 
 package tech.araopj.springpitzzahhbot.commands.slash_command.commands.joke.service;
 
+import tech.araopj.springpitzzahhbot.commands.slash_command.commands.joke.approveJoke.entity.*;
 import tech.araopj.springpitzzahhbot.commands.slash_command.commands.joke.getJoke.entity.*;
-import tech.araopj.springpitzzahhbot.commands.slash_command.commands.joke.approveJoke.entity.Joke;
+import tech.araopj.springpitzzahhbot.config.secret.service.SecretService;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import tech.araopj.springpitzzahhbot.config.HttpConfig;
@@ -46,7 +47,10 @@ import java.net.URI;
 
 @Slf4j
 @Service
-public record JokesService(HttpConfig httpConfig) {
+public record JokesService(
+        SecretService secretService,
+        HttpConfig httpConfig
+) {
 
     public Collection<Category> getCategories() {
         var httpResponseCompletableFuture = httpConfig.httpClient()
@@ -137,7 +141,7 @@ public record JokesService(HttpConfig httpConfig) {
             log.error("Error while getting categories", e);
             throw new RuntimeException(e);
         }
-        ObjectMapper objectMapper = new ObjectMapper();
+        var objectMapper = new ObjectMapper();
         Collection<Joke> jokes;
         try {
             jokes = objectMapper.readValue(stringHttpResponse.body(), new TypeReference<>() {});
@@ -150,5 +154,26 @@ public record JokesService(HttpConfig httpConfig) {
                 .stream()
                 .filter(j -> !j.approved())
                 .collect(Collectors.toCollection(ArrayList::new));
+    }
+
+    public boolean approveJoke(Joke joke) {
+        var httpResponseCompletableFuture = httpConfig.httpClient()
+                .sendAsync(HttpRequest.newBuilder()
+                                .PUT(HttpRequest.BodyPublishers.ofString(new Gson().toJson(new JokeBody(secretService().getKey(), joke.joke()))))
+                                .uri(URI.create("https://jokes.araopj.tech/v1/submit/approve"))
+                                .build(),
+                        HttpResponse.BodyHandlers.ofString()
+                );
+        HttpResponse<String> stringHttpResponse;
+
+        try {
+            stringHttpResponse = httpResponseCompletableFuture.get();
+        } catch (InterruptedException | ExecutionException e) {
+            log.error("Error while approving joke", e);
+            throw new RuntimeException(e);
+        }
+
+        log.info("Approve Joke Response: {}", stringHttpResponse.body());
+        return stringHttpResponse.body().equals("Joke approved successfully");
     }
 }
