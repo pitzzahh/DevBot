@@ -30,6 +30,7 @@ import tech.araopj.springpitzzahhbot.utilities.service.MessageUtilService;
 import tech.araopj.springpitzzahhbot.commands.slash_command.SlashCommand;
 import net.dv8tion.jda.api.interactions.commands.build.CommandData;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
+import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.internal.interactions.CommandDataImpl;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import org.springframework.stereotype.Component;
@@ -72,6 +73,52 @@ public record ApproveJoke(
                                context.getMember().isOwner()
                 );
         log.info("Is user {} an admin? and can manage this server?: {}", context.getMember().getAsMention(), isAdmin);
+        if (isAdmin) {
+
+            OptionMapping idOption = context.getEvent().getOption("joke-id");
+            if (idOption != null) {
+                log.info("Joke id: {}", idOption.getAsString());
+                boolean noJokeWithId = jokesService.getSubmittedJokes()
+                        .stream()
+                        .noneMatch(j -> j.id() == Integer.parseInt(idOption.getAsString()));
+                if (noJokeWithId) {
+                    log.info("No joke with id: {}", idOption.getAsString());
+                    messageUtilService.generateAutoDeleteMessage(
+                            context.event(),
+                            YELLOW,
+                            "Testing",
+                            String.format("No joke with id %s", idOption.getAsString())
+                    );
+                } else {
+                    log.info("Joke with id: {} found", idOption.getAsString());
+                    jokesService
+                            .getSubmittedJokes()
+                            .forEach(j -> {
+                                if (j.id() == Integer.parseInt(idOption.getAsString())) {
+                                    log.info(String.format("Joke with id %s has been approved", idOption.getAsString()));
+                                    boolean isApproved = jokesService.approveJoke(j);
+                                    if (isApproved) {
+                                        messageUtilService.generateAutoDeleteMessage(
+                                                context.event(),
+                                                YELLOW,
+                                                "Testing",
+                                                String.format("Joke with id %s has been approved", idOption.getAsString())
+                                        );
+                                    } else {
+                                        log.info(String.format("Joke with id %s has not been approved", idOption.getAsString()));
+                                        messageUtilService.generateAutoDeleteMessage(
+                                                context.event(),
+                                                YELLOW,
+                                                "Testing",
+                                                String.format("Joke with id %s has not been approved", idOption.getAsString())
+                                        );
+                                    }
+                                }
+                            });
+                }
+            }
+
+        }
         messageUtilService.generateAutoDeleteMessage(
                 context.event(),
                 YELLOW,
