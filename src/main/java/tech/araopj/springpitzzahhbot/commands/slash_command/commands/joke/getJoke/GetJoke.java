@@ -111,7 +111,7 @@ public record GetJoke(
                     .setColor(CYAN)
                     .setTitle("GetJoke of the day")
                     .setDescription(joke != null ? joke : "No joke found")
-                    .setTimestamp(now(ZoneId.systemDefault()))
+                    .setTimestamp(now(ZoneId.of("UTC")))
                     .setFooter(
                             format("Created by %s", context.getGuild().getJDA().getSelfUser().getAsTag()),
                             context.getGuild().getJDA().getSelfUser().getAvatarUrl()
@@ -127,7 +127,7 @@ public record GetJoke(
                     .setColor(YELLOW)
                     .setTitle("No joke found")
                     .setDescription("I couldn't find a joke for you 😢.")
-                    .setTimestamp(now(ZoneId.systemDefault()))
+                    .setTimestamp(now(ZoneId.of("UTC")))
                     .setFooter(
                             format("Created by %s", context.getGuild().getJDA().getSelfUser().getAsTag()),
                             context.getGuild().getJDA().getSelfUser().getAvatarUrl()
