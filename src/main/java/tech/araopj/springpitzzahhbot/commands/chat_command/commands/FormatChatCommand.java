@@ -41,34 +41,41 @@ public record FormatChatCommand(
         CommandsService commandsService
 ) implements ChatCommand {
 
-
     /**
      * Contains the process to be handled.
      * @param context a {@code CommandContext}.
      * @see CommandContext
      */
     public void process(@NonNull CommandContext context) {
-        final var ARGS = context.getArgs();
-        final var CHANNEL = context.getEvent().getChannel();
+        final var contextArgs = context.getArgs();
+        final var channel = context.getEvent().getChannel();
 
-        if (ARGS.size() < 2) {
+        if (contextArgs.size() < 2) {
             final var BUTTON = primary("ok", "okay");
-            messageUtilService.getEmbedBuilder().clear()
-                    .clearFields()
-                    .setColor(RED)
-                    .setTitle("MISSING CONTENT");
-            messageUtilService.getMessageBuilder().clear()
+
+            messageUtilService.generateAutoDeleteMessage(
+                    context.event(),
+                    RED,
+                    "Missing Content",
+                    "Please provide the language and the content to format."
+            );
+
+            messageUtilService
+                    .getMessageBuilder()
+                    .clear()
                     .setEmbeds(messageUtilService.getEmbedBuilder().build())
                     .setActionRows(of(BUTTON));
-            CHANNEL.sendMessage(messageUtilService.getMessageBuilder().build()).queue();
+
+            channel.sendMessage(messageUtilService.getMessageBuilder().build()).queue();
             return;
         }
-        final var LANGUAGE = ARGS.get(0);
-        final var MESSAGE = context.getEvent().getMessage().getContentRaw();
-        final var INDEX = MESSAGE.indexOf(LANGUAGE) + LANGUAGE.length();
-        final var CONTENT = MESSAGE.substring(INDEX).trim();
-        context.getEvent().getMessage()
-                .reply("```" + LANGUAGE + "\n" + CONTENT + "```")
+        final var language = contextArgs.get(0);
+        final var contentRaw = context.getEvent().getMessage().getContentRaw();
+        final var index = contentRaw.indexOf(language) + language.length();
+        final var content = contentRaw.substring(index).trim();
+        context.getEvent()
+                .getMessage()
+                .reply("```" + language + "\n" + content + "```")
                 .queue(
                         message -> context.event()
                                 .getMessage()
