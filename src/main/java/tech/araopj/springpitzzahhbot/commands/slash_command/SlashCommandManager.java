@@ -24,75 +24,54 @@
 
 package tech.araopj.springpitzzahhbot.commands.slash_command;
 
-import tech.araopj.springpitzzahhbot.commands.slash_command.commands.confessions.service.ConfessionService;
-import tech.araopj.springpitzzahhbot.commands.slash_command.commands.joke.approveJoke.ApproveJoke;
-import tech.araopj.springpitzzahhbot.commands.slash_command.commands.joke.submitJoke.SubmitJoke;
-import tech.araopj.springpitzzahhbot.commands.slash_command.commands.joke.service.JokesService;
-import tech.araopj.springpitzzahhbot.commands.slash_command.commands.game.service.GameService;
-import tech.araopj.springpitzzahhbot.commands.slash_command.commands.confessions.Confession;
-import tech.araopj.springpitzzahhbot.commands.slash_command.commands.joke.getJoke.GetJoke;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
-import tech.araopj.springpitzzahhbot.commands.slash_command.commands.game.Game;
 import tech.araopj.springpitzzahhbot.exceptions.CommandAlreadyExistException;
-import tech.araopj.springpitzzahhbot.config.channels.service.ChannelService;
-import tech.araopj.springpitzzahhbot.utilities.service.MessageUtilService;
-import tech.araopj.springpitzzahhbot.config.HttpConfig;
+import tech.araopj.springpitzzahhbot.commands.service.CommandsService;
 import org.springframework.stereotype.Component;
 import org.springframework.lang.NonNull;
-import java.util.function.Consumer;
 import java.util.function.Supplier;
+import lombok.extern.slf4j.Slf4j;
 import java.util.Objects;
-import java.util.HashMap;
-import java.util.Arrays;
-import java.util.Map;
 
+@Slf4j
 @Component
-public class SlashCommandManager {
+public record SlashCommandManager(CommandsService commandsService) {
 
-    private final Map<String, SlashCommand> COMMANDS = new HashMap<>();
-
-    public SlashCommandManager(
-            MessageUtilService messageUtilService,
-            ConfessionService confessionService,
-            ChannelService channelService,
-            JokesService jokesService,
-            GameService gameService,
-            HttpConfig httpConfig
-            ) {
-        addCommands(
-                new Confession(messageUtilService, confessionService, channelService),
-                new Game(messageUtilService, gameService),
-                new GetJoke(messageUtilService, jokesService, httpConfig),
-                new SubmitJoke(messageUtilService, jokesService, httpConfig),
-                new ApproveJoke(messageUtilService, jokesService, httpConfig)
-        );
-    }
-
-    Consumer<SlashCommand> addCommand = command -> {
-        var found = this.COMMANDS.values()
+    public void addCommand(@NonNull SlashCommand slashCommand) {
+        var found = commandsService
+                .slashCommands()
+                .values()
                 .stream()
-                .anyMatch(c -> c.name().get().equalsIgnoreCase(command.name().get()));
+                .anyMatch(c -> c.name().get().equalsIgnoreCase(slashCommand.name().get()));
         if (found) throw new CommandAlreadyExistException("A Command With this name is already present!");
-        this.COMMANDS.put(command.name().get(), command);
-    };
-
-    private void addCommands(@NonNull SlashCommand... commands) {
-        Arrays.stream(commands).forEachOrdered(e -> this.addCommand.accept(e));
+        commandsService
+                .slashCommands().put(slashCommand.name().get(), slashCommand);
     }
 
     public void handle(@NonNull SlashCommandInteractionEvent event) {
         var commandName = event.getName();
         var COMMAND_CONTEXT = new CommandContext(event);
-        if (getCommands().containsKey(commandName)) getCommands().get(commandName).execute().accept(COMMAND_CONTEXT);
-        var COM = COMMANDS.values()
+        if (commandsService.slashCommands().containsKey(commandName)) {
+            commandsService
+                    .slashCommands()
+                    .get(commandName)
+                    .execute()
+                    .accept(COMMAND_CONTEXT);
+        }
+        var commandData = commandsService
+                .slashCommands()
+                .values()
                 .stream()
                 .map(SlashCommand::getCommandData)
                 .map(Supplier::get)
                 .toList();
-        if (!COM.isEmpty()) Objects.requireNonNull(event.getGuild()).updateCommands().addCommands(COM).queue();
+        if (!commandData.isEmpty()) {
+            Objects.requireNonNull(
+                    event.getGuild()
+            ).updateCommands()
+                    .addCommands(commandData)
+                    .queue();
+        }
     }
 
-    public Map<String, SlashCommand> getCommands() {
-        return this.COMMANDS;
-    }
 }
