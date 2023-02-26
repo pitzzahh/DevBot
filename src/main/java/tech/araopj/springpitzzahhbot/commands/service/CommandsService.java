@@ -5,12 +5,13 @@ import tech.araopj.springpitzzahhbot.commands.chat_command.ChatCommand;
 import tech.araopj.springpitzzahhbot.commands.CommandsConfig;
 import org.springframework.stereotype.Service;
 import java.util.List;
+import java.util.Map;
 
 @Service
 public record CommandsService(CommandsConfig commandsConfig) {
 
-    public String getVerifyCommand() {
-        return commandsConfig.getVerifyCommand();
+    public String getRulesCommand() {
+        return commandsConfig.getRulesCommand();
     }
 
     public String getConfessCommand() {
@@ -29,7 +30,7 @@ public record CommandsService(CommandsConfig commandsConfig) {
         return commandsConfig.getChatCommands();
     }
 
-    public List<SlashCommand> slashCommands() {
+    public Map<String, SlashCommand> slashCommands() {
         return commandsConfig.getSlashCommands();
     }
 

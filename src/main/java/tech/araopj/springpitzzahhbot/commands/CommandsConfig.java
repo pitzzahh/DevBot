@@ -30,15 +30,14 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import java.util.ArrayList;
-import lombok.Getter;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import lombok.Getter;
 
 @Getter
 @Configuration
 public class CommandsConfig {
-
-    @Value("${bot.commands.verification.verify-command}")
-    private String verifyCommand;
 
     @Value("${bot.commands.confessions.confess-command}")
     private String confessCommand;
@@ -49,14 +48,17 @@ public class CommandsConfig {
     @Value("${bot.commands.prefix}")
     private String prefix;
 
+    @Value("${bot.commands.rules}")
+    private String rulesCommand;
+
     @Bean
     public List<ChatCommand> getChatCommands() {
         return new ArrayList<>();
     }
 
     @Bean
-    public List<SlashCommand> getSlashCommands() {
-        return new ArrayList<>();
+    public Map<String, SlashCommand> getSlashCommands() {
+        return new HashMap<>();
     }
 
 }

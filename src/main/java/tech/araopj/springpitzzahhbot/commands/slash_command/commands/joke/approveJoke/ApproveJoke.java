@@ -32,23 +32,19 @@ import net.dv8tion.jda.api.interactions.commands.build.CommandData;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 import net.dv8tion.jda.internal.interactions.CommandDataImpl;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
-import tech.araopj.springpitzzahhbot.config.HttpConfig;
 import org.springframework.stereotype.Component;
-import static java.time.LocalDateTime.now;
 import net.dv8tion.jda.api.Permission;
 import java.util.concurrent.TimeUnit;
 import static java.awt.Color.YELLOW;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 import lombok.extern.slf4j.Slf4j;
-import java.time.ZoneId;
 
 @Slf4j
 @Component
 public record ApproveJoke(
         MessageUtilService messageUtilService,
-        JokesService jokesService,
-        HttpConfig httpConfig
+        JokesService jokesService
 ) implements SlashCommand {
     /**
      * Executes a {@code SlashCommand}
@@ -68,17 +64,20 @@ public record ApproveJoke(
      */
     private void process(CommandContext context) {
         log.info("Processing command: {}", name().get());
-        boolean isAdmin = context.getMember().getRoles().stream()
-                .anyMatch(r -> r.hasPermission(Permission.ADMINISTRATOR));
-        log.info("Is user {} an admin? {}", context.getMember().getEffectiveName(), isAdmin);
-        messageUtilService.getEmbedBuilder()
-                .clear()
-                .clearFields()
-                .setColor(YELLOW)
-                .setTitle("Testing")
-                .setDescription(String.format("Is user %s an admin? %s", context.getMember().getEffectiveName(), isAdmin))
-                .setTimestamp(now(ZoneId.systemDefault()).plusMinutes(messageUtilService.getReplyDeletionDelayInMinutes()))
-                .setFooter("This message will be automatically deleted on");
+        var isAdmin = context.getMember()
+                .getRoles()
+                .stream()
+                .anyMatch(r -> r.hasPermission(Permission.ADMINISTRATOR) ||
+                               r.hasPermission(Permission.MANAGE_SERVER) ||
+                               context.getMember().isOwner()
+                );
+        log.info("Is user {} an admin? and can manage this server?: {}", context.getMember().getAsMention(), isAdmin);
+        messageUtilService.generateAutoDeleteMessage(
+                context.event(),
+                YELLOW,
+                "Testing",
+                String.format("Is user %s an admin? and can manage this server?: %s", context.getMember().getAsMention(), isAdmin)
+        );
         context.getEvent()
                 .getInteraction()
                 .replyEmbeds(messageUtilService.getEmbedBuilder().build())

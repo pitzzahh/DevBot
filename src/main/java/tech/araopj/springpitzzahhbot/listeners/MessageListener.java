@@ -25,15 +25,12 @@ package tech.araopj.springpitzzahhbot.listeners;
 
 import static io.github.pitzzahh.util.utilities.validation.Validator.isDecimalNumber;
 import static io.github.pitzzahh.util.utilities.validation.Validator.isWholeNumber;
-import static net.dv8tion.jda.api.interactions.components.buttons.Button.primary;
-import static net.dv8tion.jda.api.interactions.components.ActionRow.of;
-import static java.time.format.DateTimeFormatter.ofLocalizedTime;
-import static java.time.format.FormatStyle.SHORT;
 import static java.util.concurrent.TimeUnit.MINUTES;
 import static java.util.concurrent.TimeUnit.SECONDS;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.dv8tion.jda.api.Permission;
+import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import org.jetbrains.annotations.NotNull;
@@ -53,7 +50,6 @@ import java.util.EnumSet;
 import java.util.Objects;
 import static java.awt.Color.*;
 import static java.lang.String.format;
-import static java.time.Clock.systemDefaultZone;
 import static java.time.LocalDateTime.now;
 
 /**
@@ -65,13 +61,13 @@ import static java.time.LocalDateTime.now;
 public class MessageListener extends ListenerAdapter { // TODO: Decouple code
 
     private final MessageCheckerService messageCheckerService;
+    private final ChatCommandManager chatCommandManager;
     private final MessageUtilService messageUtilService;
     private final ConfessionService confessionService;
     private final ViolationService violationService;
     private final CommandsService commandsService;
     private final CategoryService categoryService;
     private final ChannelService channelService;
-    private final ChatCommandManager chatCommandManager;
     private final GameService gameService;
     private final Confession confession;
 
@@ -84,34 +80,22 @@ public class MessageListener extends ListenerAdapter { // TODO: Decouple code
             log.info("ChatCommand received: {}", MESSAGE);
             log.info("Commands started with: {}", PREFIX);
             chatCommandManager.handle(event);
-        }
-        else {
-            if (MESSAGE.equals(commandsService.getVerifyCommand()) && Objects.requireNonNull(event.getMember()).isOwner()) {
+        } else {
+            if(MESSAGE.equals(commandsService.getRulesCommand()) && Objects.requireNonNull(event.getMember()).isOwner()) {
                 log.info("ChatCommand received: {}", MESSAGE);
-                final var BUTTON = primary("verify-button", "Verify");
-                event.getGuild()
-                        .createCategory(categoryService.welcomeCategoryName())
-                        .queue(
-                                category -> {
-                                    messageUtilService.getEmbedBuilder().clear()
-                                            .clearFields()
-                                            .setColor(BLUE)
-                                            .setTitle("Verify yourself")
-                                            .appendDescription("Click the verify button to verify")
-                                            .setTimestamp(now(ZoneId.systemDefault()))
-                                            .setFooter(
-                                                    format("Created by %s", event.getJDA().getSelfUser().getAsTag()),
-                                                    event.getJDA().getSelfUser().getAvatarUrl()
-                                            );
-                                    messageUtilService.getMessageBuilder().clear()
-                                            .setActionRows(of(BUTTON))
-                                            .setEmbeds(messageUtilService.getEmbedBuilder().build());
-                                    category
-                                            .createTextChannel(channelService.verifyChannelName())
-                                            .queue(c -> c.sendMessage(messageUtilService.getMessageBuilder().build()).queue());
-                                }
-                        );
-
+                messageUtilService.generateRulesMessage(event);
+                messageUtilService.generateAutoDeleteMessage(
+                        event,
+                        BLUE,
+                        "Rules",
+                        format("Rules sent %s", channelService
+                                .getChannelByName(event, "rules")
+                                .map(TextChannel::getAsMention)
+                                .orElse("general"))
+                );
+                event.getMessage()
+                        .replyEmbeds(messageUtilService.getEmbedBuilder().build())
+                        .queue(s -> s.delete().queueAfter(messageUtilService.getReplyDeletionDelayInMinutes(), MINUTES));
             } else {
                 var sentSecretChannel = confessionService.sentSecretChannelName();
                 if (MESSAGE.equals(commandsService.getConfessCommand()) && Objects.requireNonNull(event.getMember()).isOwner()) {
@@ -124,16 +108,14 @@ public class MessageListener extends ListenerAdapter { // TODO: Decouple code
                             .createCategory(categoryService.secretsCategoryName())
                             .queue(
                                     category -> {
-                                        messageUtilService.getEmbedBuilder().clear()
-                                                .clearFields()
-                                                .setColor(CYAN)
-                                                .setTitle("Write your confessions here")
-                                                .setDescription("your confessions will be anonymous")
-                                                .appendDescription(format(", use `/%s` to tell a confession", confession.name().get()))
-                                                .setFooter(
-                                                        format("Created by %s", event.getJDA().getSelfUser().getAsTag()),
-                                                        category.getJDA().getSelfUser().getAvatarUrl()
-                                                );
+                                        messageUtilService.generateBotSentMessage(
+                                                event,
+                                                CYAN,
+                                                "Write your confessions here",
+                                                "your confessions will be anonymous".concat(format(", use `/%s` to tell a confession", confession.name().get())),
+                                                now(ZoneId.of("UTC")),
+                                                format("Created by %s", event.getJDA().getSelfUser().getAsTag())
+                                        );
                                         category.createTextChannel(confessionService.enterSecretChannelName())
                                                 .setTopic("This is a channel where you can write your confessions")
                                                 .queue(c -> c.sendMessageEmbeds(messageUtilService.getEmbedBuilder().build()).queue());
@@ -149,7 +131,7 @@ public class MessageListener extends ListenerAdapter { // TODO: Decouple code
                                 .clearFields()
                                 .setColor(RED)
                                 .appendDescription(format("Please use `/%s` to tell a confessions", confession.name().get()))
-                                .setTimestamp(now(ZoneId.systemDefault()).plusMinutes(messageUtilService.getReplyDeletionDelayInMinutes()))
+                                .setTimestamp(now(ZoneId.of("UTC")).plusMinutes(messageUtilService.getReplyDeletionDelayInMinutes()))
                                 .setFooter("This message will be automatically deleted on");
                         event.getMessage()
                                 .replyEmbeds(messageUtilService.getEmbedBuilder().build())
@@ -165,48 +147,23 @@ public class MessageListener extends ListenerAdapter { // TODO: Decouple code
                             violationService.addViolation(AUTHOR.getName());
                             var isVeryBad = violationService.violatedThreeTimes(AUTHOR.getName());
                             if (isVeryBad) {
-                                messageUtilService.getEmbedBuilder().clear()
-                                        .clearFields()
-                                        .setColor(RED)
-                                        .setTitle("Violated Three Times")
-                                        .appendDescription(
-                                                format(
-                                                        AUTHOR.getAsMention().concat(" Cannot send messages until %s"),
-                                                        now(systemDefaultZone())
-                                                                .plusMinutes(5)
-                                                                .format(ofLocalizedTime(SHORT))
-                                                )
-                                        )
-                                        .setFooter(
-                                                format("Scanned by %s", event.getJDA().getSelfUser().getAsTag()),
-                                                event.getJDA().getSelfUser().getAvatarUrl()
-                                        );
+                                messageUtilService.generateBotSentMessage(
+                                        event,
+                                        RED,
+                                        "Violated Three Times",
+                                        "Cannot send messages until " + now(ZoneId.of("UTC")).plusMinutes(5),
+                                        now(ZoneId.of("UTC")),
+                                        format("Scanned by %s", event.getJDA().getSelfUser().getAsTag())
+                                );
                                 event.getChannel()
                                         .sendMessageEmbeds(messageUtilService.getEmbedBuilder().build())
                                         .queue();
                                 AUTHOR.retrieveProfile()
-                                        .timeout(5, MINUTES)
+                                        .timeout(5, MINUTES) // TODO: use config to get the time out
                                         .queue();
-                                event.getMessage().delete().queueAfter(2, SECONDS);
+                                event.getMessage().delete().queueAfter(messageUtilService.getMessageDeletionDelayInSeconds(), SECONDS);
                             } else {
-                                messageUtilService.getEmbedBuilder().clear()
-                                        .clearFields()
-                                        .setColor(RED)
-                                        .setTitle("Bad Word Detected")
-                                        .appendDescription(
-                                                format(
-                                                        "This message will be deleted on %s",
-                                                        now(ZoneId.systemDefault())
-                                                                .plusMinutes(messageUtilService.getReplyDeletionDelayInMinutes())
-                                                                .format(
-                                                                        ofLocalizedTime(SHORT)
-                                                                )
-                                                )
-                                        )
-                                        .setFooter(
-                                                format("Scanned by %s", event.getJDA().getSelfUser().getAsTag()),
-                                                event.getJDA().getSelfUser().getAvatarUrl()
-                                        );
+                                messageUtilService.generateAutoDeleteMessage(event, RED, "Bad Word Detected", "Please don't use bad words");
                                 event.getMessage()
                                         .replyEmbeds(messageUtilService.getEmbedBuilder().build())
                                         .mentionRepliedUser(true)
@@ -220,27 +177,26 @@ public class MessageListener extends ListenerAdapter { // TODO: Decouple code
                             if (isWholeNumber().or(isDecimalNumber()).test(MESSAGE)) {
                                 final var IS_CORRECT = gameService.processAnswer(MESSAGE);
                                 if (IS_CORRECT) {
-                                    messageUtilService.getEmbedBuilder().clear()
-                                            .clearFields()
-                                            .setColor(BLUE)
-                                            .setTitle("Correct!")
-                                            .setFooter(
-                                                    format("Checked by %s", event.getJDA().getSelfUser().getAsTag()),
-                                                    event.getJDA().getSelfUser().getAvatarUrl()
-                                            );
+                                    messageUtilService.generateBotSentMessage(
+                                            event,
+                                            BLUE,
+                                            "Correct!",
+                                            "You got it right!",
+                                            now(ZoneId.of("UTC")),
+                                            format("Checked by %s", event.getJDA().getSelfUser().getAsTag())
+                                    );
                                     event.getMessage()
                                             .replyEmbeds(messageUtilService.getEmbedBuilder().build())
                                             .queue();
                                 } else {
-                                    messageUtilService.getEmbedBuilder().clear()
-                                            .clearFields()
-                                            .setColor(RED)
-                                            .setTitle("WRONG ANSWER")
-                                            .setDescription("Correct answer is " + gameService.getAnswer(AUTHOR.getName()))
-                                            .setFooter(
-                                                    format("Checked by %s", event.getJDA().getSelfUser().getAsTag()),
-                                                    event.getJDA().getSelfUser().getAvatarUrl()
-                                            );
+                                    messageUtilService.generateBotSentMessage(
+                                            event,
+                                            BLUE,
+                                            "Wrong answer!",
+                                            "Correct answer is " + gameService.getAnswer(AUTHOR.getName()),
+                                            now(ZoneId.of("UTC")),
+                                            format("Checked by %s", event.getJDA().getSelfUser().getAsTag())
+                                    );
                                     event.getMessage()
                                             .replyEmbeds(messageUtilService.getEmbedBuilder().build())
                                             .queue();

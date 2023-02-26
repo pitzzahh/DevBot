@@ -22,43 +22,53 @@
  * SOFTWARE.
  */
 
-package tech.araopj.springpitzzahhbot.listeners;
+package tech.araopj.springpitzzahhbot.commands.slash_command.commands.joke.viewSubmittedJokes;
 
-import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
-import tech.araopj.springpitzzahhbot.commands.slash_command.SlashCommandManager;
+import tech.araopj.springpitzzahhbot.commands.slash_command.commands.joke.service.JokesService;
+import tech.araopj.springpitzzahhbot.commands.slash_command.CommandContext;
+import tech.araopj.springpitzzahhbot.utilities.service.MessageUtilService;
 import tech.araopj.springpitzzahhbot.commands.slash_command.SlashCommand;
-import tech.araopj.springpitzzahhbot.commands.service.CommandsService;
-import net.dv8tion.jda.api.events.guild.GuildReadyEvent;
-import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import org.springframework.stereotype.Component;
-import org.springframework.lang.NonNull;
+import java.util.function.Consumer;
 import java.util.function.Supplier;
-import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @Component
-@AllArgsConstructor
-public class SlashCommandListener extends ListenerAdapter {
-
-    private final SlashCommandManager slashCommandManager;
-    private final CommandsService commandsService;
-
+public record ViewSubmittedJokes(
+        MessageUtilService messageUtilService,
+        JokesService jokesService
+) implements SlashCommand {
+    /**
+     * Executes a {@code SlashCommand}
+     *
+     * @return nothing.
+     * @see Consumer
+     */
     @Override
-    public void onSlashCommandInteraction(@NonNull SlashCommandInteractionEvent event) {
-        slashCommandManager.handle(event);
+    public Consumer<CommandContext> execute() {
+        return null;
     }
 
+    /**
+     * Supplies the name of the slash command.
+     *
+     * @return a {@code Supplier<String>}.
+     * @see Supplier
+     */
     @Override
-    public void onGuildReady(@NonNull GuildReadyEvent event) {
-        final var COMMANDS = commandsService.slashCommands();
-        var guild = event.getGuild();
-        var COM = COMMANDS.values()
-                .stream()
-                .map(SlashCommand::getCommandData)
-                .map(Supplier::get)
-                .toList();
+    public Supplier<String> name() {
+        return "view-submitted-jokes"::toString;
+    }
 
-        guild.getJDA().updateCommands()
-                .addCommands(COM)
-                .queue();
+    /**
+     * Supplies the description of a slash command.
+     *
+     * @return a {code Supplier<String>} containing the description of the command.
+     * @see Supplier
+     */
+    @Override
+    public Supplier<String> description() {
+        return "View all the jokes submitted by the users"::toString;
     }
 }

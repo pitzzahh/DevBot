@@ -45,7 +45,7 @@ import static java.awt.Color.*;
 
 @Slf4j
 @Service
-public record Game(
+public record Play(
         MessageUtilService messageUtilService,
         GameService gameService
 ) implements SlashCommand {

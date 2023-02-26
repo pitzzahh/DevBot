@@ -28,7 +28,6 @@ import lombok.extern.slf4j.Slf4j;
 import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.CommandData;
-import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 import net.dv8tion.jda.internal.interactions.CommandDataImpl;
 import org.springframework.stereotype.Component;
 import tech.araopj.springpitzzahhbot.commands.slash_command.CommandContext;
@@ -44,7 +43,6 @@ import java.util.function.Supplier;
 import static java.awt.Color.GREEN;
 import static java.lang.String.format;
 import static java.time.LocalDateTime.now;
-import static java.time.ZoneId.of;
 import static java.util.concurrent.TimeUnit.MINUTES;
 
 /**
@@ -83,7 +81,7 @@ public record Confession(
                     .setColor(Color.RED)
                     .setDescription(SECRET_MESSAGE)
                     .setFooter("anonymous 👀")
-                    .setTimestamp(now(of("UTC")));
+                    .setTimestamp(now(ZoneId.of("UTC")));
             CONFESSIONS.ifPresent(c -> c.sendMessageEmbeds(messageUtilService.getEmbedBuilder().build()).queue(message -> confirmationMessage(context)));
             log.info("Sent confession message to {} channel", confessionService.sentSecretChannelName());
         } else {
@@ -121,7 +119,7 @@ public record Confession(
                 .setColor(GREEN)
                 .setTitle(title)
                 .setDescription(description)
-                .setTimestamp(now(ZoneId.systemDefault()).plusMinutes(messageUtilService.getReplyDeletionDelayInMinutes()))
+                .setTimestamp(now(ZoneId.of("UTC")).plusMinutes(messageUtilService.getReplyDeletionDelayInMinutes()))
                 .setFooter("This message will be automatically deleted on");
         messageUtilService.getMessageBuilder()
                 .clear()
@@ -177,12 +175,11 @@ public record Confession(
         return () -> new CommandDataImpl(
                 name().get(),
                 description().get()
-        ).addOptions(
-                new OptionData(
-                        OptionType.STRING,
-                        name().get().concat("ion"),
-                        "Enter your confession",
-                        true)
+        ).addOption(
+                OptionType.STRING,
+                name().get().concat("ion"),
+                "Enter your confession",
+                true
         );
     }
 

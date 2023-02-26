@@ -32,9 +32,6 @@ import lombok.Getter;
 @Configuration
 public class CategoryConfig {
 
-    @Value("${bot.category.welcome-category}")
-    private String welcomeCategory;
-
     @Value("${bot.category.member-updates-category}")
     private String memberUpdatesCategory;
 
