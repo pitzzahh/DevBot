@@ -68,6 +68,7 @@ public class ButtonListener extends ListenerAdapter {
                 if (isVerified) {
                     log.info("User {} is already verified", MEMBER.getUser().getAsTag());
                     messageUtilService.generateAutoDeleteMessage(
+                            event,
                             RED,
                             "Already Verified ⛔",
                             "You are already verified"
@@ -75,6 +76,7 @@ public class ButtonListener extends ListenerAdapter {
                 } else {
                     log.info("User {} roles are", MEMBER.getRoles());
                     messageUtilService.generateAutoDeleteMessage(
+                            event,
                             RED,
                             "Verified ✅",
                             "You are now verified"
@@ -85,6 +87,7 @@ public class ButtonListener extends ListenerAdapter {
             } else {
                 log.error("Verified role is not present");
                 messageUtilService.generateAutoDeleteMessage(
+                        event,
                         RED,
                         "Verified Role not found ⛔",
                         "Cannot add role to user\nPlease contact the server admin"
