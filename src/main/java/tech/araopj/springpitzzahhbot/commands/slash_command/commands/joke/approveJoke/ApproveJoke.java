@@ -73,6 +73,7 @@ public record ApproveJoke(
                 );
         log.info("Is user {} an admin? and can manage this server?: {}", context.getMember().getAsMention(), isAdmin);
         messageUtilService.generateAutoDeleteMessage(
+                context.event(),
                 YELLOW,
                 "Testing",
                 String.format("Is user %s an admin? and can manage this server?: %s", context.getMember().getAsMention(), isAdmin)
