@@ -27,6 +27,7 @@ package tech.araopj.springpitzzahhbot.listeners;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import tech.araopj.springpitzzahhbot.commands.slash_command.SlashCommandManager;
 import tech.araopj.springpitzzahhbot.commands.slash_command.SlashCommand;
+import tech.araopj.springpitzzahhbot.commands.service.CommandsService;
 import net.dv8tion.jda.api.events.guild.GuildReadyEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import org.springframework.stereotype.Component;
@@ -38,16 +39,17 @@ import lombok.AllArgsConstructor;
 @AllArgsConstructor
 public class SlashCommandListener extends ListenerAdapter {
 
-    private final SlashCommandManager SLASH_COMMAND_MANAGER;
+    private final SlashCommandManager slashCommandManager;
+    private final CommandsService commandsService;
 
     @Override
     public void onSlashCommandInteraction(@NonNull SlashCommandInteractionEvent event) {
-        SLASH_COMMAND_MANAGER.handle(event);
+        slashCommandManager.handle(event);
     }
 
     @Override
     public void onGuildReady(@NonNull GuildReadyEvent event) {
-        final var COMMANDS = SLASH_COMMAND_MANAGER.getCommands();
+        final var COMMANDS = commandsService.slashCommands();
         var guild = event.getGuild();
         var COM = COMMANDS.values()
                 .stream()
