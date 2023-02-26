@@ -25,17 +25,12 @@ package tech.araopj.springpitzzahhbot.listeners;
 
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import tech.araopj.springpitzzahhbot.utilities.service.MessageUtilService;
-import static java.time.format.DateTimeFormatter.ofLocalizedTime;
 import org.springframework.beans.factory.annotation.Autowired;
+import static java.util.concurrent.TimeUnit.MINUTES;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
-import static java.time.format.FormatStyle.SHORT;
-import static java.time.Clock.systemDefaultZone;
 import org.springframework.stereotype.Component;
-import static java.time.LocalDateTime.now;
 import net.dv8tion.jda.api.entities.Role;
 import org.jetbrains.annotations.NotNull;
-import static java.lang.String.format;
-import static java.awt.Color.BLUE;
 import static java.awt.Color.RED;
 import lombok.extern.slf4j.Slf4j;
 import java.util.Objects;
@@ -69,38 +64,36 @@ public class ButtonListener extends ListenerAdapter {
                         .map(Role::getName)
                         .anyMatch(e -> VERIFIED_ROLE.get().getName().equals(e));
                 messageUtilService.getMessageBuilder().clear();
+
                 if (isVerified) {
                     log.info("User {} is already verified", MEMBER.getUser().getAsTag());
-                    message(false);
-                }
-                else {
+                    messageUtilService.generateAutoDeleteMessage(
+                            RED,
+                            "Already Verified ⛔",
+                            "You are already verified"
+                    );
+                } else {
                     log.info("User {} roles are", MEMBER.getRoles());
-                    message(true);
+                    messageUtilService.generateAutoDeleteMessage(
+                            RED,
+                            "Verified ✅",
+                            "You are now verified"
+                    );
                     event.getGuild().addRoleToMember(MEMBER, VERIFIED_ROLE.get()).queue();
                     log.info("User {} is verified", MEMBER.getUser().getAsTag());
                 }
-                event.getInteraction()
-                        .replyEmbeds(messageUtilService.getEmbedBuilder().build())
-                        .setEphemeral(true)
-                        .queue();
-            } else log.error("Verified role is not present");
-        }
-    }
-
-    private void message(boolean flag) {
-        log.info("Message is being sent");
-        messageUtilService.getEmbedBuilder()
-                .clear()
-                .clearFields()
-                .setColor(flag ? BLUE : RED)
-                .setTitle(flag ? "Verified ✅" : "Already Verified")
-                .setFooter(
-                        format(
-                                "This message will be automatically deleted on %s",
-                                now(systemDefaultZone())
-                                        .plusMinutes(1)
-                                        .format(ofLocalizedTime(SHORT))
-                        )
+            } else {
+                log.error("Verified role is not present");
+                messageUtilService.generateAutoDeleteMessage(
+                        RED,
+                        "Verified Role not found ⛔",
+                        "Cannot add role to user\nPlease contact the server admin"
                 );
+            }
+            messageUtilService.getMessageBuilder().clear();
+            event.replyEmbeds(messageUtilService.getEmbedBuilder().build())
+                    .setEphemeral(true)
+                    .queue(m -> m.deleteOriginal().queueAfter(messageUtilService.getReplyDeletionDelayInMinutes(), MINUTES));
+        }
     }
 }
