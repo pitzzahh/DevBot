@@ -22,17 +22,10 @@
  * SOFTWARE.
  */
 
-package tech.araopj.springpitzzahhbot.config.channels;
+package tech.araopj.springpitzzahhbot.commands.slash_command.commands.joke.approveJoke.entity;
 
-import org.springframework.context.annotation.Configuration;
-import org.springframework.beans.factory.annotation.Value;
-import lombok.Getter;
+import lombok.Builder;
 
-@Getter
-@Configuration
-public class ChannelsConfig {
-
-    @Value("${bot.channel.member-updates-channel.name}")
-    private String memberUpdatesChannel;
-
+@Builder
+public record JokeBody(String key, String id) {
 }

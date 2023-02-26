@@ -22,17 +22,15 @@
  * SOFTWARE.
  */
 
-package tech.araopj.springpitzzahhbot.config.channels;
+package tech.araopj.springpitzzahhbot.config.secret;
 
-import org.springframework.context.annotation.Configuration;
-import org.springframework.beans.factory.annotation.Value;
 import lombok.Getter;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Configuration;
 
 @Getter
 @Configuration
-public class ChannelsConfig {
-
-    @Value("${bot.channel.member-updates-channel.name}")
-    private String memberUpdatesChannel;
-
+public class SecretConfig {
+    @Value("${joke-api.secret.key}")
+    private String key;
 }

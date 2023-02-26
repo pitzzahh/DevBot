@@ -37,10 +37,6 @@ import java.util.Objects;
 @Service
 public record ChannelService(ChannelsConfig channelsConfig)  {
 
-    public String verifyChannelName() {
-        return channelsConfig.getVerifyChannelName();
-    }
-
     public String getMemberUpdatesChannel() {
         return channelsConfig.getMemberUpdatesChannel();
     }
