@@ -79,7 +79,7 @@ public record HelpChatCommand(
         if (COMMAND.isEmpty()) {
             messageUtilService.generateBotSentMessage(
                     context.getEvent(),
-                    Color.CYAN.brighter(),
+                    Color.YELLOW.brighter(),
                     format("No chat_command found for %s", chatCommandByName),
                     null,
                     LocalDateTime.now(ZoneId.of("UTC")),
