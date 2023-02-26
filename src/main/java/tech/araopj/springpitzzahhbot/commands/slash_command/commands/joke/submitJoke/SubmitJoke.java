@@ -39,13 +39,11 @@ import java.io.IOException;
 import java.net.URI;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
-import java.time.ZoneId;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 import lombok.extern.slf4j.Slf4j;
 import static java.awt.Color.CYAN;
 import static java.awt.Color.YELLOW;
-import static java.time.LocalDateTime.now;
 
 @Slf4j
 @Component
@@ -82,59 +80,53 @@ public record SubmitJoke(
                 context.getEvent().getOption("language")
         );
         log.info("Submit Joke body: {}", jokeSubmitBody);
-        final var REQUEST = httpConfig.httpBuilder()
+        final var httpRequest = httpConfig.httpBuilder()
                 .uri(URI.create(url))
                 .header("Content-Type", "application/json")
                 .POST(HttpRequest.BodyPublishers.ofString(jokeSubmitBody))
                 .build();
 
-        final HttpResponse<String> RESPONSE;
+        final HttpResponse<String> response;
 
         try {
-            RESPONSE = httpConfig.httpClient().send(REQUEST, HttpResponse.BodyHandlers.ofString());
-            log.info("Response from joke api: {}", RESPONSE.body());
+            response = httpConfig.httpClient().send(httpRequest, HttpResponse.BodyHandlers.ofString());
+            log.info("Response from joke api: {}", response.body());
         } catch (IOException | InterruptedException e) {
             log.error("Error while sending request to joke api", e);
             throw new RuntimeException(e);
         }
 
-        if (RESPONSE.statusCode() == 200) {
-            messageUtilService.getEmbedBuilder()
-                    .clear()
-                    .clearFields()
-                    .setColor(CYAN)
-                    .setTitle(RESPONSE.body())
-                    .setDescription("Your joke has been sent to the joke api. It will be reviewed and added to the joke api if it is good enough.")
-                    .setTimestamp(now(ZoneId.systemDefault()).plusMinutes(messageUtilService.getReplyDeletionDelayInMinutes()))
-                    .setFooter("This message will be automatically deleted on");
+        if (response.statusCode() == 200) {
+            messageUtilService.generateAutoDeleteMessage(
+                    context.event(),
+                    CYAN,
+                    response.body(),
+                    "Your joke has been sent to the joke api. It will be reviewed and added to the joke api if it is good enough."
+            );
             context.getEvent()
                     .getInteraction()
                     .replyEmbeds(messageUtilService.getEmbedBuilder().build())
                     .queue(m -> m.deleteOriginal().queueAfter(messageUtilService.getReplyDeletionDelayInMinutes(), MINUTES));
         }
-        else if(RESPONSE.statusCode() == 400) {
-            messageUtilService.getEmbedBuilder()
-                    .clear()
-                    .clearFields()
-                    .setColor(YELLOW)
-                    .setTitle("Failed to send joke to joke api")
-                    .setDescription("Your joke is already the same as another joke in the joke api. Please try again with a different joke.")
-                    .setTimestamp(now(ZoneId.systemDefault()).plusMinutes(messageUtilService.getReplyDeletionDelayInMinutes()))
-                    .setFooter("This message will be automatically deleted on");
+        else if(response.statusCode() == 400) {
+            messageUtilService.generateAutoDeleteMessage(
+                    context.event(),
+                    YELLOW,
+                    "Failed to send joke to joke api",
+                    "Your joke is already the same as another joke in the joke api. Please try again with a different joke."
+            );
             context.getEvent()
                     .getInteraction()
                     .replyEmbeds(messageUtilService.getEmbedBuilder().build())
                     .queue(m -> m.deleteOriginal().queueAfter(messageUtilService.getReplyDeletionDelayInMinutes(), MINUTES));
         }
         else {
-            messageUtilService.getEmbedBuilder()
-                    .clear()
-                    .clearFields()
-                    .setColor(YELLOW)
-                    .setTitle("Failed to send joke to joke api")
-                    .setDescription("I couldn't send your request at the moment😢.")
-                    .setTimestamp(now(ZoneId.systemDefault()).plusMinutes(messageUtilService.getReplyDeletionDelayInMinutes()))
-                    .setFooter("This message will be automatically deleted on");
+            messageUtilService.generateAutoDeleteMessage(
+                    context.event(),
+                    YELLOW,
+                    "Failed to send joke to joke api",
+                    "I couldn't send your request at the moment 😢."
+            );
             context.getEvent()
                     .getInteraction()
                     .replyEmbeds(messageUtilService.getEmbedBuilder().build())
