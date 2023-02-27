@@ -119,12 +119,6 @@ public record ApproveJoke(
             }
 
         }
-        messageUtilService.generateAutoDeleteMessage(
-                context.event(),
-                YELLOW,
-                "Testing",
-                String.format("Is user %s an admin? and can manage this server?: %s", context.getMember().getAsMention(), isAdmin)
-        );
         context.getEvent()
                 .getInteraction()
                 .replyEmbeds(messageUtilService.getEmbedBuilder().build())
