@@ -24,6 +24,7 @@
 
 package tech.araopj.springpitzzahhbot.commands.slash_command.commands.joke.approveJoke;
 
+import io.github.pitzzahh.util.utilities.validation.Validator;
 import tech.araopj.springpitzzahhbot.commands.slash_command.commands.joke.service.JokesService;
 import tech.araopj.springpitzzahhbot.commands.slash_command.CommandContext;
 import tech.araopj.springpitzzahhbot.utilities.service.MessageUtilService;
@@ -78,6 +79,21 @@ public record ApproveJoke(
             OptionMapping idOption = context.getEvent().getOption("joke-id");
             if (idOption != null) {
                 log.info("Joke id: {}", idOption.getAsString());
+                boolean isNotWholeNumber = Validator.isWholeNumber().negate().test(idOption.getAsString());
+                if (isNotWholeNumber) {
+                    log.info("Joke id must be a whole number: {}", idOption.getAsString());
+                    messageUtilService.generateAutoDeleteMessage(
+                            context.event(),
+                            YELLOW,
+                            "Testing",
+                            String.format("Joke id must be a whole number: %s", idOption.getAsString())
+                    );
+                    context.getEvent()
+                            .getInteraction()
+                            .replyEmbeds(messageUtilService.getEmbedBuilder().build())
+                            .queue(m -> m.deleteOriginal().queueAfter(messageUtilService.getReplyDeletionDelayInMinutes(), TimeUnit.MINUTES));
+                    throw new IllegalArgumentException("Joke id must be a whole number");
+                }
                 boolean noJokeWithId = jokesService.getSubmittedJokes()
                         .stream()
                         .noneMatch(j -> j.id() == Integer.parseInt(idOption.getAsString()));
