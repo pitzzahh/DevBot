@@ -24,7 +24,6 @@
 
 package tech.araopj.springpitzzahhbot.commands.slash_command.commands.joke.approveJoke;
 
-import io.github.pitzzahh.util.utilities.validation.Validator;
 import tech.araopj.springpitzzahhbot.commands.slash_command.commands.joke.service.JokesService;
 import tech.araopj.springpitzzahhbot.commands.slash_command.CommandContext;
 import tech.araopj.springpitzzahhbot.utilities.service.MessageUtilService;
@@ -32,6 +31,7 @@ import tech.araopj.springpitzzahhbot.commands.slash_command.SlashCommand;
 import net.dv8tion.jda.api.interactions.commands.build.CommandData;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
+import io.github.pitzzahh.util.utilities.validation.Validator;
 import net.dv8tion.jda.internal.interactions.CommandDataImpl;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import org.springframework.stereotype.Component;
