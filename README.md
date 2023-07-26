@@ -6,9 +6,8 @@
 <h3 align="center">A Discord Bot made using Java Discord API</h3>
 </div>
 
-___
-This Discord bot is built using Java Discord API with Spring framework integration. It contains several features, including:
-___
+---
+
 ![GitHub Issues](https://img.shields.io/github/issues/pitzzahh/pitzzahh-bot)
 ![Forks](https://img.shields.io/github/forks/pitzzahh/pitzzahh-bot)
 ![Stars](https://img.shields.io/github/stars/pitzzahh/pitzzahh-bot)
@@ -22,35 +21,66 @@ ___
 ![Languages count](https://img.shields.io/github/languages/count/pitzzahh/pitzzahh-bot)
 ![Repo size](https://img.shields.io/github/repo-size/pitzzahh/pitzzahh-bot)
 ![Lines of code](https://img.shields.io/tokei/lines/github/pitzzahh/pitzzahh-bot?label=lines%20of%20code)
-___
 
-- User Verification: This feature allows users to verify their account before joining the server, ensuring that only authorized users can access the server.
+---
 
-- Random Math Problem Game: This feature allows users to play a math game where the bot generates random math problems for them to solve.
+A discord bot for you to use in your personal servers or a community.
+This Discord bot is built using [Java Discord API (JDA)](https://jda.wiki/) with [Spring](https://spring.io/) framework integration. It contains several features, including:
 
-- Message Checker: This feature checks if a message of a user contains vulgar words and filters them out or deletes the message.
+- **User Verification**: Ensure that only authorized users access the server by allowing them to verify their accounts.
+- **Random Math Problem Game**: Take a quick break and solve some math problems.
+- **Message Checker**: Ensure a safe environment for you and your friends or community by filtering vurlgar words.
+- **Slash Commands**: This bot also includes several slash commands, see all the [list of commands](#features) available.
 
-- Slash Commands: This bot also includes several slash commands, including a joke command.
+> 📘 Please take note
+>
+> You can invite the bot using this [link](https://discord.com/api/oauth2/authorize?client_id=1077238079083008051&permissions=8&scope=applications.commands%20bot). Feel free to make the necessary changes that suits you and your community's needs.
 
-## Installation
+## Setting up the bot
 
-To install and run the bot, follow these steps:
+### Pre-requisites
+
+Before the bot can run, ensure that you have all the boxes checked in the requirements.
+
+- [x] A bot token generated from the [Discord Developer Portal](https://discord.com/developers/applications) site with Administrative privileges.
+- [x] [Git](https://git-scm.com/) must be installed in your system.
+- [x] [Java JDK](https://www.oracle.com/java/technologies/javase/jdk17-archive-downloads.html) Version 17+ is required.
+- [x] An IDE such as [IntelliJ IDEA](https://www.jetbrains.com/idea/) or a Code Editor like [VS Code](https://code.visualstudio.com/) must be installed.
+
+### Running the bot
 
 1. Clone this repository to your local machine.
-2. Open the project in your IDE.
-3. Run the bot.
+2. Open the project in your IDE or code editor.
+3. Open the `application.yml.examlple` file located in `src/main/java/resources/`.
+4. Remove the `.example` extension the `application.yml.example` file.
+5. Copy your bot token and paste it in the token section.
+6. Run the app.
 
-## Usage
+### Contributing to the project
 
-To use the bot, follow these steps:
+1. Follow the instruction in section [Running the bot](#running-the-bot).
+2. Make the necessary changes such as but not limited to:
+    - Fixing bugs/errors.
+    - Adding new features.
+    - Optimize code.
+    - Testing and reporting issues/errors
+3. Open a pull request or an issue.
 
-1. Join the server where the bot is installed.
-2. Type the command prefix followed by the command you want to use.
-3. Follow the instructions provided by the bot.
+## Features
+
+Here are some list of commands available to use.
+
+| Command         | Description                                                                |
+| --------------- | -------------------------------------------------------------------------- |
+| `/play`         | Play a game from the choices available and select its level of difficulty. |
+| `/joke`         | Get a random joke to enlighten your day.                                   |
+| `/confess`      | Confess something, may it be romantically or more general.                 |
+| `/submit-joke`  | Submit a joke to the bot (Will be approved by authorized users).           |
+| `/approve-joke` | Approve a submitted joke to the bot (Only authorized).                     |
 
 ## Credits
 
-This bot was created by Peter John Arao.
+This bot was created by [Peter John Arao](https://github.com/pitzzahh).
 
 ## License
 
