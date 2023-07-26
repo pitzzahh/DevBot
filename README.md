@@ -7,7 +7,7 @@
 </div>
 
 ___
-My Discord bot is built using Java Discord API with Spring framework integration. It contains several features, including:
+This Discord bot is built using Java Discord API with Spring framework integration. It contains several features, including:
 ___
 ![GitHub Issues](https://img.shields.io/github/issues/pitzzahh/pitzzahh-bot)
 ![Forks](https://img.shields.io/github/forks/pitzzahh/pitzzahh-bot)
