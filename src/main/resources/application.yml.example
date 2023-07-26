@@ -1,30 +1,26 @@
 bot:
-  name: pitzzahh-bot
-  version: 1.0.0
-  token: <your bot token>
+  name: "DevBot"
+  token: "<your-discord-bot-token>"
+  category:
+    create-confessions-category: "confessions"
+    member-updates-category: "member-updates"
+    welcome-category: "information"
   channel:
-    verification:
-      name: verify
-    member-updates-channel:
-      name: member-updates
     confessions:
       enter-confession-channel:
-        name: enter-confession-here
+        name: "enter-confession-here"
       sent-confessions-channel:
-        name: confessions
+        name: "confessions"
+    member-updates-channel:
+      name: "member-updates"
   commands:
-    verification:
-      verify-command: $verify
     confessions:
-      confess-command: $confessions
-      message-deletion-delay-in-minutes: 1 # must be a whole positive number above 0
+      confess-command: "$confessions"
     member-updates:
-      member-updates-command: $member-updates
-    prefix: ;
-  category:
-    welcome-category: information
-    member-updates-category: member-updates
-    create-confessions-category: confessions
+      member-updates-command: "$member-updates"
+    prefix: ";"
+    rules: "$rules"
   moderation:
-    reply-deletion-delay-in-minutes: 1 # must be a whole positive number above 0
-    message-deletion-delay-in-seconds: 10 # must be a whole positive number above 0
+    message-deletion-delay-in-seconds: "10"
+    reply-deletion-delay-in-minutes: "1"
+  version: "1.0.0"
