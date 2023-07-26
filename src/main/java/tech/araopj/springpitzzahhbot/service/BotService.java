@@ -78,7 +78,7 @@ public record BotService(
                 .enableIntents(GatewayIntent.GUILD_MESSAGE_REACTIONS)
                 .enableIntents(GatewayIntent.DIRECT_MESSAGES)
                 .enableIntents(GatewayIntent.DIRECT_MESSAGE_REACTIONS)
-                .setActivity(Activity.listening("your messages 📩"));
+                .setActivity(Activity.listening("maintenance ⛑️"));
 
         try {
             messageCheckerService.loadSwearWords();

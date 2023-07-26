@@ -27,6 +27,7 @@ import static io.github.pitzzahh.util.utilities.validation.Validator.isDecimalNu
 import static io.github.pitzzahh.util.utilities.validation.Validator.isWholeNumber;
 import static java.util.concurrent.TimeUnit.MINUTES;
 import static java.util.concurrent.TimeUnit.SECONDS;
+
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.dv8tion.jda.api.Permission;
@@ -45,9 +46,11 @@ import tech.araopj.springpitzzahhbot.commands.slash_command.commands.game.servic
 import tech.araopj.springpitzzahhbot.config.moderation.service.MessageCheckerService;
 import tech.araopj.springpitzzahhbot.config.moderation.service.ViolationService;
 import tech.araopj.springpitzzahhbot.utilities.service.MessageUtilService;
+
 import java.time.ZoneId;
 import java.util.EnumSet;
 import java.util.Objects;
+
 import static java.awt.Color.*;
 import static java.lang.String.format;
 import static java.time.LocalDateTime.now;
@@ -81,21 +84,27 @@ public class MessageListener extends ListenerAdapter { // TODO: Decouple code
             log.info("Commands started with: {}", PREFIX);
             chatCommandManager.handle(event);
         } else {
-            if(MESSAGE.equals(commandsService.getRulesCommand()) && Objects.requireNonNull(event.getMember()).isOwner()) {
+            final var isAdmin = Objects.requireNonNull(event.getGuild(), "Cannot find admin role")
+                    .getRolesByName("Admin", true)
+                    .stream()
+                    .findAny()
+                    .orElseThrow(() -> new IllegalStateException("Cannot find verified role"));
+
+            if (MESSAGE.equals(commandsService.getRulesCommand()) && (Objects.requireNonNull(event.getMember()).isOwner() || event.getMember().getRoles().contains(isAdmin))) {
                 log.info("ChatCommand received: {}", MESSAGE);
                 messageUtilService.generateRulesMessage(event);
-                messageUtilService.generateAutoDeleteMessage(
-                        event,
-                        BLUE,
-                        "Rules",
-                        format("Rules sent %s", channelService
-                                .getChannelByName(event, "rules")
-                                .map(TextChannel::getAsMention)
-                                .orElse("general"))
-                );
-                event.getMessage()
-                        .replyEmbeds(messageUtilService.getEmbedBuilder().build())
-                        .queue(s -> s.delete().queueAfter(messageUtilService.getReplyDeletionDelayInMinutes(), MINUTES));
+
+                var rules = event.getGuild().getTextChannels()
+                        .stream()
+                        .anyMatch(tc -> tc.getName().equalsIgnoreCase("rules"));
+
+                if (!rules) {
+                    event.getGuild().createTextChannel("rules")
+                            .setTopic("Rules and verification")
+                            .queue(message -> sendVerificationMessage(event));
+                }
+
+                sendVerificationMessage(event);
             } else {
                 var sentSecretChannel = confessionService.sentSecretChannelName();
                 if (MESSAGE.equals(commandsService.getConfessCommand()) && Objects.requireNonNull(event.getMember()).isOwner()) {
@@ -207,5 +216,20 @@ public class MessageListener extends ListenerAdapter { // TODO: Decouple code
                 }
             }
         }
+    }
+
+    private void sendVerificationMessage(@NotNull MessageReceivedEvent event) {
+        messageUtilService.generateAutoDeleteMessage(
+                event,
+                BLUE,
+                "Rules",
+                format("Rules sent %s", channelService
+                        .getChannelByName(event, "rules")
+                        .map(TextChannel::getAsMention)
+                        .orElse("general"))
+        );
+        event.getMessage()
+                .replyEmbeds(messageUtilService.getEmbedBuilder().build())
+                .queue(s -> s.delete().queueAfter(messageUtilService.getReplyDeletionDelayInMinutes(), MINUTES));
     }
 }

@@ -29,7 +29,9 @@ import tech.araopj.springpitzzahhbot.commands.chat_command.CommandContext;
 import tech.araopj.springpitzzahhbot.commands.chat_command.ChatCommand;
 import tech.araopj.springpitzzahhbot.commands.service.CommandsService;
 import org.springframework.stereotype.Component;
+
 import static java.lang.String.format;
+
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 import java.time.LocalDateTime;
@@ -42,7 +44,7 @@ public record HelpChatCommand(
         MessageUtilService messageUtilService,
         CommandsService commandsService,
         ChatCommandManager chatCommandManager
-        ) implements ChatCommand {
+) implements ChatCommand {
     /**
      * Contains the process to be handled.
      *
@@ -56,21 +58,17 @@ public record HelpChatCommand(
         if (contextArgs.isEmpty()) {
             messageUtilService.generateBotSentMessage(
                     context.getEvent(),
-                    Color.BLUE,
-                    "List of Commands",
-                    null,
+                    Color.YELLOW,
+                    "List of Chat Commands",
+                    "List of available chat commands (slash commands are also available)",
                     LocalDateTime.now(ZoneId.of("UTC")),
                     format("Created by %s", context.getGuild().getJDA().getSelfUser().getAsTag())
             );
-            commandsService
-                    .chatCommands()
-                    .forEach(
-                            chatCommand -> messageUtilService
-                                    .getEmbedBuilder()
-                                    .clear()
-                                    .clearFields()
-                                    .addField(commandsService.getPrefix().concat(chatCommand.name().get()), chatCommand.description().get(), true)
-                    );
+            for (ChatCommand chatCommand : commandsService.chatCommands()) {
+                messageUtilService
+                        .getEmbedBuilder()
+                        .addField(commandsService.getPrefix().concat(chatCommand.name().get()), chatCommand.description().get(), true);
+            }
             channel.sendMessageEmbeds(messageUtilService.getEmbedBuilder().build()).queue();
             return;
         }
@@ -85,8 +83,7 @@ public record HelpChatCommand(
                     LocalDateTime.now(ZoneId.of("UTC")),
                     format("Created by %s", context.getGuild().getJDA().getSelfUser().getAsTag())
             );
-        }
-        else {
+        } else {
             messageUtilService.generateBotSentMessage(
                     context.getEvent(),
                     Color.CYAN.brighter(),
@@ -128,7 +125,7 @@ public record HelpChatCommand(
     @Override
     public Supplier<String> description() {
         return () -> "Shows the list of commands in the bot\n" +
-                     "Usage: ".concat(commandsService.getPrefix()).concat("help [chat_command]");
+                "Usage: ".concat(commandsService.getPrefix()).concat("help [chat_command]");
     }
 
     /**
