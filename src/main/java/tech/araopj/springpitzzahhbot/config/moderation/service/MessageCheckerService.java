@@ -25,10 +25,10 @@ package tech.araopj.springpitzzahhbot.config.moderation.service;
 
 import tech.araopj.springpitzzahhbot.config.moderation.ModerationConfig;
 import org.springframework.stereotype.Service;
+import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import com.google.common.io.Resources;
 import java.io.IOException;
-import java.net.URL;
 
 @Service
 public record MessageCheckerService(ModerationConfig moderationConfig) {
@@ -46,8 +46,8 @@ public record MessageCheckerService(ModerationConfig moderationConfig) {
      * @throws IOException if the list is not present.
      */
     public void loadSwearWords() throws IOException {
-        final var URL = new URL("https://raw.githubusercontent.com/pitzzahh/list-of-bad-words/main/list.txt");
-        moderationConfig.warnings().addAll(Resources.readLines(URL, StandardCharsets.UTF_8));
+        final var URL = URI.create("https://raw.githubusercontent.com/pitzzahh/list-of-bad-words/main/list.txt");
+        moderationConfig.warnings().addAll(Resources.readLines(URL.toURL(), StandardCharsets.UTF_8));
     }
 
 }
