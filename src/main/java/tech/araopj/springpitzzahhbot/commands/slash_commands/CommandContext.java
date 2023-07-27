@@ -22,43 +22,30 @@
  * SOFTWARE.
  */
 
-package tech.araopj.springpitzzahhbot.commands;
+package tech.araopj.springpitzzahhbot.commands.slash_commands;
 
-import tech.araopj.springpitzzahhbot.commands.slash_commands.SlashCommand;
-import tech.araopj.springpitzzahhbot.commands.chat_commands.ChatCommand;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.Bean;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import lombok.Getter;
+import net.dv8tion.jda.api.entities.Guild;
+import net.dv8tion.jda.api.entities.Member;
+import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
+import org.jetbrains.annotations.Contract;
 
-@Getter
-@Configuration
-public class CommandsConfig {
+public record CommandContext(SlashCommandInteractionEvent event) implements SlashCommandContext {
 
-    @Value("${bot.commands.confessions.confess-command}")
-    private String confessCommand;
-
-    @Value("${bot.commands.member-updates.member-updates-command}")
-    private String memberUpdatesCommand;
-
-    @Value("${bot.commands.prefix}")
-    private String prefix;
-
-    @Value("${bot.commands.rules}")
-    private String rulesCommand;
-
-    @Bean
-    public List<ChatCommand> getChatCommands() {
-        return new ArrayList<>();
+    @Override
+    @Contract(pure = true)
+    public Guild getGuild() {
+        return this.event().getGuild();
     }
 
-    @Bean
-    public Map<String, SlashCommand> getSlashCommands() {
-        return new HashMap<>();
+    @Override
+    @Contract(pure = true)
+    public Member getMember() {
+        return this.event().getMember();
     }
 
+    @Override
+    @Contract(pure = true)
+    public SlashCommandInteractionEvent getEvent() {
+        return this.event();
+    }
 }

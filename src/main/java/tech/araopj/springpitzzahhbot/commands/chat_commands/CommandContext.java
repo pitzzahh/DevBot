@@ -21,44 +21,34 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
+package tech.araopj.springpitzzahhbot.commands.chat_commands;
 
-package tech.araopj.springpitzzahhbot.commands;
-
-import tech.araopj.springpitzzahhbot.commands.slash_commands.SlashCommand;
-import tech.araopj.springpitzzahhbot.commands.chat_commands.ChatCommand;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.Bean;
-import java.util.ArrayList;
-import java.util.HashMap;
+import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
+import net.dv8tion.jda.api.entities.Guild;
+import org.jetbrains.annotations.Contract;
+import org.jetbrains.annotations.NotNull;
 import java.util.List;
-import java.util.Map;
-import lombok.Getter;
 
-@Getter
-@Configuration
-public class CommandsConfig {
+public record CommandContext(MessageReceivedEvent event, List<String> args) implements ChatCommandContext {
 
-    @Value("${bot.commands.confessions.confess-command}")
-    private String confessCommand;
-
-    @Value("${bot.commands.member-updates.member-updates-command}")
-    private String memberUpdatesCommand;
-
-    @Value("${bot.commands.prefix}")
-    private String prefix;
-
-    @Value("${bot.commands.rules}")
-    private String rulesCommand;
-
-    @Bean
-    public List<ChatCommand> getChatCommands() {
-        return new ArrayList<>();
+    @Override
+    @NotNull
+    @Contract(pure = true)
+    public Guild getGuild() {
+        return this.event().getGuild();
     }
 
-    @Bean
-    public Map<String, SlashCommand> getSlashCommands() {
-        return new HashMap<>();
+    @Override
+    @NotNull
+    @Contract(pure = true)
+    public MessageReceivedEvent getEvent() {
+        return this.event();
+    }
+
+    @Override
+    @Contract(pure = true)
+    public List<String> getArgs() {
+        return this.args();
     }
 
 }

@@ -21,44 +21,33 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
+package tech.araopj.springpitzzahhbot.configs;
 
-package tech.araopj.springpitzzahhbot.commands;
-
-import tech.araopj.springpitzzahhbot.commands.slash_commands.SlashCommand;
-import tech.araopj.springpitzzahhbot.commands.chat_commands.ChatCommand;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import net.dv8tion.jda.api.MessageBuilder;
+import net.dv8tion.jda.api.EmbedBuilder;
 import lombok.Getter;
 
 @Getter
 @Configuration
-public class CommandsConfig {
+public class MessageUtilConfig {
 
-    @Value("${bot.commands.confessions.confess-command}")
-    private String confessCommand;
+    @Value("${bot.moderation.reply-deletion-delay-in-minutes}")
+    public int replyDeletionDelayInMinutes;
 
-    @Value("${bot.commands.member-updates.member-updates-command}")
-    private String memberUpdatesCommand;
-
-    @Value("${bot.commands.prefix}")
-    private String prefix;
-
-    @Value("${bot.commands.rules}")
-    private String rulesCommand;
+    @Value("${bot.moderation.message-deletion-delay-in-seconds}")
+    public int messageDeletionDelayInSeconds;
 
     @Bean
-    public List<ChatCommand> getChatCommands() {
-        return new ArrayList<>();
+    public EmbedBuilder getEmbedBuilder() {
+        return new EmbedBuilder();
     }
 
     @Bean
-    public Map<String, SlashCommand> getSlashCommands() {
-        return new HashMap<>();
+    public MessageBuilder getMessageBuilder() {
+        return new MessageBuilder();
     }
 
 }

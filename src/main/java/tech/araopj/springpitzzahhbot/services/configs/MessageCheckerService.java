@@ -21,44 +21,33 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
+package tech.araopj.springpitzzahhbot.services.configs;
 
-package tech.araopj.springpitzzahhbot.commands;
+import tech.araopj.springpitzzahhbot.configs.ModerationConfig;
+import org.springframework.stereotype.Service;
+import java.net.URI;
+import java.nio.charset.StandardCharsets;
+import com.google.common.io.Resources;
+import java.io.IOException;
 
-import tech.araopj.springpitzzahhbot.commands.slash_commands.SlashCommand;
-import tech.araopj.springpitzzahhbot.commands.chat_commands.ChatCommand;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.Bean;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import lombok.Getter;
+@Service
+public record MessageCheckerService(ModerationConfig moderationConfig) {
 
-@Getter
-@Configuration
-public class CommandsConfig {
-
-    @Value("${bot.commands.confessions.confess-command}")
-    private String confessCommand;
-
-    @Value("${bot.commands.member-updates.member-updates-command}")
-    private String memberUpdatesCommand;
-
-    @Value("${bot.commands.prefix}")
-    private String prefix;
-
-    @Value("${bot.commands.rules}")
-    private String rulesCommand;
-
-    @Bean
-    public List<ChatCommand> getChatCommands() {
-        return new ArrayList<>();
+    public boolean searchForBadWord(String rawMessage) {
+        return moderationConfig.warnings()
+                .stream()
+                .filter(rawMessage::contains)
+                .anyMatch(rawMessage::equalsIgnoreCase);
     }
 
-    @Bean
-    public Map<String, SlashCommand> getSlashCommands() {
-        return new HashMap<>();
+    /**
+     * Loads the swear words from a list from a GitHub repository and adds the csv file to a
+     * {@code List<String>}.
+     * @throws IOException if the list is not present.
+     */
+    public void loadSwearWords() throws IOException {
+        final var URL = URI.create("https://raw.githubusercontent.com/pitzzahh/list-of-bad-words/main/list.txt");
+        moderationConfig.warnings().addAll(Resources.readLines(URL.toURL(), StandardCharsets.UTF_8));
     }
 
 }

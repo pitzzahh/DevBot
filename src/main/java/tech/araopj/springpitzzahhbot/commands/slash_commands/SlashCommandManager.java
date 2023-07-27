@@ -22,43 +22,56 @@
  * SOFTWARE.
  */
 
-package tech.araopj.springpitzzahhbot.listeners;
+package tech.araopj.springpitzzahhbot.commands.slash_commands;
 
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
-import tech.araopj.springpitzzahhbot.commands.slash_commands.SlashCommandManager;
-import tech.araopj.springpitzzahhbot.commands.slash_commands.SlashCommand;
+import tech.araopj.springpitzzahhbot.exceptions.CommandAlreadyExistException;
 import tech.araopj.springpitzzahhbot.services.CommandsService;
-import net.dv8tion.jda.api.events.guild.GuildReadyEvent;
-import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import org.springframework.stereotype.Component;
 import org.springframework.lang.NonNull;
 import java.util.function.Supplier;
-import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import java.util.Objects;
 
+@Slf4j
 @Component
-@AllArgsConstructor
-public class SlashCommandListener extends ListenerAdapter {
+public record SlashCommandManager(CommandsService commandsService) {
 
-    private final SlashCommandManager slashCommandManager;
-    private final CommandsService commandsService;
-
-    @Override
-    public void onSlashCommandInteraction(@NonNull SlashCommandInteractionEvent event) {
-        slashCommandManager.handle(event);
+    public void addCommand(@NonNull SlashCommand slashCommand) {
+        var found = commandsService
+                .slashCommands()
+                .values()
+                .stream()
+                .anyMatch(c -> c.name().get().equalsIgnoreCase(slashCommand.name().get()));
+        if (found) throw new CommandAlreadyExistException("A Command With this name is already present!");
+        commandsService
+                .slashCommands().put(slashCommand.name().get(), slashCommand);
     }
 
-    @Override
-    public void onGuildReady(@NonNull GuildReadyEvent event) {
-        final var COMMANDS = commandsService.slashCommands();
-        var guild = event.getGuild();
-        var COM = COMMANDS.values()
+    public void handle(@NonNull SlashCommandInteractionEvent event) {
+        var commandName = event.getName();
+        var COMMAND_CONTEXT = new CommandContext(event);
+        if (commandsService.slashCommands().containsKey(commandName)) {
+            commandsService
+                    .slashCommands()
+                    .get(commandName)
+                    .execute()
+                    .accept(COMMAND_CONTEXT);
+        }
+        var commandData = commandsService
+                .slashCommands()
+                .values()
                 .stream()
                 .map(SlashCommand::getCommandData)
                 .map(Supplier::get)
                 .toList();
-
-        guild.getJDA().updateCommands()
-                .addCommands(COM)
-                .queue();
+        if (!commandData.isEmpty()) {
+            Objects.requireNonNull(
+                    event.getGuild()
+            ).updateCommands()
+                    .addCommands(commandData)
+                    .queue();
+        }
     }
+
 }

@@ -22,43 +22,43 @@
  * SOFTWARE.
  */
 
-package tech.araopj.springpitzzahhbot.commands;
+package tech.araopj.springpitzzahhbot.commands.slash_commands;
 
-import tech.araopj.springpitzzahhbot.commands.slash_commands.SlashCommand;
-import tech.araopj.springpitzzahhbot.commands.chat_commands.ChatCommand;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.Bean;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import lombok.Getter;
+import net.dv8tion.jda.api.interactions.commands.build.CommandData;
+import net.dv8tion.jda.internal.interactions.CommandDataImpl;
+import java.util.function.Consumer;
+import java.util.function.Supplier;
 
-@Getter
-@Configuration
-public class CommandsConfig {
+public interface SlashCommand {
 
-    @Value("${bot.commands.confessions.confess-command}")
-    private String confessCommand;
+    /**
+     * Executes a {@code SlashCommand}
+     * @return nothing.
+     * @see Consumer
+     */
+    Consumer<CommandContext> execute();
 
-    @Value("${bot.commands.member-updates.member-updates-command}")
-    private String memberUpdatesCommand;
+    /**
+     * Supplies the name of the slash command.
+     * @return a {@code Supplier<String>}.
+     * @see Supplier
+     */
+    Supplier<String> name();
 
-    @Value("${bot.commands.prefix}")
-    private String prefix;
-
-    @Value("${bot.commands.rules}")
-    private String rulesCommand;
-
-    @Bean
-    public List<ChatCommand> getChatCommands() {
-        return new ArrayList<>();
+    /**
+     * Supplies the command data of a slash command.
+     * @return a {@code Supplier<CommandData>}.
+     * @see Supplier
+     * @see CommandData
+     */
+    default Supplier<CommandData> getCommandData() {
+        return () -> new CommandDataImpl(name().get(), description().get());
     }
 
-    @Bean
-    public Map<String, SlashCommand> getSlashCommands() {
-        return new HashMap<>();
-    }
-
+    /**
+     * Supplies the description of a slash command.
+     * @return a {code Supplier<String>} containing the description of the command.
+     * @see Supplier
+     */
+    Supplier<String> description();
 }

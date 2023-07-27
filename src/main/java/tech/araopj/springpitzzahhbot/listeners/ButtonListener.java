@@ -24,7 +24,7 @@
 package tech.araopj.springpitzzahhbot.listeners;
 
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
-import tech.araopj.springpitzzahhbot.utilities.service.MessageUtilService;
+import tech.araopj.springpitzzahhbot.services.MessageUtilService;
 import org.springframework.beans.factory.annotation.Autowired;
 import static java.util.concurrent.TimeUnit.MINUTES;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;

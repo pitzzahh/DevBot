@@ -21,44 +21,41 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
+package tech.araopj.springpitzzahhbot.commands.chat_commands;
 
-package tech.araopj.springpitzzahhbot.commands;
-
-import tech.araopj.springpitzzahhbot.commands.slash_commands.SlashCommand;
-import tech.araopj.springpitzzahhbot.commands.chat_commands.ChatCommand;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.Bean;
-import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.function.Consumer;
+import java.util.function.Supplier;
 import java.util.List;
-import java.util.Map;
-import lombok.Getter;
 
-@Getter
-@Configuration
-public class CommandsConfig {
+/**
+ * Interface used to handle commands.
+ */
+public interface ChatCommand {
 
-    @Value("${bot.commands.confessions.confess-command}")
-    private String confessCommand;
+    /**
+     * Handles the chat_command.
+     * Accepts a {@code CommandContext}.
+     * @see CommandContext
+     */
+    Consumer<CommandContext> handle();
 
-    @Value("${bot.commands.member-updates.member-updates-command}")
-    private String memberUpdatesCommand;
+    /**
+     * The name of the chat_command.
+     * Supplies the name of the chat_command.
+     */
+    Supplier<String> name();
 
-    @Value("${bot.commands.prefix}")
-    private String prefix;
-
-    @Value("${bot.commands.rules}")
-    private String rulesCommand;
-
-    @Bean
-    public List<ChatCommand> getChatCommands() {
-        return new ArrayList<>();
-    }
-
-    @Bean
-    public Map<String, SlashCommand> getSlashCommands() {
-        return new HashMap<>();
+    /**
+     * The description of the chat_command.
+     * Supplies the description of the chat_command.
+     */
+    Supplier<String> description();
+    /**
+     * The possible aliases for a chat_command.
+     * @return a {@code List<String>} containing the aliases of a chat_command.
+     */
+    default Supplier<List<String>> aliases() {
+        return List::of;
     }
 
 }
