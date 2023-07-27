@@ -32,6 +32,7 @@ import org.springframework.stereotype.Component;
 import java.awt.*;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 import lombok.extern.slf4j.Slf4j;
@@ -69,8 +70,10 @@ public record ViewSubmittedJokes(
                         .getEmbedBuilder()
                         .addField(String.valueOf(joke.id()), joke.joke(), true));
         context.getEvent()
-                .getChannel()
-                .sendMessageEmbeds(messageUtilService.getEmbedBuilder().build()).queue(); // weyt..
+                .getInteraction()
+                .replyEmbeds(messageUtilService.getEmbedBuilder().build())
+                .setEphemeral(true)
+                .queue(m -> m.deleteOriginal().queueAfter(messageUtilService.getReplyDeletionDelayInMinutes(), TimeUnit.MINUTES));
     }
 
     /**
