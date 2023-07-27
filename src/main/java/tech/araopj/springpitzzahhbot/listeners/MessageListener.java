@@ -39,6 +39,7 @@ import org.springframework.stereotype.Component;
 import tech.araopj.springpitzzahhbot.commands.chat_commands.ChatCommandManager;
 import tech.araopj.springpitzzahhbot.services.CommandsService;
 import tech.araopj.springpitzzahhbot.commands.slash_commands.commands.Confession;
+import tech.araopj.springpitzzahhbot.services.RoleService;
 import tech.araopj.springpitzzahhbot.services.slash_commands.ConfessionService;
 import tech.araopj.springpitzzahhbot.services.configs.CategoryService;
 import tech.araopj.springpitzzahhbot.services.configs.ChannelService;
@@ -72,6 +73,7 @@ public class MessageListener extends ListenerAdapter { // TODO: Decouple code
     private final CategoryService categoryService;
     private final ChannelService channelService;
     private final GameService gameService;
+    private final RoleService roleService;
     private final Confession confession;
 
     @Override
@@ -84,13 +86,9 @@ public class MessageListener extends ListenerAdapter { // TODO: Decouple code
             log.info("Commands started with: {}", PREFIX);
             chatCommandManager.handle(event);
         } else {
-            final var isAdmin = Objects.requireNonNull(event.getGuild(), "Cannot find admin role")
-                    .getRolesByName("Admin", true)
-                    .stream()
-                    .findAny()
-                    .orElseThrow(() -> new IllegalStateException("Cannot find verified role"));
+            final var adminRole = roleService.getRoleOrElseThrow(event.getGuild(), "Cannot find admin role", "Admin", true);
 
-            if (MESSAGE.equals(commandsService.getRulesCommand()) && (Objects.requireNonNull(event.getMember()).isOwner() || event.getMember().getRoles().contains(isAdmin))) {
+            if (MESSAGE.equals(commandsService.getRulesCommand()) && (Objects.requireNonNull(event.getMember()).isOwner() || event.getMember().getRoles().contains(adminRole))) {
                 log.info("ChatCommand received: {}", MESSAGE);
                 messageUtilService.generateRulesMessage(event);
 
@@ -107,12 +105,8 @@ public class MessageListener extends ListenerAdapter { // TODO: Decouple code
                 sendVerificationMessage(event);
             } else {
                 var sentSecretChannel = confessionService.sentSecretChannelName();
-                if (MESSAGE.equals(commandsService.getConfessCommand()) && Objects.requireNonNull(event.getMember()).isOwner()) {
-                    final var verifiedRole = Objects.requireNonNull(event.getGuild(), "Cannot find verified role")
-                            .getRolesByName("verified", false)
-                            .stream()
-                            .findAny()
-                            .orElseThrow(() -> new IllegalStateException("Cannot find verified role"));
+                if (MESSAGE.equals(commandsService.getConfessCommand()) && (Objects.requireNonNull(event.getMember()).isOwner() || event.getMember().getRoles().contains(adminRole))) {
+                    final var verifiedRole = roleService.getRoleOrElseThrow(event.getGuild(), "Cannot find verified role", "verified", false);
                     event.getGuild()
                             .createCategory(categoryService.secretsCategoryName())
                             .queue(
