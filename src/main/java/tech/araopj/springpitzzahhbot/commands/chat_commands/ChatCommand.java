@@ -21,15 +21,41 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package tech.araopj.springpitzzahhbot.commands.chat_command;
+package tech.araopj.springpitzzahhbot.commands.chat_commands;
 
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
-import net.dv8tion.jda.api.entities.Guild;
+import java.util.function.Consumer;
+import java.util.function.Supplier;
 import java.util.List;
 
-public interface ChatCommandContext {
-    Guild getGuild();
-    MessageReceivedEvent getEvent();
+/**
+ * Interface used to handle commands.
+ */
+public interface ChatCommand {
 
-    List<String> getArgs();
+    /**
+     * Handles the chat_command.
+     * Accepts a {@code CommandContext}.
+     * @see CommandContext
+     */
+    Consumer<CommandContext> handle();
+
+    /**
+     * The name of the chat_command.
+     * Supplies the name of the chat_command.
+     */
+    Supplier<String> name();
+
+    /**
+     * The description of the chat_command.
+     * Supplies the description of the chat_command.
+     */
+    Supplier<String> description();
+    /**
+     * The possible aliases for a chat_command.
+     * @return a {@code List<String>} containing the aliases of a chat_command.
+     */
+    default Supplier<List<String>> aliases() {
+        return List::of;
+    }
+
 }

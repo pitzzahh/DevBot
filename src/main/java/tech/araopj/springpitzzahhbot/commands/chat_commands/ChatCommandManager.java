@@ -21,7 +21,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package tech.araopj.springpitzzahhbot.commands.chat_command;
+package tech.araopj.springpitzzahhbot.commands.chat_commands;
 
 import tech.araopj.springpitzzahhbot.exceptions.CommandAlreadyExistException;
 import tech.araopj.springpitzzahhbot.services.CommandsService;

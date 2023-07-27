@@ -24,8 +24,8 @@
 
 package tech.araopj.springpitzzahhbot.commands;
 
-import tech.araopj.springpitzzahhbot.commands.slash_command.SlashCommand;
-import tech.araopj.springpitzzahhbot.commands.chat_command.ChatCommand;
+import tech.araopj.springpitzzahhbot.commands.slash_commands.SlashCommand;
+import tech.araopj.springpitzzahhbot.commands.chat_commands.ChatCommand;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;

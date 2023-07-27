@@ -21,13 +21,13 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package tech.araopj.springpitzzahhbot.commands.chat_command.commands;
+package tech.araopj.springpitzzahhbot.commands.chat_commands.commands;
 
 import static net.dv8tion.jda.api.interactions.components.buttons.Button.primary;
 import tech.araopj.springpitzzahhbot.services.MessageUtilService;
-import tech.araopj.springpitzzahhbot.commands.chat_command.CommandContext;
+import tech.araopj.springpitzzahhbot.commands.chat_commands.CommandContext;
 import static net.dv8tion.jda.api.interactions.components.ActionRow.of;
-import tech.araopj.springpitzzahhbot.commands.chat_command.ChatCommand;
+import tech.araopj.springpitzzahhbot.commands.chat_commands.ChatCommand;
 import tech.araopj.springpitzzahhbot.services.CommandsService;
 import org.springframework.stereotype.Component;
 import org.springframework.lang.NonNull;

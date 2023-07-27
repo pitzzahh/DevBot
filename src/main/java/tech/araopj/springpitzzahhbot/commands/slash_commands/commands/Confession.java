@@ -22,7 +22,7 @@
  * SOFTWARE.
  */
 
-package tech.araopj.springpitzzahhbot.commands.slash_command.commands;
+package tech.araopj.springpitzzahhbot.commands.slash_commands.commands;
 
 import lombok.extern.slf4j.Slf4j;
 import net.dv8tion.jda.api.entities.TextChannel;
@@ -30,8 +30,8 @@ import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.CommandData;
 import net.dv8tion.jda.internal.interactions.CommandDataImpl;
 import org.springframework.stereotype.Component;
-import tech.araopj.springpitzzahhbot.commands.slash_command.CommandContext;
-import tech.araopj.springpitzzahhbot.commands.slash_command.SlashCommand;
+import tech.araopj.springpitzzahhbot.commands.slash_commands.CommandContext;
+import tech.araopj.springpitzzahhbot.commands.slash_commands.SlashCommand;
 import tech.araopj.springpitzzahhbot.services.slash_commands.ConfessionService;
 import tech.araopj.springpitzzahhbot.services.configs.ChannelService;
 import tech.araopj.springpitzzahhbot.services.MessageUtilService;

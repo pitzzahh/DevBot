@@ -1,7 +1,7 @@
 package tech.araopj.springpitzzahhbot.services;
 
-import tech.araopj.springpitzzahhbot.commands.slash_command.SlashCommand;
-import tech.araopj.springpitzzahhbot.commands.chat_command.ChatCommand;
+import tech.araopj.springpitzzahhbot.commands.slash_commands.SlashCommand;
+import tech.araopj.springpitzzahhbot.commands.chat_commands.ChatCommand;
 import tech.araopj.springpitzzahhbot.commands.CommandsConfig;
 import org.springframework.stereotype.Service;
 import java.util.List;

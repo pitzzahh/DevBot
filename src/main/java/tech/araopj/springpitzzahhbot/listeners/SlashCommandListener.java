@@ -25,8 +25,8 @@
 package tech.araopj.springpitzzahhbot.listeners;
 
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
-import tech.araopj.springpitzzahhbot.commands.slash_command.SlashCommandManager;
-import tech.araopj.springpitzzahhbot.commands.slash_command.SlashCommand;
+import tech.araopj.springpitzzahhbot.commands.slash_commands.SlashCommandManager;
+import tech.araopj.springpitzzahhbot.commands.slash_commands.SlashCommand;
 import tech.araopj.springpitzzahhbot.services.CommandsService;
 import net.dv8tion.jda.api.events.guild.GuildReadyEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;

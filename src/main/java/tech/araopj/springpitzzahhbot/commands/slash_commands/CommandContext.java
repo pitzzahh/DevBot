@@ -21,34 +21,31 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package tech.araopj.springpitzzahhbot.commands.chat_command;
 
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
+package tech.araopj.springpitzzahhbot.commands.slash_commands;
+
 import net.dv8tion.jda.api.entities.Guild;
+import net.dv8tion.jda.api.entities.Member;
+import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import org.jetbrains.annotations.Contract;
-import org.jetbrains.annotations.NotNull;
-import java.util.List;
 
-public record CommandContext(MessageReceivedEvent event, List<String> args) implements ChatCommandContext {
+public record CommandContext(SlashCommandInteractionEvent event) implements SlashCommandContext {
 
     @Override
-    @NotNull
     @Contract(pure = true)
     public Guild getGuild() {
         return this.event().getGuild();
     }
 
     @Override
-    @NotNull
     @Contract(pure = true)
-    public MessageReceivedEvent getEvent() {
-        return this.event();
+    public Member getMember() {
+        return this.event().getMember();
     }
 
     @Override
     @Contract(pure = true)
-    public List<String> getArgs() {
-        return this.args();
+    public SlashCommandInteractionEvent getEvent() {
+        return this.event();
     }
-
 }

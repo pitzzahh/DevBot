@@ -21,41 +21,34 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package tech.araopj.springpitzzahhbot.commands.chat_command;
+package tech.araopj.springpitzzahhbot.commands.chat_commands;
 
-import java.util.function.Consumer;
-import java.util.function.Supplier;
+import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
+import net.dv8tion.jda.api.entities.Guild;
+import org.jetbrains.annotations.Contract;
+import org.jetbrains.annotations.NotNull;
 import java.util.List;
 
-/**
- * Interface used to handle commands.
- */
-public interface ChatCommand {
+public record CommandContext(MessageReceivedEvent event, List<String> args) implements ChatCommandContext {
 
-    /**
-     * Handles the chat_command.
-     * Accepts a {@code CommandContext}.
-     * @see CommandContext
-     */
-    Consumer<CommandContext> handle();
+    @Override
+    @NotNull
+    @Contract(pure = true)
+    public Guild getGuild() {
+        return this.event().getGuild();
+    }
 
-    /**
-     * The name of the chat_command.
-     * Supplies the name of the chat_command.
-     */
-    Supplier<String> name();
+    @Override
+    @NotNull
+    @Contract(pure = true)
+    public MessageReceivedEvent getEvent() {
+        return this.event();
+    }
 
-    /**
-     * The description of the chat_command.
-     * Supplies the description of the chat_command.
-     */
-    Supplier<String> description();
-    /**
-     * The possible aliases for a chat_command.
-     * @return a {@code List<String>} containing the aliases of a chat_command.
-     */
-    default Supplier<List<String>> aliases() {
-        return List::of;
+    @Override
+    @Contract(pure = true)
+    public List<String> getArgs() {
+        return this.args();
     }
 
 }

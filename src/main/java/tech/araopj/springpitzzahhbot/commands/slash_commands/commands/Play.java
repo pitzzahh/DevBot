@@ -22,13 +22,13 @@
  * SOFTWARE.
  */
 
-package tech.araopj.springpitzzahhbot.commands.slash_command.commands;
+package tech.araopj.springpitzzahhbot.commands.slash_commands.commands;
 
 import tech.araopj.springpitzzahhbot.services.slash_commands.GameService;
 import static tech.araopj.springpitzzahhbot.games.RandomMathProblemGenerator.*;
 import tech.araopj.springpitzzahhbot.services.MessageUtilService;
-import tech.araopj.springpitzzahhbot.commands.slash_command.CommandContext;
-import tech.araopj.springpitzzahhbot.commands.slash_command.SlashCommand;
+import tech.araopj.springpitzzahhbot.commands.slash_commands.CommandContext;
+import tech.araopj.springpitzzahhbot.commands.slash_commands.SlashCommand;
 import tech.araopj.springpitzzahhbot.games.RandomMathProblemGenerator;
 import io.github.pitzzahh.util.utilities.classes.enums.Difficulty;
 import net.dv8tion.jda.api.interactions.commands.build.CommandData;

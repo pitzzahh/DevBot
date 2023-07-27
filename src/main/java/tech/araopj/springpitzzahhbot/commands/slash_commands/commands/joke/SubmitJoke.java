@@ -22,35 +22,32 @@
  * SOFTWARE.
  */
 
-package tech.araopj.springpitzzahhbot.commands.slash_command.commands.joke;
+package tech.araopj.springpitzzahhbot.commands.slash_commands.commands.joke;
 
 import tech.araopj.springpitzzahhbot.services.slash_commands.JokesService;
-import tech.araopj.springpitzzahhbot.commands.slash_command.CommandContext;
+import tech.araopj.springpitzzahhbot.commands.slash_commands.CommandContext;
 import tech.araopj.springpitzzahhbot.services.MessageUtilService;
-import tech.araopj.springpitzzahhbot.commands.slash_command.SlashCommand;
+import tech.araopj.springpitzzahhbot.commands.slash_commands.SlashCommand;
 import net.dv8tion.jda.api.interactions.commands.build.CommandData;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 import net.dv8tion.jda.internal.interactions.CommandDataImpl;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import tech.araopj.springpitzzahhbot.configs.HttpConfig;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import static java.util.concurrent.TimeUnit.MINUTES;
 import org.springframework.stereotype.Component;
-import static java.time.LocalDateTime.now;
-import static java.lang.String.format;
-import static java.awt.Color.YELLOW;
+import java.io.IOException;
+import java.net.URI;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
-import java.net.http.HttpResponse;
-import static java.awt.Color.CYAN;
 import lombok.extern.slf4j.Slf4j;
-import java.io.IOException;
-import java.time.ZoneId;
-import java.net.URI;
+import static java.awt.Color.CYAN;
+import static java.awt.Color.YELLOW;
 
 @Slf4j
 @Component
-public record GetJoke(
+public record SubmitJoke(
         MessageUtilService messageUtilService,
         JokesService jokesService,
         HttpConfig httpConfig
@@ -69,73 +66,71 @@ public record GetJoke(
 
     /**
      * Contains the process to be executed.
+     *
      * @param context the command context containing the information about the command.
      */
-    private void process(CommandContext context){
-        var url = jokesService.createJokeRequestUrl(
+    private void process(CommandContext context) {
+
+        var url = jokesService.createJokeSubmitUrl();
+
+        log.info("Submit Joke url: {}", url);
+        var jokeSubmitBody = jokesService.createJokeSubmitBody(
+                context.getEvent().getOption("joke"),
                 context.getEvent().getOption("category"),
                 context.getEvent().getOption("language")
         );
-        log.info("Get Joke url: {}", url);
-        final var REQUEST = httpConfig.httpBuilder()
+        log.info("Submit Joke body: {}", jokeSubmitBody);
+        final var httpRequest = httpConfig.httpBuilder()
                 .uri(URI.create(url))
-                .GET()
+                .header("Content-Type", "application/json")
+                .POST(HttpRequest.BodyPublishers.ofString(jokeSubmitBody))
                 .build();
 
-        final HttpResponse<String> RESPONSE;
+        final HttpResponse<String> response;
 
         try {
-            RESPONSE = httpConfig.httpClient().send(REQUEST, HttpResponse.BodyHandlers.ofString());
-            log.info("Response from joke api: {}", RESPONSE.body());
+            response = httpConfig.httpClient().send(httpRequest, HttpResponse.BodyHandlers.ofString());
+            log.info("Response from joke api: {}", response.body());
         } catch (IOException | InterruptedException e) {
             log.error("Error while sending request to joke api", e);
             throw new RuntimeException(e);
         }
 
-        if (RESPONSE.statusCode() == 200) {
-
-            var apiResponse = RESPONSE.body();
-
-            String joke;
-
-            try {
-                joke = new ObjectMapper().readTree(apiResponse).get("joke").asText();
-            } catch (JsonProcessingException e) {
-                log.error("Error while parsing joke api response", e);
-                throw new RuntimeException(e);
-            }
-
-            messageUtilService.getEmbedBuilder()
-                    .clear()
-                    .clearFields()
-                    .setColor(CYAN)
-                    .setTitle("GetJoke of the day")
-                    .setDescription(joke != null ? joke : "No joke found")
-                    .setTimestamp(now(ZoneId.of("UTC")))
-                    .setFooter(
-                            format("Created by %s", context.getGuild().getJDA().getSelfUser().getAsTag()),
-                            context.getGuild().getJDA().getSelfUser().getAvatarUrl()
-                    );
+        if (response.statusCode() == 200) {
+            messageUtilService.generateAutoDeleteMessage(
+                    context.event(),
+                    CYAN,
+                    response.body(),
+                    "Your joke has been sent to the joke api. It will be reviewed and added to the joke api if it is good enough."
+            );
             context.getEvent()
                     .getInteraction()
                     .replyEmbeds(messageUtilService.getEmbedBuilder().build())
-                    .queue();
-        } else {
-            messageUtilService.getEmbedBuilder()
-                    .clear()
-                    .clearFields()
-                    .setColor(YELLOW)
-                    .setTitle("No joke found")
-                    .setDescription("I couldn't find a joke for you 😢.")
-                    .setTimestamp(now(ZoneId.of("UTC")))
-                    .setFooter(
-                            format("Created by %s", context.getGuild().getJDA().getSelfUser().getAsTag()),
-                            context.getGuild().getJDA().getSelfUser().getAvatarUrl()
-                    );
+                    .queue(m -> m.deleteOriginal().queueAfter(messageUtilService.getReplyDeletionDelayInMinutes(), MINUTES));
+        }
+        else if(response.statusCode() == 400) {
+            messageUtilService.generateAutoDeleteMessage(
+                    context.event(),
+                    YELLOW,
+                    "Failed to send joke to joke api",
+                    "Your joke is already the same as another joke in the joke api. Please try again with a different joke."
+            );
             context.getEvent()
                     .getInteraction()
                     .replyEmbeds(messageUtilService.getEmbedBuilder().build())
-                    .queue();
+                    .queue(m -> m.deleteOriginal().queueAfter(messageUtilService.getReplyDeletionDelayInMinutes(), MINUTES));
+        }
+        else {
+            messageUtilService.generateAutoDeleteMessage(
+                    context.event(),
+                    YELLOW,
+                    "Failed to send joke to joke api",
+                    "I couldn't send your request at the moment 😢."
+            );
+            context.getEvent()
+                    .getInteraction()
+                    .replyEmbeds(messageUtilService.getEmbedBuilder().build())
+                    .queue(m -> m.deleteOriginal().queueAfter(messageUtilService.getReplyDeletionDelayInMinutes(), MINUTES));
         }
     }
 
@@ -147,13 +142,15 @@ public record GetJoke(
      */
     @Override
     public Supplier<String> name() {
-        return () -> "joke";
+        return () -> "submit-joke";
     }
 
     /**
-     * Gets the command data.
+     * Supplies the command data of a slash command.
      *
      * @return a {@code Supplier<CommandData>}.
+     * @see Supplier
+     * @see CommandData
      */
     @Override
     public Supplier<CommandData> getCommandData() {
@@ -161,12 +158,14 @@ public record GetJoke(
                 name().get(),
                 description().get())
                 .addOptions(
-                        new OptionData(OptionType.STRING, "category", "Category of the joke", false)
-                                .setDescription("Select your desired joke category")
+                        new OptionData(OptionType.STRING, "category", "Category of the joke", true)
+                                .setDescription("Select the category of your joke")
                                 .addChoices(jokesService.getCategories()),
-                        new OptionData(OptionType.STRING, "language", "Language of the joke", false)
-                                .setDescription("Select your desired joke language")
-                                .addChoices(jokesService.getLanguages())
+                        new OptionData(OptionType.STRING, "language", "Language of the joke", true)
+                                .setDescription("Select the language of your joke")
+                                .addChoices(jokesService.getLanguages()),
+                        new OptionData(OptionType.STRING, "joke", "The joke you to submit", true)
+                                .setDescription("Enter your joke")
                 );
     }
 
@@ -178,6 +177,6 @@ public record GetJoke(
      */
     @Override
     public Supplier<String> description() {
-        return () -> "Get a random GetJoke";
+        return () -> "Submit a joke to the bot";
     }
 }

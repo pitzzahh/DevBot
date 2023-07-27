@@ -22,18 +22,43 @@
  * SOFTWARE.
  */
 
-package tech.araopj.springpitzzahhbot.commands.slash_command;
+package tech.araopj.springpitzzahhbot.commands.slash_commands;
 
-import net.dv8tion.jda.api.entities.Guild;
-import net.dv8tion.jda.api.entities.Member;
-import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
+import net.dv8tion.jda.api.interactions.commands.build.CommandData;
+import net.dv8tion.jda.internal.interactions.CommandDataImpl;
+import java.util.function.Consumer;
+import java.util.function.Supplier;
 
-public interface SlashCommandContext {
+public interface SlashCommand {
 
-    Guild getGuild();
+    /**
+     * Executes a {@code SlashCommand}
+     * @return nothing.
+     * @see Consumer
+     */
+    Consumer<CommandContext> execute();
 
-    Member getMember();
+    /**
+     * Supplies the name of the slash command.
+     * @return a {@code Supplier<String>}.
+     * @see Supplier
+     */
+    Supplier<String> name();
 
-    SlashCommandInteractionEvent getEvent();
+    /**
+     * Supplies the command data of a slash command.
+     * @return a {@code Supplier<CommandData>}.
+     * @see Supplier
+     * @see CommandData
+     */
+    default Supplier<CommandData> getCommandData() {
+        return () -> new CommandDataImpl(name().get(), description().get());
+    }
 
+    /**
+     * Supplies the description of a slash command.
+     * @return a {code Supplier<String>} containing the description of the command.
+     * @see Supplier
+     */
+    Supplier<String> description();
 }

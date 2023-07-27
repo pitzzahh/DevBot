@@ -22,7 +22,7 @@
  * SOFTWARE.
  */
 
-package tech.araopj.springpitzzahhbot.commands.slash_command;
+package tech.araopj.springpitzzahhbot.commands.slash_commands;
 
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import tech.araopj.springpitzzahhbot.exceptions.CommandAlreadyExistException;

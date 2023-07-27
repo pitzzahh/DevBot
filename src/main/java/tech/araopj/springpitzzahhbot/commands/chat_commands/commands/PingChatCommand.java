@@ -21,10 +21,10 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package tech.araopj.springpitzzahhbot.commands.chat_command.commands;
+package tech.araopj.springpitzzahhbot.commands.chat_commands.commands;
 
-import tech.araopj.springpitzzahhbot.commands.chat_command.CommandContext;
-import tech.araopj.springpitzzahhbot.commands.chat_command.ChatCommand;
+import tech.araopj.springpitzzahhbot.commands.chat_commands.CommandContext;
+import tech.araopj.springpitzzahhbot.commands.chat_commands.ChatCommand;
 import org.springframework.stereotype.Component;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
