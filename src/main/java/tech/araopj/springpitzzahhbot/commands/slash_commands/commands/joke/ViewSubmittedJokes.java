@@ -29,9 +29,13 @@ import tech.araopj.springpitzzahhbot.commands.slash_commands.CommandContext;
 import tech.araopj.springpitzzahhbot.services.MessageUtilService;
 import tech.araopj.springpitzzahhbot.commands.slash_commands.SlashCommand;
 import org.springframework.stereotype.Component;
+import java.awt.*;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 import lombok.extern.slf4j.Slf4j;
+import static java.lang.String.format;
 
 @Slf4j
 @Component
@@ -47,7 +51,26 @@ public record ViewSubmittedJokes(
      */
     @Override
     public Consumer<CommandContext> execute() {
-        return null;
+        return this::process;
+    }
+
+    private void process(CommandContext context) {
+
+        messageUtilService.generateBotSentMessage(
+                context.getEvent(),
+                Color.YELLOW,
+                "List of Submitted Jokes",
+                "Select the id of the joke to be approved",
+                LocalDateTime.now(ZoneId.of("UTC")),
+                format("Created by %s", context.getGuild().getJDA().getSelfUser().getAsTag())
+        );
+        jokesService.getSubmittedJokes()
+                .forEach(joke -> messageUtilService
+                        .getEmbedBuilder()
+                        .addField(String.valueOf(joke.id()), joke.joke(), true));
+        context.getEvent()
+                .getChannel()
+                .sendMessageEmbeds(messageUtilService.getEmbedBuilder().build()).queue(); // weyt..
     }
 
     /**
