@@ -35,7 +35,7 @@ import java.util.Optional;
 import java.util.Objects;
 
 @Service
-public record ChannelService(ChannelsConfig channelsConfig)  {
+public record ChannelService(ChannelsConfig channelsConfig) {
 
     public String getMemberUpdatesChannel() {
         return channelsConfig.getMemberUpdatesChannel();
