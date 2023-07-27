@@ -150,6 +150,7 @@ public record ApproveJoke(
         context.getEvent()
                 .getInteraction()
                 .replyEmbeds(messageUtilService.getEmbedBuilder().build())
+                .setEphemeral(true)
                 .queue(m -> m.deleteOriginal().queueAfter(messageUtilService.getReplyDeletionDelayInMinutes(), TimeUnit.MINUTES));
     }
 
