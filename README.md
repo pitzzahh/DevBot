@@ -1,5 +1,5 @@
 <div align="center">
-  <h1 align="center">pitzzahh-bot</h1>
+  <h1 align="center">DevBot</h1>
   <a href="https://github.com/pitzzahh/pitzzahh-bot">
     <img src="https://iili.io/ZOtwDF.md.jpg" alt="Logo" style="border-radius: 50%" width="100" height="100">
   </a>
