@@ -24,6 +24,7 @@
 
 package tech.araopj.springpitzzahhbot.commands.slash_commands.commands.joke;
 
+import tech.araopj.springpitzzahhbot.services.RoleService;
 import tech.araopj.springpitzzahhbot.services.slash_commands.JokesService;
 import tech.araopj.springpitzzahhbot.commands.slash_commands.CommandContext;
 import tech.araopj.springpitzzahhbot.services.MessageUtilService;
@@ -36,17 +37,23 @@ import net.dv8tion.jda.internal.interactions.CommandDataImpl;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import org.springframework.stereotype.Component;
 import net.dv8tion.jda.api.Permission;
+
 import java.util.concurrent.TimeUnit;
+
+import static java.awt.Color.RED;
 import static java.awt.Color.YELLOW;
+
 import java.util.function.Consumer;
 import java.util.function.Supplier;
+
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Component
 public record ApproveJoke(
         MessageUtilService messageUtilService,
-        JokesService jokesService
+        JokesService jokesService,
+        RoleService roleService
 ) implements SlashCommand {
     /**
      * Executes a {@code SlashCommand}
@@ -66,74 +73,79 @@ public record ApproveJoke(
      */
     private void process(CommandContext context) {
         log.info("Processing command: {}", name().get());
-        var isAdmin = context.getMember()
+        var hasAccess = context.getMember()
                 .getRoles()
                 .stream()
                 .anyMatch(r -> r.hasPermission(Permission.ADMINISTRATOR) ||
                                r.hasPermission(Permission.MANAGE_SERVER) ||
-                               context.getMember().isOwner()
+                        (context.getMember().isOwner() || r.equals(roleService.getRoleOrElseThrow(context.getGuild(), "Cannot find admin role", "Admin", true)))
                 );
-        log.info("Is user {} an admin? and can manage this server?: {}", context.getMember().getAsMention(), isAdmin);
-        if (isAdmin) {
+        log.info("Is user {} an admin? and can manage this server?: {}", context.getMember().getAsMention(), hasAccess);
+        if (!hasAccess) {
+            messageUtilService.generateAutoDeleteMessage(
+                    context.event(),
+                    RED,
+                    "Not allowed",
+                    "You are not allowed to use this command"
+            );
+        } else {
 
             OptionMapping idOption = context.getEvent().getOption("joke-id");
-            if (idOption != null) {
-                log.info("Joke id: {}", idOption.getAsString());
-                boolean isNotWholeNumber = Validator.isWholeNumber().negate().test(idOption.getAsString());
-                if (isNotWholeNumber) {
-                    log.info("Joke id must be a whole number: {}", idOption.getAsString());
-                    messageUtilService.generateAutoDeleteMessage(
-                            context.event(),
-                            YELLOW,
-                            "Testing",
-                            String.format("Joke id must be a whole number: %s", idOption.getAsString())
-                    );
-                    context.getEvent()
-                            .getInteraction()
-                            .replyEmbeds(messageUtilService.getEmbedBuilder().build())
-                            .queue(m -> m.deleteOriginal().queueAfter(messageUtilService.getReplyDeletionDelayInMinutes(), TimeUnit.MINUTES));
-                    throw new IllegalArgumentException("Joke id must be a whole number");
-                }
-                boolean noJokeWithId = jokesService.getSubmittedJokes()
-                        .stream()
-                        .noneMatch(j -> j.id() == Integer.parseInt(idOption.getAsString()));
-                if (noJokeWithId) {
-                    log.info("No joke with id: {}", idOption.getAsString());
-                    messageUtilService.generateAutoDeleteMessage(
-                            context.event(),
-                            YELLOW,
-                            "Testing",
-                            String.format("No joke with id %s", idOption.getAsString())
-                    );
-                } else {
-                    log.info("Joke with id: {} found", idOption.getAsString());
-                    jokesService
-                            .getSubmittedJokes()
-                            .forEach(j -> {
-                                if (j.id() == Integer.parseInt(idOption.getAsString())) {
-                                    log.info(String.format("Joke with id %s has been approved", idOption.getAsString()));
-                                    boolean isApproved = jokesService.approveJoke(j);
-                                    if (isApproved) {
-                                        messageUtilService.generateAutoDeleteMessage(
-                                                context.event(),
-                                                YELLOW,
-                                                "Testing",
-                                                String.format("Joke with id %s has been approved", idOption.getAsString())
-                                        );
-                                    } else {
-                                        log.info(String.format("Joke with id %s has not been approved", idOption.getAsString()));
-                                        messageUtilService.generateAutoDeleteMessage(
-                                                context.event(),
-                                                YELLOW,
-                                                "Testing",
-                                                String.format("Joke with id %s has not been approved", idOption.getAsString())
-                                        );
-                                    }
-                                }
-                            });
-                }
+            if (idOption == null) return;
+            log.info("Joke id: {}", idOption.getAsString());
+            boolean isNotWholeNumber = Validator.isWholeNumber().negate().test(idOption.getAsString());
+            if (isNotWholeNumber) {
+                log.info("Joke id must be a whole number: {}", idOption.getAsString());
+                messageUtilService.generateAutoDeleteMessage(
+                        context.event(),
+                        YELLOW,
+                        "Invalid joke id",
+                        String.format("Joke id must be a whole number: %s", idOption.getAsString())
+                );
+                context.getEvent()
+                        .getInteraction()
+                        .replyEmbeds(messageUtilService.getEmbedBuilder().build())
+                        .queue(m -> m.deleteOriginal().queueAfter(messageUtilService.getReplyDeletionDelayInMinutes(), TimeUnit.MINUTES));
+                throw new IllegalArgumentException("Joke id must be a whole number");
             }
-
+            boolean noJokeWithId = jokesService.getSubmittedJokes()
+                    .stream()
+                    .noneMatch(j -> j.id() == Integer.parseInt(idOption.getAsString()));
+            if (noJokeWithId) {
+                log.info("No joke with id: {}", idOption.getAsString());
+                messageUtilService.generateAutoDeleteMessage(
+                        context.event(),
+                        YELLOW,
+                        "Not found",
+                        String.format("No joke with id %s", idOption.getAsString())
+                );
+            } else {
+                log.info("Joke with id: {} found", idOption.getAsString());
+                jokesService
+                        .getSubmittedJokes()
+                        .forEach(j -> {
+                            if (j.id() == Integer.parseInt(idOption.getAsString())) {
+                                log.info(String.format("Joke with id %s has been approved", idOption.getAsString()));
+                                boolean isApproved = jokesService.approveJoke(j);
+                                if (isApproved) {
+                                    messageUtilService.generateAutoDeleteMessage(
+                                            context.event(),
+                                            YELLOW,
+                                            "Success",
+                                            String.format("Joke with id %s has been approved", idOption.getAsString())
+                                    );
+                                } else {
+                                    log.info(String.format("Joke with id %s has not been approved", idOption.getAsString()));
+                                    messageUtilService.generateAutoDeleteMessage(
+                                            context.event(),
+                                            YELLOW,
+                                            "Failed",
+                                            String.format("Joke with id %s has not been approved", idOption.getAsString())
+                                    );
+                                }
+                            }
+                        });
+            }
         }
         context.getEvent()
                 .getInteraction()
