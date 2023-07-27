@@ -132,7 +132,7 @@ public record JokesService(
         var httpResponseCompletableFuture = httpConfig.httpClient()
                 .sendAsync(HttpRequest.newBuilder()
                                 .GET()
-                                .uri(URI.create("https://jokes.araopj.tech/v1/submit/all"))
+                                .uri(URI.create("%s/all".formatted(createJokeSubmitUrl())))
                                 .build(),
                         HttpResponse.BodyHandlers.ofString()
                 );
@@ -161,8 +161,8 @@ public record JokesService(
     public boolean approveJoke(Joke joke) {
         var httpResponseCompletableFuture = httpConfig.httpClient()
                 .sendAsync(HttpRequest.newBuilder()
-                                .PUT(HttpRequest.BodyPublishers.ofString(new Gson().toJson(new JokeBody(secretService().getKey(), joke.joke()))))
-                                .uri(URI.create("https://jokes.araopj.tech/v1/submit/approve"))
+                                .PUT(HttpRequest.BodyPublishers.ofString(new Gson().toJson(new JokeBody(secretService().getKey(), String.valueOf(joke.id())))))
+                                .uri(URI.create("%s/approve".formatted(createJokeSubmitUrl())))
                                 .build(),
                         HttpResponse.BodyHandlers.ofString()
                 );
