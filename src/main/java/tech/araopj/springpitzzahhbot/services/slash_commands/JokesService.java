@@ -25,7 +25,6 @@
 package tech.araopj.springpitzzahhbot.services.slash_commands;
 
 import tech.araopj.springpitzzahhbot.entities.approve_joke.Joke;
-import tech.araopj.springpitzzahhbot.entities.approve_joke.JokeBody;
 import tech.araopj.springpitzzahhbot.entities.get_joke.Category;
 import tech.araopj.springpitzzahhbot.entities.get_joke.Language;
 import tech.araopj.springpitzzahhbot.services.configs.SecretService;
@@ -70,7 +69,8 @@ public record JokesService(
             throw new RuntimeException(e);
         }
 
-        var categories = (String[]) new Gson().fromJson(stringHttpResponse.body(), new TypeToken<String[]>() {}.getType());
+        var categories = (String[]) new Gson().fromJson(stringHttpResponse.body(), new TypeToken<String[]>() {
+        }.getType());
 
         // Now the categories array should contain the parsed values
         log.info("Categories: {}", Arrays.toString(categories));
@@ -93,7 +93,8 @@ public record JokesService(
             throw new RuntimeException(e);
         }
 
-        var languages = (String[]) new Gson().fromJson(stringHttpResponse.body(), new TypeToken<String[]>() {}.getType());
+        var languages = (String[]) new Gson().fromJson(stringHttpResponse.body(), new TypeToken<String[]>() {
+        }.getType());
 
         // Now the categories array should contain the parsed values
         log.info("Languages: {}", Arrays.toString(languages));
@@ -105,7 +106,8 @@ public record JokesService(
 
     public String createJokeRequestUrl(OptionMapping category, OptionMapping language) {
         var url = httpConfig.getJokeApiUrl();
-        if (category != null && language != null) url += "random?category=" + category.getAsString() + "&language=" + language.getAsString();
+        if (category != null && language != null)
+            url += "random?category=" + category.getAsString() + "&language=" + language.getAsString();
         else if (category != null) url += "random?category=" + category.getAsString();
         else if (language != null) url += "random?language=" + language.getAsString();
         else url += "random";
@@ -146,7 +148,8 @@ public record JokesService(
         var objectMapper = new ObjectMapper();
         Collection<Joke> jokes;
         try {
-            jokes = objectMapper.readValue(stringHttpResponse.body(), new TypeReference<>() {});
+            jokes = objectMapper.readValue(stringHttpResponse.body(), new TypeReference<>() {
+            });
             log.info("Submitted Jokes: {}", jokes);
         } catch (JsonProcessingException e) {
             log.error("Error while getting categories", e);
@@ -161,8 +164,7 @@ public record JokesService(
     public boolean approveJoke(Joke joke) {
         var httpResponseCompletableFuture = httpConfig.httpClient()
                 .sendAsync(HttpRequest.newBuilder()
-                                .PUT(HttpRequest.BodyPublishers.ofString(new Gson().toJson(new JokeBody(secretService().getKey(), String.valueOf(joke.id())))))
-                                .uri(URI.create("%s/approve".formatted(createJokeSubmitUrl())))
+                                .uri(URI.create("%s/approve?key=%s&joke_id=%s".formatted(createJokeSubmitUrl(), secretService.getKey(), joke.id())))
                                 .build(),
                         HttpResponse.BodyHandlers.ofString()
                 );
