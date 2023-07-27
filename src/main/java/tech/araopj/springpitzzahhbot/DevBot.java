@@ -1,5 +1,6 @@
 package tech.araopj.springpitzzahhbot;
 
+import tech.araopj.springpitzzahhbot.commands.slash_commands.commands.joke.ViewSubmittedJokes;
 import tech.araopj.springpitzzahhbot.services.slash_commands.ConfessionService;
 import tech.araopj.springpitzzahhbot.commands.slash_commands.commands.joke.ApproveJoke;
 import tech.araopj.springpitzzahhbot.commands.slash_commands.commands.joke.SubmitJoke;
@@ -43,6 +44,7 @@ public record DevBot(
         SlashCommandListener slashCommandListener,
         SlashCommandManager slashCommandManager,
         ChatCommandManager chatCommandManager,
+        ViewSubmittedJokes viewSubmittedJokes,
         MessageUtilService messageUtilService,
         FormatChatCommand formatChatCommand,
         ConfessionService confessionService,
@@ -105,6 +107,7 @@ public record DevBot(
         slashCommandManager.addCommand(getJoke);
         slashCommandManager.addCommand(submitJoke);
         slashCommandManager.addCommand(approveJoke);
+        slashCommandManager.addCommand(viewSubmittedJokes);
 
         log.info("Chat Commands: {}", commandsService.chatCommands());
         log.info("Slash Commands: {}", commandsService.slashCommands());
