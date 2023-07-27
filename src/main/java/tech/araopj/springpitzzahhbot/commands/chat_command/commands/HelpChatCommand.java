@@ -24,10 +24,10 @@
 package tech.araopj.springpitzzahhbot.commands.chat_command.commands;
 
 import tech.araopj.springpitzzahhbot.commands.chat_command.ChatCommandManager;
-import tech.araopj.springpitzzahhbot.utilities.service.MessageUtilService;
+import tech.araopj.springpitzzahhbot.services.MessageUtilService;
 import tech.araopj.springpitzzahhbot.commands.chat_command.CommandContext;
 import tech.araopj.springpitzzahhbot.commands.chat_command.ChatCommand;
-import tech.araopj.springpitzzahhbot.commands.service.CommandsService;
+import tech.araopj.springpitzzahhbot.services.CommandsService;
 import org.springframework.stereotype.Component;
 
 import static java.lang.String.format;

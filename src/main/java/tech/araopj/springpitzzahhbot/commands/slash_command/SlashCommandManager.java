@@ -26,7 +26,7 @@ package tech.araopj.springpitzzahhbot.commands.slash_command;
 
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import tech.araopj.springpitzzahhbot.exceptions.CommandAlreadyExistException;
-import tech.araopj.springpitzzahhbot.commands.service.CommandsService;
+import tech.araopj.springpitzzahhbot.services.CommandsService;
 import org.springframework.stereotype.Component;
 import org.springframework.lang.NonNull;
 import java.util.function.Supplier;

@@ -24,11 +24,11 @@
 package tech.araopj.springpitzzahhbot.commands.chat_command.commands;
 
 import static net.dv8tion.jda.api.interactions.components.buttons.Button.primary;
-import tech.araopj.springpitzzahhbot.utilities.service.MessageUtilService;
+import tech.araopj.springpitzzahhbot.services.MessageUtilService;
 import tech.araopj.springpitzzahhbot.commands.chat_command.CommandContext;
 import static net.dv8tion.jda.api.interactions.components.ActionRow.of;
 import tech.araopj.springpitzzahhbot.commands.chat_command.ChatCommand;
-import tech.araopj.springpitzzahhbot.commands.service.CommandsService;
+import tech.araopj.springpitzzahhbot.services.CommandsService;
 import org.springframework.stereotype.Component;
 import org.springframework.lang.NonNull;
 import java.util.function.Consumer;

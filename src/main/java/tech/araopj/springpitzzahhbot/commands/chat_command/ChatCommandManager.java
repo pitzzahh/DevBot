@@ -24,7 +24,7 @@
 package tech.araopj.springpitzzahhbot.commands.chat_command;
 
 import tech.araopj.springpitzzahhbot.exceptions.CommandAlreadyExistException;
-import tech.araopj.springpitzzahhbot.commands.service.CommandsService;
+import tech.araopj.springpitzzahhbot.services.CommandsService;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import org.springframework.stereotype.Component;
 import org.springframework.lang.NonNull;

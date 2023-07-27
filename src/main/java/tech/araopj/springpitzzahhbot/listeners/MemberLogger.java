@@ -24,7 +24,7 @@
 
 package tech.araopj.springpitzzahhbot.listeners;
 
-import tech.araopj.springpitzzahhbot.config.channels.service.ChannelService;
+import tech.araopj.springpitzzahhbot.services.configs.ChannelService;
 import lombok.AllArgsConstructor;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.TextChannel;
@@ -34,7 +34,7 @@ import net.dv8tion.jda.api.events.guild.GuildLeaveEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Component;
-import tech.araopj.springpitzzahhbot.utilities.service.MessageUtilService;
+import tech.araopj.springpitzzahhbot.services.MessageUtilService;
 import static java.awt.Color.GREEN;
 import static java.awt.Color.RED;
 import static java.lang.String.format;
