@@ -6,7 +6,6 @@
 
 ${application.title} ${application.version}
 Powered by Spring Boot ${spring-boot.version}
-::${AnsiColor.BRIGHT_GREEN} Spring Boot${AnsiColor.BRIGHT_CYAN}${spring-boot.formatted-version}${AnsiColor.DEFAULT} ::
 ${AnsiColor.BRIGHT_GREEN}JVM:${AnsiColor.DEFAULT}${AnsiColor.BRIGHT_CYAN} ${java.version} ${AnsiColor.DEFAULT}(${AnsiColor.BRIGHT_GREEN}${java.vendor} ${AnsiColor.BLUE}${java.vm.name} ${AnsiColor.BRIGHT_MAGENTA}${java.vm.version}${AnsiColor.DEFAULT})
 --> Created by: ${AnsiColor.BRIGHT_CYAN}Peter John Arao
 ${AnsiColor.DEFAULT}
