@@ -77,47 +77,47 @@ public class MessageListener extends ListenerAdapter { // TODO: Decouple code
     private final Confession confession;
 
     @Override
-    public void onMessageReceived(@NotNull MessageReceivedEvent event) {
-        final var AUTHOR = event.getAuthor();
-        final var PREFIX = commandsService.getPrefix();
-        final var MESSAGE = event.getMessage().getContentRaw();
-        if (MESSAGE.startsWith(PREFIX)) {
-            log.info("ChatCommand received: {}", MESSAGE);
-            log.info("Commands started with: {}", PREFIX);
-            chatCommandManager.handle(event);
+    public void onMessageReceived(@NotNull MessageReceivedEvent messageReceivedEvent) {
+        final var author = messageReceivedEvent.getAuthor();
+        final var prefix = commandsService.getPrefix();
+        final var message = messageReceivedEvent.getMessage().getContentRaw();
+        if (message.startsWith(prefix)) {
+            log.info("ChatCommand received: {}", message);
+            log.info("Commands started with: {}", prefix);
+            chatCommandManager.handle(messageReceivedEvent);
         } else {
-            final var adminRole = roleService.getRoleOrElseThrow(event.getGuild(), "Cannot find admin role", "Admin", true);
+            final var adminRole = roleService.getRoleOrElseThrow(messageReceivedEvent.getGuild(), "Cannot find admin role", "Admin", true);
 
-            if (MESSAGE.equals(commandsService.getRulesCommand()) && (Objects.requireNonNull(event.getMember()).isOwner() || event.getMember().getRoles().contains(adminRole))) {
-                log.info("ChatCommand received: {}", MESSAGE);
-                messageUtilService.generateRulesMessage(event);
+            if (message.equals(commandsService.getRulesCommand()) && (Objects.requireNonNull(messageReceivedEvent.getMember()).isOwner() || messageReceivedEvent.getMember().getRoles().contains(adminRole))) {
+                log.info("ChatCommand received: {}", message);
+                messageUtilService.generateRulesMessage(messageReceivedEvent);
 
-                var rules = event.getGuild().getTextChannels()
+                var rules = messageReceivedEvent.getGuild().getTextChannels()
                         .stream()
                         .anyMatch(tc -> tc.getName().equalsIgnoreCase("rules"));
 
                 if (!rules) {
-                    event.getGuild().createTextChannel("rules")
+                    messageReceivedEvent.getGuild().createTextChannel("rules")
                             .setTopic("Rules and verification")
-                            .queue(message -> sendVerificationMessage(event));
+                            .queue(m -> sendVerificationMessage(messageReceivedEvent));
                 }
 
-                sendVerificationMessage(event);
+                sendVerificationMessage(messageReceivedEvent);
             } else {
                 var sentSecretChannel = confessionService.sentSecretChannelName();
-                if (MESSAGE.equals(commandsService.getConfessCommand()) && (Objects.requireNonNull(event.getMember()).isOwner() || event.getMember().getRoles().contains(adminRole))) {
-                    final var verifiedRole = roleService.getRoleOrElseThrow(event.getGuild(), "Cannot find verified role", "verified", false);
-                    event.getGuild()
+                if (message.equals(commandsService.getConfessCommand()) && (Objects.requireNonNull(messageReceivedEvent.getMember()).isOwner() || messageReceivedEvent.getMember().getRoles().contains(adminRole))) {
+                    final var verifiedRole = roleService.getRoleOrElseThrow(messageReceivedEvent.getGuild(), "Cannot find verified role", "verified", false);
+                    messageReceivedEvent.getGuild()
                             .createCategory(categoryService.secretsCategoryName())
                             .queue(
                                     category -> {
                                         messageUtilService.generateBotSentMessage(
-                                                event,
+                                                messageReceivedEvent,
                                                 CYAN,
                                                 "Write your confessions here",
                                                 "your confessions will be anonymous".concat(format(", use `/%s` to tell a confession", confession.name().get())),
                                                 now(ZoneId.of("UTC")),
-                                                format("Created by %s", event.getJDA().getSelfUser().getAsTag())
+                                                format("Created by %s", messageReceivedEvent.getJDA().getSelfUser().getAsTag())
                                         );
                                         category.createTextChannel(confessionService.enterSecretChannelName())
                                                 .setTopic("This is a channel where you can write your confessions")
@@ -129,78 +129,78 @@ public class MessageListener extends ListenerAdapter { // TODO: Decouple code
                                     }
                             );
                 } else {
-                    if (event.getChannel().getName().equals(sentSecretChannel) && !event.getAuthor().isBot()) {
+                    if (messageReceivedEvent.getChannel().getName().equals(sentSecretChannel) && !messageReceivedEvent.getAuthor().isBot()) {
                         messageUtilService.getEmbedBuilder().clear()
                                 .clearFields()
                                 .setColor(RED)
                                 .appendDescription(format("Please use `/%s` to tell a confessions", confession.name().get()))
                                 .setTimestamp(now(ZoneId.of("UTC")).plusMinutes(messageUtilService.getReplyDeletionDelayInMinutes()))
                                 .setFooter("This message will be automatically deleted on");
-                        event.getMessage()
+                        messageReceivedEvent.getMessage()
                                 .replyEmbeds(messageUtilService.getEmbedBuilder().build())
                                 .queue(e -> e.delete().queueAfter(messageUtilService.getReplyDeletionDelayInMinutes(), MINUTES));
-                        event.getMessage().delete().queue();
+                        messageReceivedEvent.getMessage().delete().queue();
                     }
 
                     // TODO: refactor embedded messages, remove code and effort duplication
-                    else if (!AUTHOR.isBot()) {
-                        var contains = messageCheckerService.searchForBadWord(event.getMessage().getContentRaw());
+                    else if (!author.isBot()) {
+                        var contains = messageCheckerService.searchForBadWord(messageReceivedEvent.getMessage().getContentRaw());
                         log.info("is bad word = " + contains);
-                        if (contains && !AUTHOR.isBot()) {
-                            violationService.addViolation(AUTHOR.getName());
-                            var isVeryBad = violationService.violatedThreeTimes(AUTHOR.getName());
+                        if (contains && !author.isBot()) {
+                            violationService.addViolation(author.getName());
+                            var isVeryBad = violationService.violatedThreeTimes(author.getName());
                             if (isVeryBad) {
                                 messageUtilService.generateBotSentMessage(
-                                        event,
+                                        messageReceivedEvent,
                                         RED,
                                         "Violated Three Times",
                                         "Cannot send messages until " + now(ZoneId.of("UTC")).plusMinutes(5),
                                         now(ZoneId.of("UTC")),
-                                        format("Scanned by %s", event.getJDA().getSelfUser().getAsTag())
+                                        format("Scanned by %s", messageReceivedEvent.getJDA().getSelfUser().getAsTag())
                                 );
-                                event.getChannel()
+                                messageReceivedEvent.getChannel()
                                         .sendMessageEmbeds(messageUtilService.getEmbedBuilder().build())
                                         .queue();
-                                AUTHOR.retrieveProfile()
+                                author.retrieveProfile()
                                         .timeout(5, MINUTES) // TODO: use config to get the time out
                                         .queue();
-                                event.getMessage().delete().queueAfter(messageUtilService.getMessageDeletionDelayInSeconds(), SECONDS);
+                                messageReceivedEvent.getMessage().delete().queueAfter(messageUtilService.getMessageDeletionDelayInSeconds(), SECONDS);
                             } else {
-                                messageUtilService.generateAutoDeleteMessage(event, RED, "Bad Word Detected", "Please don't use bad words");
-                                event.getMessage()
+                                messageUtilService.generateAutoDeleteMessage(messageReceivedEvent, RED, "Bad Word Detected", "Please don't use bad words");
+                                messageReceivedEvent.getMessage()
                                         .replyEmbeds(messageUtilService.getEmbedBuilder().build())
                                         .mentionRepliedUser(true)
                                         .queue(m -> m.delete().queueAfter(messageUtilService.getReplyDeletionDelayInMinutes(), MINUTES));
-                                event.getMessage().delete().queueAfter(messageUtilService.getMessageDeletionDelayInSeconds(), SECONDS);
+                                messageReceivedEvent.getMessage().delete().queueAfter(messageUtilService.getMessageDeletionDelayInSeconds(), SECONDS);
                             }
                         }
 
-                        if (gameService.isTheOneWhoPlays(AUTHOR.getName())) {
-                            isWholeNumber().test(MESSAGE);
-                            if (isWholeNumber().or(isDecimalNumber()).test(MESSAGE)) {
-                                final var IS_CORRECT = gameService.processAnswer(MESSAGE);
+                        if (gameService.isTheOneWhoPlays(author.getName())) {
+                            isWholeNumber().test(message);
+                            if (isWholeNumber().or(isDecimalNumber()).test(message)) {
+                                final var IS_CORRECT = gameService.processAnswer(message);
                                 if (IS_CORRECT) {
                                     messageUtilService.generateBotSentMessage(
-                                            event,
+                                            messageReceivedEvent,
                                             BLUE,
                                             "Correct!",
                                             "You got it right!",
                                             now(ZoneId.of("UTC")),
-                                            format("Checked by %s", event.getJDA().getSelfUser().getAsTag())
+                                            format("Checked by %s", messageReceivedEvent.getJDA().getSelfUser().getAsTag())
                                     );
-                                    event.getMessage()
+                                    messageReceivedEvent.getMessage()
                                             .replyEmbeds(messageUtilService.getEmbedBuilder().build())
                                             .queue();
                                 } else {
                                     messageUtilService.generateBotSentMessage(
-                                            event,
+                                            messageReceivedEvent,
                                             BLUE,
                                             "Wrong answer!",
-                                            "Correct answer is " + gameService.getAnswer(AUTHOR.getName()),
+                                            "Correct answer is " + gameService.getAnswer(author.getName()),
                                             now(ZoneId.of("UTC")),
-                                            format("Checked by %s", event.getJDA().getSelfUser().getAsTag())
+                                            format("Checked by %s", messageReceivedEvent.getJDA().getSelfUser().getAsTag())
                                     );
-                                    event.getMessage()
+                                    messageReceivedEvent.getMessage()
                                             .replyEmbeds(messageUtilService.getEmbedBuilder().build())
                                             .queue();
                                 }
