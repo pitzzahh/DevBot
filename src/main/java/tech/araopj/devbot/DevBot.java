@@ -104,7 +104,7 @@ public record DevBot(
                 .enableIntents(GatewayIntent.GUILD_MESSAGE_REACTIONS)
                 .enableIntents(GatewayIntent.DIRECT_MESSAGES)
                 .enableIntents(GatewayIntent.DIRECT_MESSAGE_REACTIONS)
-                .setActivity(Activity.listening("maintenance ⛑️"));
+                .setActivity(Activity.watching("Her love someone 💔"));
 
         try {
             messageCheckerService.loadSwearWords();
